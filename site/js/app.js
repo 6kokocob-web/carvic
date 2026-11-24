@@ -406,71 +406,95 @@
   /* ------------------------- Страницы ------------------------- */
   var pages = {};
 
+  /* Иконки главной: простая линия, цвет — currentColor */
+  var HOME_ICONS = {
+    brakes: '<circle cx="22" cy="26" r="16"/><circle cx="22" cy="26" r="5"/><circle cx="22" cy="15" r="1.2"/><circle cx="31.5" cy="26" r="1.2"/><circle cx="22" cy="37" r="1.2"/><circle cx="12.5" cy="26" r="1.2"/><path d="M30 8a20 20 0 0 1 12 12l-6 3a14 14 0 0 0-8-8z"/>',
+    suspension: '<circle cx="24" cy="6" r="3"/><path d="M24 9v4M14 13h20M14 35h20"/><path d="M16 13l16 4-16 4 16 4-16 4 16 4"/><rect x="20" y="35" width="8" height="8" rx="1"/>',
+    engine: '<path d="M8 18h6l3-4h12l3 4h6v18H8z"/><path d="M4 22v10M44 22v10M4 27h4M40 27h4"/><path d="M18 10h12M24 10v4"/><path d="M22 22l-3 6h6l-3 6"/>',
+    filters: '<ellipse cx="24" cy="9" rx="12" ry="4"/><path d="M12 9v30c0 2.2 5.4 4 12 4s12-1.8 12-4V9"/><path d="M17 14v24M22 15v25M27 15v25M32 14v24"/>',
+    belts: '<circle cx="14" cy="30" r="9"/><circle cx="36" cy="14" r="6"/><circle cx="14" cy="30" r="3"/><circle cx="36" cy="14" r="2"/><path d="M7.6 23.6L31.8 9.7M20.4 36.4L40.2 18.3"/>',
+    electrics: '<rect x="6" y="14" width="36" height="26" rx="3"/><path d="M13 14V9h6v5M29 14V9h6v5"/><path d="M13 22h6M16 19v6M29 22h6"/><path d="M25 27l-3 5h4l-3 5"/>',
+    cooling: '<rect x="6" y="10" width="36" height="28" rx="2"/><path d="M12 14v20M18 14v20M24 14v20M30 14v20M36 14v20"/><path d="M42 16h3M3 32h3"/>',
+    fluids: '<path d="M10 16h20l8 8v18H10z"/><path d="M16 16v-6h8v6"/><path d="M30 6h6v6"/><path d="M24 26c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8z"/>',
+    store: '<path d="M8 20l16-12 16 12v20H8z"/><path d="M20 40V28h8v12"/>',
+    check: '<path d="M40 12L18 34 8 24"/>',
+    swap: '<path d="M14 14h20l-6-6M34 34H14l6 6"/>',
+    wrench: '<path d="M29.4 12.6a8 8 0 0 0-10.8 10.8L6 36l6 6 12.6-12.6a8 8 0 0 0 10.8-10.8l-5 5-4.8-1.2-1.2-4.8z"/>'
+  };
+  function homeIcon(name, size) {
+    return '<svg class="hico" width="' + (size || 44) + '" height="' + (size || 44) + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (HOME_ICONS[name] || '') + '</svg>';
+  }
+
   function brandLanding() {
     var perks = [
-      ['3 магазина', 'в Иркутске: Автосити и Прибой'],
-      ['Подбор по VIN', 'и по артикулу, с проверкой кроссов'],
-      ['Оригинал и аналоги', 'объясним разницу и поможем выбрать'],
-      ['Для автосервисов', 'закупка списком и свои условия']
+      ['store', '3 магазина в Иркутске', 'Автосити и Прибой'],
+      ['check', 'Проверка до оплаты', 'Сверяем по VIN и артикулу'],
+      ['swap', 'Оригиналы и аналоги', 'Объясним разницу в цене'],
+      ['wrench', 'Для СТО', 'Закупка списком, свои условия']
     ];
     var tiles = [
-      ['brakes', 'Тормозная система', 'Колодки, диски, суппорты'],
-      ['suspension', 'Подвеска и рулевое', 'Амортизаторы, рычаги, наконечники'],
-      ['engine', 'Двигатель', 'Прокладки, сальники, ГРМ'],
-      ['filters', 'Фильтры и ТО', 'Масляные, воздушные, салонные'],
-      ['engine', 'Ремни и ролики', 'Приводные ремни, натяжители'],
-      ['electrics', 'Электрика', 'Свечи, датчики, аккумуляторы'],
-      ['cooling', 'Охлаждение', 'Радиаторы, помпы, термостаты'],
-      ['fluids', 'Масла и жидкости', 'Моторные, трансмиссионные, антифриз']
+      ['brakes', 'brakes', 'Тормозная система'],
+      ['suspension', 'suspension', 'Подвеска и рулевое'],
+      ['engine', 'engine', 'Двигатель'],
+      ['filters', 'filters', 'Фильтры и ТО'],
+      ['engine', 'belts', 'Ремни и ролики'],
+      ['electrics', 'electrics', 'Электрика'],
+      ['cooling', 'cooling', 'Охлаждение'],
+      ['fluids', 'fluids', 'Масла и жидкости']
     ];
     var posts = [
-      ['Тормоза · инструкция', 'Когда менять тормозные колодки: 6 признаков износа', 'Колодки в каталоге', '#/catalog/brakes'],
-      ['Электрика · подбор', 'Аккумулятор для сибирской зимы: ёмкость, пусковой ток, как выбрать', 'Аккумуляторы в каталоге', '#/catalog/electrics'],
-      ['Подвеска · инструкция', 'Стук в подвеске: как найти причину по звуку', 'Подвеска в каталоге', '#/catalog/suspension'],
-      ['Подбор · инструкция', 'Как найти запчасть по VIN-коду: пошаговая инструкция', 'Подобрать по VIN', '#/search']
+      ['Тормоза', 'Когда менять тормозные колодки: 6 признаков износа', '#/catalog/brakes'],
+      ['Электрика', 'Аккумулятор для сибирской зимы: как выбрать', '#/catalog/electrics'],
+      ['Подвеска', 'Стук в подвеске: как найти причину по звуку', '#/catalog/suspension'],
+      ['Подбор', 'Как найти запчасть по VIN-коду', '#/inquiry']
     ];
-    var byId = {};
-    C.stores.forEach(function (o) { byId[o.id] = o; });
-    var points = [
-      ['irk-sergeeva-45', '45', 'ТЦ «Автосити»', 'ул. Сергеева, павильон 45'],
-      ['irk-priboy-91a', '91/а', 'Рынок «Прибой»', 'ул. Генерала Доватора, 39, пав. 91/а'],
-      ['irk-priboy-77', '77', 'Рынок «Прибой»', 'ул. Генерала Доватора, 39, пав. 77']
-    ];
-    var stores = points.map(function (row) {
-      var src = byId[row[0]] || {};
-      var hours = src.hours ? '<p>' + esc(src.hours) + '</p>' : '';
-      var map = src.gisUrl ? '<p><a class="section-link" href="' + esc(src.gisUrl) + '" target="_blank" rel="noopener">Показать на карте</a></p>' : '';
-      return '<article class="store-card" data-store="' + esc(row[0]) + '"><b class="pavilion">' + esc(row[1]) + '</b><h3>' + esc(row[2]) + '</h3><p>' + esc(row[3]) + '</p>' + hours + map + '</article>';
+    var stores = C.stores.map(function (o) {
+      var m = /,\s*пав\.\s*([^,]+)$/.exec(o.address || '');
+      var title = (o.title || '') + (m ? ', пав. ' + m[1] : '');
+      var addr = m ? o.address.slice(0, m.index) : (o.address || '');
+      return '<article class="store-card" data-store="' + esc(o.id) + '"><h3>' + esc(title) + '</h3><p class="muted">' + esc(addr) + '</p>' +
+        (o.hours ? '<p>' + esc(o.hours) + '</p>' : '') +
+        (o.gisUrl ? '<a class="store-card__map" href="' + esc(o.gisUrl) + '" target="_blank" rel="noopener">Показать на карте</a>' : '') + '</article>';
     }).join('');
-    return '<div class="brand-hero"><div class="brand-copy"><p class="eyebrow eyebrow--red">Автозапчасти в Иркутске · в наличии и под заказ</p>' +
-      '<h1><span>Всё</span><span class="h1-red">Подходит</span></h1>' +
-      '<p class="brand-lead">Подберём деталь по VIN, проверим совместимость до оплаты и подскажем, что менять дальше. Для частных владельцев и СТО.</p>' +
-      '<form class="home-search" id="homeSearch" role="search"><input id="homeQuery" type="search" placeholder="VIN, артикул или название детали" aria-label="VIN, артикул или название детали"><button class="btn" type="submit">Найти деталь</button></form>' +
-      '<p class="chip-row"><span>Часто ищут:</span>' +
-      '<a href="#/catalog/brakes">Тормозные колодки</a><a href="#/catalog/suspension">Амортизаторы</a><a href="#/catalog/filters">Комплект для ТО</a><a href="#/catalog/electrics">Аккумулятор для зимы</a></p></div><div class="hero-slot" aria-hidden="true"></div></div>' +
-      '<div class="perk-line">' + perks.map(function (row) { return '<div><b>' + esc(row[0]) + '</b><span>' + esc(row[1]) + '</span></div>'; }).join('') + '</div>' +
-      '<section class="catalog-block"><div class="section-head"><div><p class="eyebrow eyebrow--red">01 · Каталог</p><h2>Что можно купить в Карвике</h2></div><a class="section-link" href="#/catalog">Весь каталог на сайте →</a></div><div class="tile-grid">' +
-      tiles.map(function (tile) { return '<a class="tile" href="#/catalog/' + tile[0] + '"><span class="tile-ph" aria-hidden="true"></span><b>' + esc(tile[1]) + '</b><small>' + esc(tile[2]) + '</small><span class="tile-arrow" aria-hidden="true">→</span></a>'; }).join('') +
-      '</div></section>' +
-      '<section><div class="section-head"><div><p class="eyebrow eyebrow--red">03 · Блог</p><h2>Разберёмся, что с машиной</h2></div><a class="section-link" href="#/blog">Все статьи →</a></div><div class="blog-grid">' +
-      posts.map(function (post) { return '<a class="blog-card" href="' + post[3] + '"><small>' + esc(post[0]) + '</small><b>' + esc(post[1]) + '</b> <span class="blog-more">' + esc(post[2]) + ' →</span></a>'; }).join('') +
-      '</div></section>' +
-      '<section class="card ask-split" id="homeAsk"><div><h2>Не нашли деталь?</h2><p>Напишите, что ищете. Уточним цену, наличие и срок — и проверим, что деталь подойдёт.</p><p>Есть VIN или артикул? Добавьте — подбор будет точнее.</p></div>' +
-      '<form class="form" id="homeInquiry"><div class="field"><label for="homeName">Имя</label><input id="homeName" maxlength="80" required></div>' +
-      '<div class="field"><label for="homePhone">Телефон</label><input id="homePhone" inputmode="tel" maxlength="18" required></div>' +
-      '<div class="field"><label for="homePart">Какая деталь нужна</label><textarea id="homePart" maxlength="2000" rows="3" required></textarea></div>' +
-      '<div class="field"><label for="homeCode">Автомобиль, VIN или артикул</label><input id="homeCode" maxlength="120"></div>' +
-      '<input id="homeCar" type="hidden" value="">' +
-      '<label class="check"><input type="checkbox" id="homeConsent"> Согласен на обработку персональных данных</label>' +
-      '<div class="field" style="position:absolute;left:-9999px" aria-hidden="true"><label>Компания<input id="homeCompany" tabindex="-1" autocomplete="off"></label></div>' +
-      '<button class="btn" type="submit">Узнать цену и наличие</button></form><div id="homeInquiryResult"></div></section>' +
-      '<section class="sto-banner"><div><h2>Запчасти для вашего СТО</h2><p>Пришлите список деталей для ремонта или обслуживания. Уточним условия и подготовим предложение.</p><a class="btn btn--light" href="#/wholesale">Обсудить закупку</a></div></section>' +
-      '<section><div class="section-head"><div><p class="eyebrow eyebrow--red">04 · Магазины</p><h2>Карвик в Иркутске</h2></div></div><div class="store-grid">' + stores +
-      '</div><article class="store-card store-card--soon"><h3>Ангарск</h3><p>Скоро открытие.</p></article></section>' +
-      '<section><div class="section-head"><div><p class="eyebrow eyebrow--red">05 · Команда</p><h2>Люди Карвика</h2></div><a class="section-link" href="#/about">О компании →</a></div>' +
-      '<p>Продавцы и мастера, которые подбирают детали в павильонах и отвечают вам в чате. Мы знаем машины Иркутска — и зимний запуск тоже.</p>' +
-      '<div class="perk-line">' + ['Продавец', 'Руководитель точки', 'Старший продавец', 'Мастер-консультант'].map(function (role) { return '<div class="role-plate"><b>' + role + '</b></div>'; }).join('') + '</div>' +
-      '<p class="vacancy">Хотите в команду Карвика? Расскажем об открытых вакансиях. <a class="btn btn--ghost" href="#/about/team">Команда</a></p></section>';
+    return '' +
+      '<section class="home-hero">' +
+        '<div class="home-hero__main">' +
+          '<h1>Всё подходит</h1>' +
+          '<p class="brand-lead">Подберём деталь по VIN и проверим совместимость до оплаты. Подскажем, что стоит заменить вместе с ней.</p>' +
+          '<form class="home-search" id="homeSearch"><label for="homeQuery" class="sr">VIN или номер кузова</label><input id="homeQuery" type="text" placeholder="VIN или номер кузова" maxlength="40" spellcheck="false"><button class="btn btn--dark" type="submit">Подобрать по VIN</button></form>' +
+          '<p class="home-hero__note">Ищете по артикулу — введите его в строку поиска вверху. Нет VIN под рукой? Позвоните: <a href="tel:+73952575757">+7 (3952) 57-57-57</a></p>' +
+        '</div>' +
+        '<div class="home-hero__sto">' +
+          '<div><h2>Для автосервисов</h2><p>Пришлите список деталей — подготовим предложение и условия закупки для вашего СТО.</p></div>' +
+          '<a class="btn btn--light" href="#/wholesale">Обсудить закупку</a>' +
+        '</div>' +
+      '</section>' +
+      '<section class="home-perks" aria-label="Почему Карвик">' + perks.map(function (row) {
+        return '<div class="home-perk">' + homeIcon(row[0], 24) + '<div><b>' + esc(row[1]) + '</b><span>' + esc(row[2]) + '</span></div></div>';
+      }).join('') + '</section>' +
+      '<section class="home-sec"><div class="home-sec__head"><h2>Каталог</h2><a href="#/catalog">Весь каталог →</a></div>' +
+        '<div class="home-tiles">' + tiles.map(function (t) {
+          return '<a class="home-tile" href="#/catalog/' + t[0] + '">' + homeIcon(t[1], 44) + '<span>' + esc(t[2]) + '</span></a>';
+        }).join('') + '</div></section>' +
+      '<section class="home-sec" id="homeStores"><div class="home-sec__head"><h2>Магазины в Иркутске</h2><a href="#/stores">Все магазины →</a></div>' +
+        '<div class="home-stores">' + stores + '<article class="store-card store-card--soon"><h3>Ангарск</h3><p class="muted">Скоро открытие</p></article></div></section>' +
+      '<section class="home-ask" id="homeAsk">' +
+        '<div class="home-ask__text"><h2>Не нашли деталь?</h2><p>Оставьте телефон и напишите, что ищете. Перезвоним с ценой, наличием и сроком.</p></div>' +
+        '<form class="home-ask__form" id="homeInquiry">' +
+          '<div class="field"><label for="homeName">Имя</label><input id="homeName" maxlength="80" required></div>' +
+          '<div class="field"><label for="homePhone">Телефон</label><input id="homePhone" inputmode="tel" maxlength="18" placeholder="+7" required></div>' +
+          '<div class="field field--wide"><label for="homePart">Какая деталь нужна</label><input id="homePart" maxlength="2000" placeholder="Например: передние колодки, Toyota Corolla 2014" required></div>' +
+          '<div class="field"><label for="homeCode">VIN или артикул</label><input id="homeCode" maxlength="120" spellcheck="false"></div>' +
+          '<input id="homeCar" type="hidden" value="">' +
+          '<div class="field" style="position:absolute;left:-9999px" aria-hidden="true"><label>Компания<input id="homeCompany" tabindex="-1" autocomplete="off"></label></div>' +
+          '<div class="home-ask__foot"><label class="check"><input type="checkbox" id="homeConsent"> Согласен на <a href="#/legal/consent-request">обработку персональных данных</a></label>' +
+          '<button class="btn" type="submit">Узнать цену</button></div>' +
+        '</form><div id="homeInquiryResult"></div>' +
+      '</section>' +
+      '<section class="home-sec"><div class="home-sec__head"><h2>Полезное</h2><a href="#/blog">Все статьи →</a></div>' +
+        '<div class="home-posts">' + posts.map(function (p) {
+          return '<a class="home-post" href="' + p[2] + '"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b></a>';
+        }).join('') + '</div></section>';
   }
 
   pages.home = function () {
@@ -493,15 +517,22 @@
   };
   pages.home.after = function (root) {
     bindScheme(root); bindResults(root); bindChips(root);
-    bindSuggest($('#homeQuery', root));
     var search = $('#homeSearch', root);
     if (search) search.onsubmit = function (e) {
       e.preventDefault();
       var raw = $('#homeQuery', root).value.trim();
       var v = raw.replace(/\s/g, '').toUpperCase();
-      if (!raw) return;
-      if (/^[A-HJ-NPR-Z0-9]{17}$/.test(v) && state.demoUi) location.hash = '#/vin/' + v;
-      else location.hash = '#/search?q=' + encodeURIComponent(raw);
+      if (!raw) { $('#homeQuery', root).focus(); return; }
+      if (/^[A-HJ-NPR-Z0-9]{17}$/.test(v) && state.demoUi) { location.hash = '#/vin/' + v; return; }
+      // VIN или номер кузова → в заявку на подбор: менеджер подберёт и перезвонит
+      var code = $('#homeCode', root);
+      if (code) {
+        code.value = /^[A-HJ-NPR-Z0-9]{17}$/.test(v) ? v : raw;
+        var part = $('#homePart', root);
+        if (part && !part.value) part.value = 'Подбор по VIN';
+        $('#homeAsk', root).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () { var n = $('#homeName', root); if (n) n.focus({ preventScroll: true }); }, 350);
+      }
     };
     var form = $('#homeInquiry', root);
     if (!form || !window.CarvicAccount) return;
