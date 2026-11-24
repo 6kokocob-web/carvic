@@ -25,9 +25,13 @@
 
   /* Заставка с логотипом: один раз за сеанс браузера, не при «уменьшить движение».
    * Класс ставится до отрисовки — у вернувшихся посетителей заставка не мелькает. */
+  // ВЫКЛЮЧЕНО по решению владельца (может вернуться). Чтобы включить: SPLASH_ENABLED = true
+  // и раскомментировать блок заставки в index.html (сразу после <body>). Код и стили сохранены:
+  // js/splash.js (прорисовка иконки вывески), css — блок «ЗАСТАВКА ПРИ ПЕРВОМ ВХОДЕ».
+  var SPLASH_ENABLED = false;
   var SPLASH_KEY = 'carvic_splash_seen';
   var splash = false;
-  try { splash = !sessionStorage.getItem(SPLASH_KEY); } catch (e) { splash = false; }
+  if (SPLASH_ENABLED) { try { splash = !sessionStorage.getItem(SPLASH_KEY); } catch (e) { splash = false; } }
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) splash = false;
   if (splash) {
     root.classList.add('splash-on');
