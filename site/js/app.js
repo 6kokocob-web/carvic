@@ -1140,7 +1140,8 @@
     return '<img class="' + cls + '" src="' + esc(d.photo) + '" width="982" height="1133" alt="' + esc(d.photoAlt || '') + '"' + (eager ? '' : ' loading="lazy"') + ' decoding="async">';
   }
   function dealArt(d) {
-    if (d.photo) return dealPhoto(d, 'deal-photo', true);
+    if (d.photo) return (d.video ? '<div class="deal-video" aria-hidden="true"><video muted playsinline preload="none" poster="' + esc(d.videoPoster || '') + '" data-end="' + esc(d.videoEnd || '') + '"><source src="' + esc(d.video) + '" type="video/mp4"></video></div>' : '') +
+      dealPhoto(d, 'deal-photo' + (d.video ? ' deal-photo--novideo' : ''), true);
     if (d.ladder) {
       var n = d.ladder.length;
       return '<div class="deal-ladder" aria-hidden="true">' + d.ladder.map(function (st, k) {
@@ -1230,7 +1231,11 @@
   }
   function bindPromoBox(box) {
     var track = $('.promo__track', box), slides = $$('.promo__slide', box), dots = $$('[data-promo-go]', box);
-    if (slides.length < 2) return;
+    if (slides.length < 2) {
+      var v1 = $('.deal-video video', box);
+      if (v1 && window.matchMedia('(min-width: 1021px)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v1.preload = 'auto'; var p1 = v1.play(); if (p1 && p1.catch) p1.catch(function () {}); }
+      return;
+    }
     var i = 0, timer = 0, hold = false;
     var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function go(n) {
@@ -1241,13 +1246,33 @@
         $$('a', s).forEach(function (a) { if (k === i) a.removeAttribute('tabindex'); else a.setAttribute('tabindex', '-1'); });
       });
       dots.forEach(function (d, k) { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
+      startVideo();
     }
-    function play() { clearInterval(timer); if (!still && !hold) timer = setInterval(function () { if (document.body.contains(box)) go(i + 1); else clearInterval(timer); }, 7000); }
+    var wide = window.matchMedia('(min-width: 1021px)');
+    function vid(k) { var v = $('.deal-video video', slides[k]); return v && wide.matches ? v : null; }
+    function startVideo() {
+      slides.forEach(function (s, k) { var v = vid(k); if (v && k !== i) v.pause(); });
+      var v = vid(i);
+      if (!v) return;
+      if (still) { if (v.dataset.end) v.poster = v.dataset.end; return; }
+      if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
+      try { v.currentTime = 0; } catch (e) {}
+      var pr = v.play(); if (pr && pr.catch) pr.catch(function () {});
+    }
+    function delay() {
+      var v = vid(i);
+      if (v && !still) return Math.max(7000, ((v.duration || 8.6) + 3) * 1000);
+      return 7000;
+    }
+    function play() {
+      clearTimeout(timer);
+      if (!still && !hold) timer = setTimeout(function () { if (document.body.contains(box)) { go(i + 1); play(); } }, delay());
+    }
     $$('[data-promo-step]', box).forEach(function (b) { b.onclick = function () { go(i + Number(b.dataset.promoStep)); play(); }; });
     dots.forEach(function (d) { d.onclick = function () { go(Number(d.dataset.promoGo)); play(); }; });
-    box.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { hold = true; clearInterval(timer); } });
+    box.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { hold = true; clearTimeout(timer); } });
     box.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { hold = false; play(); } });
-    box.addEventListener('focusin', function () { hold = true; clearInterval(timer); });
+    box.addEventListener('focusin', function () { hold = true; clearTimeout(timer); });
     box.addEventListener('focusout', function (e) { if (!box.contains(e.relatedTarget)) { hold = false; play(); } });
     box.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowLeft') { go(i - 1); e.preventDefault(); }
