@@ -502,7 +502,11 @@
     store: '<path d="M8 20l16-12 16 12v20H8z"/><path d="M20 40V28h8v12"/>',
     check: '<path d="M40 12L18 34 8 24"/>',
     swap: '<path d="M14 14h20l-6-6M34 34H14l6 6"/>',
-    wrench: '<path d="M29.4 12.6a8 8 0 0 0-10.8 10.8L6 36l6 6 12.6-12.6a8 8 0 0 0 10.8-10.8l-5 5-4.8-1.2-1.2-4.8z"/>'
+    wrench: '<path d="M29.4 12.6a8 8 0 0 0-10.8 10.8L6 36l6 6 12.6-12.6a8 8 0 0 0 10.8-10.8l-5 5-4.8-1.2-1.2-4.8z"/>',
+    gift: '<rect x="8" y="20" width="32" height="20" rx="2"/><path d="M6 14h36v6H6zM24 14v26"/><path d="M24 14c-3-6-12-7-12-1 0 3 6 1 12 1zM24 14c3-6 12-7 12-1 0 3-6 1-12 1z"/>',
+    factory: '<path d="M6 40V22l10 6v-6l10 6v-6l10 6V8h6v32z"/><path d="M12 34h4M20 34h4M28 34h4"/>',
+    service: '<path d="M6 40h36M11 40V12M37 40V12M11 21h26"/><path d="M15 21l3-5h12l3 5"/><circle cx="18" cy="26" r="2.5"/><circle cx="30" cy="26" r="2.5"/>',
+    box: '<path d="M6 15l18-8 18 8v18l-18 8-18-8z"/><path d="M6 15l18 8 18-8M24 23v18"/>'
   };
   function homeIcon(name, size) {
     return '<svg class="hico" width="' + (size || 44) + '" height="' + (size || 44) + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (HOME_ICONS[name] || '') + '</svg>';
@@ -2019,12 +2023,44 @@
       '<p id="optDocs">' + (state.consentPreK3 ? '' : '<a href="#/legal/oferta-opt">Условия поставки для оптовых покупателей</a> · ') + '<a href="#/legal/terms">Пользовательское соглашение</a> · <a href="#/legal/privacy">Политика обработки персональных данных</a></p>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="#/login">Регистрация оптовика</a><a class="btn btn--ghost" href="mailto:' + C.email + '?subject=' + encodeURIComponent('Оптовое сотрудничество с CARVIC') + '">Написать менеджеру</a><a class="btn btn--ghost" href="#/requisites">Реквизиты</a></div></div></div>');
   };
+  /* «О компании»: миссия, все достоинства, инфографика планов на 2027 год */
   pages.about = function () {
-    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>О компании</span></div>' +
-      '<div class="hero-strip"><h1>CARVIC — <em>автозапчасти</em></h1><p>ООО "Карвик" — продажа автозапчастей оптом и в розницу в Иркутске.</p></div>' +
-      '<div class="grid grid-4" style="margin-top:14px">' +
-      ['Широкий ассортимент', 'Качественные запчасти', 'Честные цены', 'В наличии и под заказ'].map(function (t, i) { return '<div class="card feature"><i>' + (i + 1) + '</i><div><b>' + t + '</b></div></div>'; }).join('') + '</div>' +
-      '<div class="card" style="margin-top:14px"><p>Запчасти на китайские, европейские, японские и корейские автомобили. ' + (state.demoUi ? 'Подбор по VIN, по марке и модели, по артикулу и OEM-номеру.' : 'Подбор по артикулу и OEM-номеру. Если номера нет, оставьте заявку менеджеру.') + '</p><p>Три торговые точки в Иркутске: Автосити на Сергеевском и ТЦ «Прибой». <a href="#/stores">Адреса торговых точек</a></p><p><a href="#/about/team">Команда Карвика</a></p></div></div>');
+    var open = C.stores.length + openExtra().length, soonN = soonStores().length;
+    var perks = [
+      ['store', storesWord(open), 'В Иркутске и Ангарске, все без выходных'],
+      ['engine', 'Широкий ассортимент', 'Китайские, европейские, японские и корейские автомобили'],
+      ['brakes', 'Качественные запчасти', 'Проверенные бренды — оригиналы и аналоги'],
+      ['swap', 'Честные цены', 'Объясним, чем аналог отличается от оригинала и почему дешевле'],
+      ['check', 'Подбор по VIN', 'Проверим совместимость до оплаты'],
+      ['box', 'В наличии и под заказ', 'Наличие по каждому магазину видно на сайте'],
+      ['wrench', 'Для СТО и оптовиков', 'Закупка списком, свои условия и цены'],
+      ['gift', 'Бонусная карта', 'Оформляется автоматически при регистрации']
+    ];
+    function pict(icon, n, cls) { var h = ''; for (var i = 0; i < n; i++) h += '<span class="' + cls + '">' + homeIcon(icon, 22) + '</span>'; return h; }
+    var cells = '';
+    for (var i = 0; i < open; i++) cells += '<span class="ab-cell ab-cell--open" title="Открыт"></span>';
+    for (i = 0; i < soonN; i++) cells += '<span class="ab-cell ab-cell--soon" title="Скоро открытие"></span>';
+    for (i = 0; i < 10; i++) cells += '<span class="ab-cell ab-cell--plan" title="План на 2027 год"></span>';
+    return Promise.resolve('<div class="page about"><div class="crumbs"><a href="#/">Главная</a> / <span>О компании</span></div>' +
+      '<div class="hero-strip"><h1>CARVIC — <em>автозапчасти</em></h1>' +
+        '<p class="about-mission">Наша цель — знать о вашей машине больше, чтобы вам не приходилось ломать над ней голову.</p>' +
+        '<p>ООО «Карвик» — автозапчасти оптом и в розницу в Иркутске и Ангарске.</p></div>' +
+      '<section class="about-sec"><h2 class="about-h2">Почему CARVIC</h2><div class="about-perks">' + perks.map(function (x) {
+        return '<div class="about-perk">' + homeIcon(x[0], 30) + '<div><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>';
+      }).join('') + '</div></section>' +
+      '<section class="about-plans" aria-labelledby="plansTitle"><div class="about-plans__head"><p class="about-plans__year">2027</p><h2 id="plansTitle">Планы на 2027 год</h2></div>' +
+        '<div class="about-plans__grid">' +
+          '<div class="ab-plan"><div class="ab-plan__num"><b>+10</b><span>магазинов<br>по Сибири</span></div><div class="ab-pict" aria-hidden="true">' + pict('store', 10, 'ab-pict__i') + '</div></div>' +
+          '<div class="ab-plan"><div class="ab-plan__num ab-plan__num--icon">' + homeIcon('factory', 56) + '<span>Запуск собственного<br>производства</span></div></div>' +
+          '<div class="ab-plan"><div class="ab-plan__num"><b>20</b><span>многопрофильных сервисов<br>техобслуживания</span></div><div class="ab-pict ab-pict--20" aria-hidden="true">' + pict('service', 20, 'ab-pict__i') + '</div></div>' +
+        '</div>' +
+        '<div class="ab-growth"><p class="ab-growth__title">Сеть магазинов</p><div class="ab-cells" role="img" aria-label="Сейчас ' + open + ' магазинов' + (soonN ? ', скоро ещё ' + soonN : '') + ', в 2027 году ещё 10">' + cells + '</div>' +
+          '<div class="ab-legend"><span><i class="ab-cell ab-cell--open"></i>Открыты — ' + open + '</span>' + (soonN ? '<span><i class="ab-cell ab-cell--soon"></i>Скоро — ' + soonN + '</span>' : '') + '<span><i class="ab-cell ab-cell--plan"></i>2027 год — ещё 10</span>' +
+          '<a href="#/stores">Карта присутствия →</a></div></div>' +
+      '</section>' +
+      '<div class="card about-text"><p>Запчасти на китайские, европейские, японские и корейские автомобили. ' + (state.demoUi ? 'Подбор по VIN, по марке и модели, по артикулу и OEM-номеру.' : 'Подбор по артикулу и OEM-номеру. Если номера нет, оставьте заявку менеджеру.') + '</p>' +
+        '<p>' + storesWord(open) + ' в Иркутске и Ангарске. <a href="#/stores">Адреса и часы работы</a> · <a href="#/about/team">Команда Карвика</a></p></div>' +
+    '</div>');
   };
   pages.aboutTeam = function () {
     return Promise.resolve('<div class="page" id="teamPage"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/about">О компании</a> / <span>Команда</span></div><h1>Команда Карвика</h1><div class="card"><p>В магазинах Карвика помогают с подбором детали и проверкой совместимости. Напишите или позвоните по общему номеру, если нужна консультация по заказу.</p><p><a class="btn btn--ghost" href="#/contacts">Контакты</a></p></div></div>');
