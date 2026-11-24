@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CARVIC — автозапчасти в Иркутске | ООО "Карвик"</title>
+  <meta name="description" content="CARVIC — автозапчасти оптом и в розницу. Поиск по артикулу. Иркутск, тел. +7 (3952) 57-57-57.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="img/brand/carvic-logo-mark-on-dark.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@700;800&family=Onest:wght@400;500&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- ===== Фиксированный верхний баннер ===== -->
+  <header class="banner" id="top">
+    <svg class="banner__swoosh" viewBox="0 0 1280 146" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="sw1" x1="0" x2="1"><stop offset="0" stop-color="#e10600" stop-opacity=".0"/><stop offset=".15" stop-color="#e10600" stop-opacity=".9"/><stop offset=".55" stop-color="#8a0004" stop-opacity=".5"/><stop offset="1" stop-color="#e10600" stop-opacity="0"/></linearGradient>
+        <linearGradient id="sw2" x1="0" x2="1"><stop offset="0" stop-color="#ff2a1f" stop-opacity=".9"/><stop offset=".4" stop-color="#b3000a" stop-opacity=".35"/><stop offset="1" stop-color="#b3000a" stop-opacity="0"/></linearGradient>
+        <radialGradient id="glow" cx=".15" cy="1" r=".6"><stop offset="0" stop-color="#e10600" stop-opacity=".45"/><stop offset="1" stop-color="#e10600" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1280" height="146" fill="url(#glow)"/>
+      <path d="M0 118 C 180 92, 360 104, 560 128 S 900 150, 1280 110" stroke="url(#sw1)" stroke-width="3" fill="none"/>
+      <path d="M0 128 C 220 100, 420 116, 640 136 S 980 146, 1280 124" stroke="url(#sw2)" stroke-width="2" fill="none"/>
+      <path d="M0 104 C 140 92, 260 98, 420 120" stroke="#ff3b30" stroke-opacity=".55" stroke-width="1.4" fill="none"/>
+      <path d="M0 140 C 260 112, 520 126, 760 146 L 0 146 Z" fill="#7a0003" fill-opacity=".35"/>
+    </svg>
+    <div class="banner__parts" aria-hidden="true"></div>
+
+    <button class="burger" id="burger" aria-label="Меню" title="Меню"><span></span><span></span><span></span></button>
+
+    <a href="#/" class="logo" aria-label="CARVIC — на главную">
+      <img class="logo__full" src="img/brand/carvic-logo-on-dark.png" alt="CARVIC, автозапчасти" width="144" height="43">
+      <img class="logo__mark" src="img/brand/carvic-logo-mark-on-dark.png" alt="" width="96" height="19">
+    </a>
+
+    <nav class="site-nav" aria-label="Разделы">
+      <a href="#/stores"><span class="pin" aria-hidden="true"></span>Иркутск</a>
+      <a href="#/catalog">Каталог</a>
+      <a href="#/search">Подбор по VIN</a>
+      <a href="#/wholesale">Оптовикам</a>
+      <a href="#/stores">Магазины</a>
+      <a href="#/blog">Блог</a>
+      <a href="#/about">О нас</a>
+    </nav>
+    <a class="btn" href="#/inquiry">Запросить подбор</a>
+    <div class="banner__center">
+      <nav class="quick-icons" aria-label="Быстрые категории">
+        <a href="#/catalog/electrics" class="qi" title="Электрика и зажигание" data-icon="plug"></a>
+        <a href="#/catalog/brakes" class="qi" title="Тормозная система" data-icon="disc"></a>
+        <a href="#/catalog/transmission" class="qi" title="Трансмиссия и приводы" data-icon="axle"></a>
+        <a href="#/catalog/engine" class="qi" title="Двигатель" data-icon="piston"></a>
+      </nav>
+      <form class="vin-search" id="vinForm" autocomplete="off" role="search">
+        <input type="text" id="vinInput" maxlength="40" placeholder="Артикул или название" aria-label="Артикул или название" spellcheck="false">
+        <button type="submit" aria-label="Найти">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
+        </button>
+        <div class="vin-hint" id="vinHint"></div>
+      </form>
+    </div>
+
+    <div class="banner__right">
+      <a class="banner__phone" href="tel:+73952575757" aria-label="+7 (3952) 57-57-57"><svg class="banner__phone-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h3l2 5-2 1a12 12 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2z"/></svg><span class="banner__phone-text">+7 (3952) <b>57-57-57</b></span></a>
+      <button class="cart-btn" id="cartBtn" aria-label="Корзина">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h3l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.7a1.5 1.5 0 0 0 1.5-1.1L21 7H6"/><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17.5" cy="19.5" r="1.4"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Левая тёмная панель ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-block" id="demoCar">
+      <label class="sel"><span class="sr">Марка</span>
+        <select id="selMake"><option value="">Марка</option></select></label>
+      <label class="sel"><span class="sr">Модель</span>
+        <select id="selModel" disabled><option value="">Модель</option></select></label>
+      <label class="sel"><span class="sr">Год</span>
+        <select id="selYear" disabled><option value="">Год</option></select></label>
+      <button class="sb-reset" id="resetCar" hidden>Сбросить автомобиль</button>
+    </div>
+
+    <div class="sb-block" id="demoCats">
+      <h3 class="sb-title">Категории</h3>
+      <div class="checks" id="catChecks"></div>
+      <nav class="checks" id="feedCatNav" hidden></nav>
+    </div>
+
+    <div class="sb-block" id="demoBrands">
+      <h3 class="sb-title">Производители</h3>
+      <div class="checks checks--scroll" id="brandChecks"></div>
+    </div>
+
+    <div class="sb-block">
+      <h3 class="sb-title">Покупатель</h3>
+      <div class="buyer" id="buyerBox"></div>
+      <label class="sel sel--sm"><span class="sb-label">Торговая точка (наличие)</span>
+        <select id="selOutlet"></select></label>
+    </div>
+
+    <nav class="sb-block sb-nav" aria-label="Разделы сайта">
+      <h3 class="sb-title">Разделы</h3>
+      <a href="#/inquiry">Запросить подбор</a>
+      <a href="#/">Подбор запчастей</a>
+      <a href="#/catalog">Каталог</a>
+      <a href="#/search">Поиск по артикулу/OEM</a>
+      <a href="#/stores">Торговые точки</a>
+      <a href="#/wholesale">Оптовикам</a>
+      <a href="#/delivery" data-delivery-link hidden></a>
+      <a href="#/about">О компании</a>
+      <a href="#/about/team">Команда</a>
+      <a href="#/blog">Блог</a>
+      <a href="#/contacts">Контакты</a>
+      <a href="#/inquiry">Обращение и подбор</a>
+      <a href="#/requisites">Реквизиты</a>
+      <a href="#/login">Вход для контрагентов</a>
+      <a href="#/account">Личный кабинет</a>
+      <a href="#/account/garage">Гараж</a>
+      <a href="#/account/orders">Заказы</a>
+      <a href="#/account/balance">Взаиморасчёты</a>
+      <a href="#/price">Прайс</a>
+      <a href="#/account/settings">Настройки</a>
+      <a href="#/admin">Админка</a>
+    </nav>
+  </aside>
+  <div class="sb-overlay" id="sbOverlay"></div>
+
+  <!-- ===== Основная рабочая область ===== -->
+  <main class="main" id="main" tabindex="-1">
+    <div id="view"></div>
+    <div class="cookie-note" id="cookieNote" hidden>
+      <p>Мы используем только технические cookie, необходимые для работы сайта: вход, корзина, защита форм. Подробнее — в <a href="#/legal/privacy">Политике обработки персональных данных</a>.</p>
+      <button type="button" id="cookieOk">Понятно</button>
+    </div>
+
+    <footer class="footer">
+      <div class="footer__cols">
+        <div>
+          <a href="#/" class="logo logo--sm" aria-label="CARVIC — на главную"><img src="img/brand/carvic-logo-on-dark.png" alt="CARVIC, автозапчасти" width="160" height="48"></a>
+          <p class="muted">Автозапчасти в Иркутске. В наличии и под заказ.</p>
+          <a href="tel:+73952575757" class="footer__phone">+7 (3952) 57-57-57</a>
+          <a href="mailto:Shaginyan@carvic.ru" id="publicMail">Shaginyan@carvic.ru</a>
+          <p id="privacyEmail" hidden></p>
+          <span class="muted">Иркутск, ул. Генерала Доватора, 39, пав. 91/а</span>
+        </div>
+        <div>
+          <h4>Покупателям</h4>
+          <a href="#/catalog">Каталог</a><a href="#/search">Подбор по VIN</a><a href="#/delivery" id="deliveryNav" hidden></a><a href="#/blog">Блог</a>
+        </div>
+        <div>
+          <h4>Бизнесу</h4>
+          <a href="#/wholesale">Оптовикам</a><a href="#/login">Кабинет контрагента</a><a href="#/requisites">Реквизиты</a>
+        </div>
+        <div>
+          <h4>Компания</h4>
+          <a href="#/about">О компании</a><a href="#/about/team">Команда</a><a href="#/stores">Торговые точки</a><a href="#/contacts">Контакты</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <nav class="footer__legal" aria-label="Документы">
+          <a href="#/legal/oferta">Оферта для розницы</a><a href="#/legal/oferta-opt">Условия для опта</a><a href="#/legal/privacy">Политика ПДн</a><a href="#/legal/consent-request">Согласие на обработку ПДн</a><a href="#/legal/terms">Пользовательское соглашение</a><a href="#/returns">Возврат</a><a href="#/returns">Как направить претензию</a><a href="sitemap.xml">Карта сайта</a>
+        </nav>
+        <span>© <span id="year"></span> ООО "Карвик", carvic.ru · ОГРН 1260300003677 · ИНН 0300040678</span>
+        <span class="muted">Документы — проект, на согласовании. <a href="#/legal/privacy">Политика ПДн</a>.</span>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ===== Корзина (выезжающая панель) ===== -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Корзина" aria-hidden="true">
+    <div class="drawer__head">
+      <h3>Корзина</h3>
+      <button class="icon-btn" id="drawerClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="drawer__body" id="drawerBody"></div>
+    <div class="drawer__foot" id="drawerFoot"></div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Данные (DEMO), иконки и логика -->
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/api/onec.js"></script><!-- слой данных 1С (сейчас mock) -->
+  <script src="js/search-rank.js"></script>
+  <script src="js/demo-catalog.js"></script>
+  <script src="js/api/partner.js"></script><!-- предложения под заказ, только через свой сервер -->
+  <script src="js/api/account.js"></script>
+  <script src="js/admin.js"></script><!-- демо-админка -->
+  <script src="js/app.js"></script>
+</body>
+</html>
