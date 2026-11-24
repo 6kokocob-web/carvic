@@ -2043,6 +2043,9 @@
       '<section class="about-sec"><h2 class="about-h2">Почему CARVIC</h2><div class="about-perks">' + perks.map(function (x) {
         return '<div class="about-perk">' + homeIcon(x[0], 30) + '<div><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>';
       }).join('') + '</div></section>' +
+      '<section class="about-sec about-team"><div class="about-team__head"><h2 class="about-h2">Команда CARVIC</h2><a href="#/about/team">О команде →</a></div>' +
+        '<figure class="team-photo"><img src="img/team/carvic-team.jpg" width="1536" height="1024" loading="lazy" decoding="async" alt="Команда CARVIC у стойки магазина с логотипом, за ними стеллажи с запчастями"></figure>' +
+        '<p class="about-team__cap">Помогаем подобрать деталь, объясняем разницу между оригиналом и аналогом и проверяем совместимость до оплаты.</p></section>' +
       '<section class="about-plans" aria-labelledby="plansTitle"><div class="about-plans__head"><p class="about-plans__year">2027</p><h2 id="plansTitle">Планы на 2027 год</h2></div>' +
         '<div class="about-plans__grid">' +
           '<div class="ab-plan"><div class="ab-plan__num"><b>+10</b><span>магазинов<br>по Сибири</span></div><div class="ab-pict" aria-hidden="true">' + pict('store', 10, 'ab-pict__i') + '</div></div>' +
@@ -2058,7 +2061,7 @@
     '</div>');
   };
   pages.aboutTeam = function () {
-    return Promise.resolve('<div class="page" id="teamPage"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/about">О компании</a> / <span>Команда</span></div><h1>Команда Карвика</h1><div class="card"><p>В магазинах Карвика помогают с подбором детали и проверкой совместимости. Напишите или позвоните по общему номеру, если нужна консультация по заказу.</p><p><a class="btn btn--ghost" href="#/contacts">Контакты</a></p></div></div>');
+    return Promise.resolve('<div class="page" id="teamPage"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/about">О компании</a> / <span>Команда</span></div><h1>Команда Карвика</h1>' + '<figure class="team-photo"><img src="img/team/carvic-team.jpg" width="1536" height="1024" loading="lazy" decoding="async" alt="Команда CARVIC у стойки магазина с логотипом, за ними стеллажи с запчастями"></figure>' + '<div class="card"><p>В магазинах Карвика помогают с подбором детали и проверкой совместимости. Напишите или позвоните по общему номеру, если нужна консультация по заказу.</p><p><a class="btn btn--ghost" href="#/contacts">Контакты</a></p></div></div>');
   };
   /* Блог: статьи — в js/blog.js (window.CARVIC_BLOG) */
   function blogList() { return window.CARVIC_BLOG || []; }

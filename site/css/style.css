@@ -1647,3 +1647,12 @@ html[data-theme="dark"] .about-plans { border: 1px solid var(--c-border); }
   .post h2 { font-size: 21px; }
   .post-cta__actions, .post-cta__actions .btn { width: 100%; justify-content: center; }
 }
+
+/* фото команды */
+.about-team__head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.about-team__head a { color: var(--c-red-text); font-weight: 600; text-decoration: none; }
+.team-photo { margin: 0; overflow: hidden; border-radius: 16px; background: var(--c-surface); aspect-ratio: 3 / 2; }
+.team-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.about-team__cap { margin: 12px 0 0; font-size: 15px; color: var(--c-muted); max-width: 760px; }
+#teamPage .team-photo { margin: 8px 0 16px; }
+@media (min-width: 1021px) { .about-team .team-photo { aspect-ratio: 16 / 8; } .about-team .team-photo img { object-position: 50% 38%; } }
