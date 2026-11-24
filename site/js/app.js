@@ -34,21 +34,26 @@
     return '<a class="gis-btn' + (cls ? ' ' + cls : '') + '" href="' + esc(mapUrl(o)) + '" target="_blank" rel="noopener" title="Открыть в 2ГИС" aria-label="Открыть в 2ГИС: ' + esc(name) + '">' + GIS_ICON + '</a>';
   }
   /* Мессенджеры и 2ГИС (ссылки — COMPANY.social в js/data.js) */
+  /* [id, название, viewBox, контур значка (одним цветом — currentColor)].
+   * Официальные цветные значки лежат в img/social/<id>.svg и появляются при наведении. */
   var SOCIAL = [
-    ['telegram', 'Telegram', '<path d="M21.2 4.6 3.1 11.5c-.7.3-.7 1.2 0 1.4l4.6 1.5 1.7 5.2c.2.5.8.7 1.2.3l2.6-2.3 4.6 3.4c.5.4 1.2.1 1.4-.5l3-14.7c.1-.8-.6-1.4-1.3-1.2z"/><path d="m7.7 14.4 9.6-6.6-6.3 7.4-.4 4"/>'],
-    ['vk', 'ВКонтакте', '<path d="M12.8 17.4c-5.6 0-8.8-3.9-8.9-10.3h2.8c.1 4.7 2.2 6.7 3.8 7.1V7.1h2.7v4c1.6-.2 3.3-2 3.9-4h2.6c-.4 2.5-2.3 4.3-3.6 5.1 1.3.6 3.4 2.2 4.2 5.2h-2.9c-.6-2-2.2-3.5-4.2-3.7v3.7z" fill="currentColor" stroke="none"/>'],
-    ['max', 'MAX', '<path d="M5 18V7c0-.7.9-1 1.3-.5L12 12.8l5.7-6.3c.4-.5 1.3-.2 1.3.5v11"/>'],
-    ['gis', '2ГИС', '<path d="M12 21s-6.5-5.8-6.5-10.6a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21z"/><circle cx="12" cy="10.3" r="2.4"/>']
+    ['telegram', 'Telegram', '50 70 148 120', '<path fill="currentColor" d="M129.362 93.057q-16.659 6.93-66.588 28.682-8.107 3.225-8.494 6.308c-.436 3.475 3.916 4.844 9.842 6.707l.12.038q1.155.361 2.377.756c5.83 1.895 13.672 4.113 17.749 4.201q5.547.12 12.382-4.574 46.65-31.491 48.162-31.833c.711-.162 1.696-.365 2.364.228.668.594.602 1.718.531 2.019-.431 1.838-17.512 17.718-26.351 25.936l-.074.068c-2.717 2.526-4.64 4.315-5.037 4.726-.894.93-1.807 1.81-2.684 2.655-5.415 5.221-9.477 9.136.226 15.53 4.649 3.064 8.373 5.6 12.085 8.128l.031.02c4.064 2.768 8.119 5.53 13.365 8.968 1.336.876 2.613 1.787 3.856 2.673 4.731 3.372 8.981 6.402 14.232 5.919 3.051-.281 6.202-3.149 7.803-11.706 3.782-20.221 11.218-64.035 12.936-82.09.15-1.582-.039-3.606-.191-4.495-.152-.888-.47-2.155-1.625-3.092-1.368-1.11-3.48-1.344-4.424-1.328-4.295.076-10.884 2.367-42.593 15.556"/>', true],
+    ['vk', 'ВКонтакте', '5 4 22 24', '<path fill="currentColor" d="M16.8 21.615c-6.15 0-9.656-4.208-9.8-11.22h3.093c.099 5.142 2.364 7.318 4.163 7.767v-7.768h2.904v4.433c1.771-.19 3.641-2.212 4.27-4.442h2.896a8.57 8.57 0 0 1-3.938 5.602A8.87 8.87 0 0 1 25 21.615h-3.192c-.683-2.131-2.391-3.785-4.648-4.01v4.01h-.36"/>', true],
+    ['max', 'MAX', '80 80 340 340', '<path fill="currentColor" fill-rule="evenodd" d="M253.223 398.85c-29.441 0-43.123-4.298-66.905-21.49-15.043 19.341-62.679 34.456-64.756 8.596 0-19.412-4.298-35.816-9.17-53.725C106.59 310.168 100 285.598 100 249.997 100 164.968 169.771 101 252.435 101c82.736 0 147.564 67.12 147.564 149.784.278 81.386-65.391 147.632-146.776 148.066m1.218-224.355c-40.258-2.077-71.633 25.788-78.582 69.484-5.73 36.175 4.442 80.229 13.109 82.522 4.155 1.002 14.613-7.45 21.132-13.969a74.5 74.5 0 0 0 36.39 12.966c41.713 2.006 77.356-29.75 80.157-71.418 1.63-41.756-30.487-77.123-72.206-79.513z"/>', true],
+    ['gis', '2ГИС', '3.2 2.6 11.6 11.6', '<path fill="currentColor" fill-rule="evenodd" d="M9 3.656c2.513 0 4.218 1.934 4.218 4.02 0 .838-.182 1.71-.609 2.624-2.472 0-3.082 1.77-3.198 2.885l-.008.074q-.058.597-.067.957l-.67.105v-.022q-.014-.532-.072-1.06l-.002-.02c-.107-1.113-.704-2.919-3.201-2.919-.427-.914-.61-1.786-.61-2.623C4.781 5.59 6.487 3.656 9 3.656"/>', true],
+    ['drom', 'Дром', '0 0 40 24', '<text x="20" y="17.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="currentColor">дром</text>', false]
   ];
   function socialLinks(cls) {
     var urls = C.social || {}, demo = !/(^|\.)carvic\.ru$/i.test(location.hostname);
     var html = SOCIAL.map(function (x) {
       var url = urls[x[0]] || '';
-      var ic = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + x[2] + '</svg>';
-      if (url) return '<a class="soc soc--' + x[0] + '" href="' + esc(url) + '" target="_blank" rel="noopener" title="' + esc(x[1]) + '" aria-label="CARVIC в ' + esc(x[1]) + '">' + ic + '</a>';
-      return demo ? '<span class="soc soc--' + x[0] + ' soc--empty" title="' + esc(x[1]) + ': ссылка не задана (js/data.js → social)">' + ic + '</span>' : '';
+      var ic = '<svg class="soc__mono" viewBox="' + x[2] + '" aria-hidden="true">' + x[3] + '</svg>' +
+        (x[4] ? '<img class="soc__color" src="img/social/' + x[0] + '.svg" alt="" aria-hidden="true" loading="lazy">' : '');
+      var c = 'soc soc--' + x[0] + (x[4] ? ' soc--has-color' : '');
+      if (url) return '<a class="' + c + '" href="' + esc(url) + '" target="_blank" rel="noopener" title="' + esc(x[1]) + '" aria-label="CARVIC в ' + esc(x[1]) + '">' + ic + '</a>';
+      return demo ? '<span class="' + c + ' soc--empty" title="' + esc(x[1]) + ': ссылка не задана (js/data.js → social)">' + ic + '</span>' : '';
     }).join('');
-    return html ? '<div class="socials' + (cls ? ' ' + cls : '') + '" aria-label="Мессенджеры и 2ГИС">' + html + '</div>' : '';
+    return html ? '<div class="socials' + (cls ? ' ' + cls : '') + '" aria-label="Мессенджеры, 2ГИС и Дром">' + html + '</div>' : '';
   }
   /* Фото павильона: img/stores/<id>.jpg (или o.photo). Нет файла — аккуратная заглушка. */
   function storePhoto(o, cls) {
@@ -2183,7 +2188,7 @@
   pages.contacts = function () {
     return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Контакты</span></div><h1>Контакты</h1>' +
       '<div class="grid grid-3"><div class="card"><h3 style="margin-top:0">Основной телефон</h3><a class="price" style="text-align:left;display:block;text-decoration:none;font-size:22px" href="tel:' + C.phoneHref + '">' + C.phone + '</a><p class="muted" style="margin-bottom:0">Единый номер для всех магазинов.</p></div>' +
-      '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p>' + (socialLinks() ? '<p class="soc-title">Мессенджеры и 2ГИС</p>' + socialLinks() : '') + '</div>' +
+      '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p>' + (socialLinks() ? '<p class="soc-title">Мессенджеры, 2ГИС и Дром</p>' + socialLinks() : '') + '</div>' +
       '<div class="card"><h3 style="margin-top:0">Адреса</h3><p style="margin:0 0 6px"><span class="muted">Фактический:</span> ' + esc(C.actualAddress) + '</p><p style="margin:0"><span class="muted">Юридический:</span> ' + esc(C.legalAddress) + '</p></div></div>' +
       (state.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(state.privacyEmail) + '">' + esc(state.privacyEmail) + '</a></p>' : '') +
       '<h2>Обратный звонок</h2><div class="card callback-cta callback-cta--photo"><figure class="callback-cta__img"><img src="img/team/team-handover.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC передаёт покупателю фирменный пакет с покупкой"></figure><p>Оставьте имя и телефон — менеджер перезвонит.</p><a class="btn" href="#/callback">Заказать звонок</a></div>' +

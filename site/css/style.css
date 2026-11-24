@@ -1887,3 +1887,14 @@ a.soc:focus-visible { outline: 3px solid var(--c-signal); outline-offset: 2px; }
 .footer .soc { background: #17171A; border-color: #2A2A2F; color: #fff; }
 .footer a.soc:hover { background: var(--c-signal); border-color: var(--c-signal); }
 .geo-contacts a.soc:not(:hover) { color: var(--c-text); }
+/* официальные значки: одним цветом в покое, в фирменных цветах при наведении */
+.soc__mono { width: 20px; height: 20px; }
+.soc--drom .soc__mono { width: 30px; height: 18px; }
+.soc__color { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .15s; }
+a.soc--has-color:hover { background: transparent; border-color: transparent; }
+a.soc--has-color:hover .soc__color { opacity: 1; }
+a.soc--has-color:hover::after { opacity: 0; }
+.socials--sm .soc__mono { width: 16px; height: 16px; }
+.socials--sm .soc--drom .soc__mono { width: 26px; height: 16px; }
+.footer .socials a.soc, .footer .socials span.soc { display: inline-grid; place-items: center; padding: 0; line-height: 0; font-size: 0; }
+.footer a.soc--has-color:hover { background: transparent; border-color: transparent; }

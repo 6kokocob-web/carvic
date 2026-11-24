@@ -31,7 +31,8 @@ window.COMPANY = {
     telegram: '',
     max: '',
     vk: '',
-    gis: 'https://2gis.ru/irkutsk/search/CARVIC' // поиск по сети в 2ГИС: все павильоны сразу
+    gis: 'https://2gis.ru/irkutsk/search/CARVIC', // поиск по сети в 2ГИС: все павильоны сразу
+    drom: 'https://baza.drom.ru/user/Carvic/' // страница продавца на Дроме
   },
   phone: '+7 (3952) 57-57-57',
   phoneHref: '+73952575757',
