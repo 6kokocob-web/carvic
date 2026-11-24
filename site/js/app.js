@@ -1396,9 +1396,56 @@
   }
 
   /* --- Карточка товара --- */
+  /* Карточка товара в режиме просмотра (без сервера): чистая вёрстка, без выдуманных цен и остатков */
+  function previewPart(p) {
+    var ask = function (kind) { return '#/inquiry?kind=' + kind + '&article=' + encodeURIComponent(p.article) + '&brand=' + encodeURIComponent(p.brand); };
+    var all = C.stores.concat(C.extraStores || []);
+    var cities = all.map(function (o) { return o.city; }).filter(function (c, i, a) { return a.indexOf(c) === i; });
+    var similar = PARTS.filter(function (x) { return x.cat === p.cat && x.sku !== p.sku && !x.fixture; })
+      .filter(function (x, i, a) { return a.findIndex(function (y) { return y.name === x.name; }) === i && x.name !== p.name; }).slice(0, 4);
+    var copyBtn = function (v, label) { return '<button type="button" class="pp-copy" data-copy="' + esc(v) + '" title="Скопировать" aria-label="Скопировать ' + label + ' ' + esc(v) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></button>'; };
+    return '<div class="page pp" id="previewPart"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/catalog">Каталог</a> / <a href="#/catalog/' + esc(p.cat) + '">' + esc(catName(p.cat)) + '</a> / <span>' + esc(p.name) + '</span></div>' +
+      '<div class="warn-box preview-note">Режим просмотра: пример карточки. Цена, наличие и применимость на рабочем сайте придут из 1С.</div>' +
+      '<div class="pp-top">' +
+        '<div class="pp-media"><div class="pp-media__img">' + icon(p.icon) + '</div><p class="pp-media__note">Фото товара появится после выгрузки из 1С</p></div>' +
+        '<div class="pp-info">' +
+          '<h1 class="pp-title">' + esc(p.name) + '</h1>' +
+          '<div class="pp-ids"><span class="pp-brand">' + esc(p.brand) + '</span>' +
+            '<span class="pp-id"><small>Артикул</small><b class="mono">' + esc(p.article) + '</b>' + copyBtn(p.article, 'артикул') + '</span>' +
+            (p.oem ? '<span class="pp-id"><small>OEM</small><b class="mono">' + esc(p.oem) + '</b>' + copyBtn(p.oem, 'OEM') + '</span>' : '') + '</div>' +
+          '<div class="pp-buy">' +
+            '<div class="pp-price">цена по запросу</div>' +
+            '<p class="pp-buy__note">Менеджер проверит наличие в магазинах и под заказ, назовёт цену и срок.</p>' +
+            '<div class="pp-buy__actions"><a class="btn" href="' + ask('price') + '">Узнать цену</a><a class="btn btn--ghost" href="' + ask('analog') + '">Подобрать аналог</a></div>' +
+            '<p class="pp-buy__phone">Или позвоните: <a href="tel:' + C.phoneHref + '">' + C.phone + '</a></p>' +
+          '</div>' +
+          '<ul class="pp-perks">' +
+            '<li>' + homeIcon('store', 20) + '<span>Самовывоз из ' + storesWord(all.length).replace('магазина', 'магазинов').replace(/^(\d+) магазин$/, '$1 магазина') + ' — ' + esc(cities.join(' и ')) + '. <a href="#/stores">Адреса</a></span></li>' +
+            '<li>' + homeIcon('check', 20) + '<span>Проверим совместимость по VIN до оплаты</span></li>' +
+          '</ul>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pp-sections">' +
+        '<section class="pp-sec"><h2>Характеристики</h2><dl class="pp-specs">' +
+          '<dt>Категория</dt><dd><a href="#/catalog/' + esc(p.cat) + '">' + esc(catName(p.cat)) + '</a></dd>' +
+          '<dt>Производитель</dt><dd>' + esc(p.brand) + '</dd>' +
+          '<dt>Артикул</dt><dd class="mono">' + esc(p.article) + '</dd>' +
+          (p.oem ? '<dt>Номер OEM</dt><dd class="mono">' + esc(p.oem) + '</dd>' : '') +
+        '</dl></section>' +
+        '<section class="pp-sec"><h2>Применимость</h2>' + (p.compat && p.compat.length
+          ? '<p class="muted">Подходит для марок (точнее — по VIN):</p><div class="pp-makes">' + p.compat.map(function (m) { return '<span>' + esc(m) + '</span>'; }).join('') + '</div>'
+          : '<p class="muted">Уточните по VIN — менеджер проверит совместимость.</p>') +
+          '<a class="pp-vin" href="' + ask('selection') + '">Проверить по VIN →</a></section>' +
+      '</div>' +
+      (similar.length ? '<section class="pp-similar"><h2>Ещё в категории «' + esc(catName(p.cat)) + '»</h2><div class="pp-similar__grid">' + similar.map(function (x) {
+        return '<a class="pp-mini" href="#/part/' + encodeURIComponent(x.sku) + '"><span class="pp-mini__img">' + icon(x.icon) + '</span><b>' + esc(x.name) + '</b><small>' + esc(x.brand) + ' · ' + esc(x.article) + '</small><span class="pp-mini__price">цена по запросу</span></a>';
+      }).join('') + '</div></section>' : '') +
+    '</div>';
+  }
   pages.part = function (sku) {
     sku = decodeURIComponent(sku); var p = bySku(sku);
     if (!p) return Promise.resolve('<div class="page"><h1>Товар не найден</h1><a href="#/catalog">В каталог</a></div>');
+    if (previewMode()) return Promise.resolve(previewPart(p));
     return Promise.all([ensureData([sku]), API.explainPrice(sku, cpId())]).then(function (r) {
       var ex = r[1], s = stockCache[sku];
       return '<div class="page sheet"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/catalog/' + p.cat + '">' + esc(catName(p.cat)) + '</a> / <span>' + esc(p.name) + '</span></div><div class="sheet-ph" aria-hidden="true"></div>' +
@@ -1418,6 +1465,9 @@
     });
   };
   pages.part.after = function (root, sku) {
+    $$('[data-copy]', root).forEach(function (b) {
+      b.onclick = function () { (navigator.clipboard ? navigator.clipboard.writeText(b.dataset.copy) : Promise.reject()).then(function () { toast('Скопировано: ' + b.dataset.copy); }, function () { toast('Не удалось скопировать'); }); };
+    });
     sku = decodeURIComponent(sku); var q = $('#pQty', root); if (!q) return;
     function paintPartReceipt() {
       var line = $('#partReceipt', root);
