@@ -656,6 +656,7 @@
   };
   pages.home.after = function (root) {
     bindScheme(root); bindResults(root); bindChips(root); bindPromo(root);
+    if (window.CarvicButler) window.CarvicButler.bind(root); // официант оживает от прокрутки (js/butler-scroll.js)
     if (window.CarvicGeo && $('#homeGeo', root)) window.CarvicGeo.bind(root);
     var search = $('#homeSearch', root);
     if (search) search.onsubmit = function (e) {
@@ -1255,7 +1256,7 @@
     function startVideo() {
       slides.forEach(function (s, k) { var v = vid(k); if (v && k !== i) v.pause(); });
       var v = vid(i);
-      if (!v) return;
+      if (!v || box.classList.contains('is-scrub')) return;
       if (still) { if (v.dataset.end) v.poster = v.dataset.end; return; }
       if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
       try { v.currentTime = 0; } catch (e) {}
@@ -1268,7 +1269,12 @@
     }
     function play() {
       clearTimeout(timer);
-      if (!still && !hold) timer = setTimeout(function () { if (document.body.contains(box)) { go(i + 1); play(); } }, delay());
+      if (!still && !hold) timer = setTimeout(function () {
+        if (!document.body.contains(box)) return;
+        // слайд с официантом в режиме прокрутки не перелистываем сами — им управляет колесо мыши
+        if (box.classList.contains('is-scrub') && $('.deal-slide--photo', slides[i])) { play(); return; }
+        go(i + 1); play();
+      }, delay());
     }
     $$('[data-promo-step]', box).forEach(function (b) { b.onclick = function () { go(i + Number(b.dataset.promoStep)); play(); }; });
     dots.forEach(function (d) { d.onclick = function () { go(Number(d.dataset.promoGo)); play(); }; });
