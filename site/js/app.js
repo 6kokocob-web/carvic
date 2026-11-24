@@ -57,6 +57,7 @@
   }
   /* Фото павильона: img/stores/<id>.jpg (или o.photo). Нет файла — аккуратная заглушка. */
   function storePhoto(o, cls) {
+    if (o.photo === false) return '<div class="store-photo is-empty' + (cls ? ' ' + cls : '') + '" role="img" aria-label="Фото павильона скоро появится"></div>';
     var src = o.photo || ('img/stores/' + o.id + '.jpg');
     return '<div class="store-photo' + (cls ? ' ' + cls : '') + '"><img src="' + esc(src) + '" alt="Павильон CARVIC: ' + esc((o.title || '') + ', ' + (o.city || '') + ', ' + (o.address || '')) + '" loading="lazy" decoding="async"></div>';
   }
@@ -2373,6 +2374,47 @@
     'consent-cookies': ['/legal/consents.md', 'Согласие на аналитические cookie', 'Согласие № 4'],
     'consent-review': ['/legal/consents.md', 'Согласие на публикацию отзыва', 'Согласие № 5']
   };
+  /* Простая и безопасная разметка для юридических черновиков: всё экранируется, затем
+   * заголовки #, **жирный**, *курсив*, списки, цитаты > и таблицы | … |. Внешний HTML не пропускается. */
+  function mdLite(text) {
+    function inline(t) {
+      return esc(t).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<i>$2</i>')
+        .replace(/(https?:\/\/[^\s<)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    }
+    var out = [], lines = String(text).replace(/\r/g, '').split('\n'), i = 0;
+    while (i < lines.length) {
+      var l = lines[i];
+      if (!l.trim()) { i++; continue; }
+      var h = /^(#{1,4})\s+(.*)$/.exec(l);
+      if (h) { var n = Math.min(h[1].length + 1, 5); out.push('<h' + n + '>' + inline(h[2]) + '</h' + n + '>'); i++; continue; }
+      if (/^\s*\|/.test(l)) {
+        var rows = [];
+        while (i < lines.length && /^\s*\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+        var cells = rows.filter(function (r) { return !/^\s*\|[\s:\-|]+\|\s*$/.test(r); }).map(function (r) { return r.trim().replace(/^\||\|$/g, '').split('|'); });
+        out.push('<div class="md-table"><table>' + cells.map(function (c, k) {
+          var tag = k === 0 ? 'th' : 'td';
+          return '<tr>' + c.map(function (x) { return '<' + tag + '>' + inline(x.trim()) + '</' + tag + '>'; }).join('') + '</tr>';
+        }).join('') + '</table></div>');
+        continue;
+      }
+      if (/^>\s?/.test(l)) {
+        var q = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) { q.push(lines[i].replace(/^>\s?/, '')); i++; }
+        out.push('<blockquote>' + q.map(inline).join('<br>') + '</blockquote>');
+        continue;
+      }
+      if (/^\s*([-*•]|\d+[.)])\s+/.test(l) && !/^\s*\d+\.\d/.test(l)) {
+        var ordered = /^\s*\d+[.)]\s/.test(l), items = [];
+        while (i < lines.length && /^\s*([-*•]|\d+[.)])\s+/.test(lines[i]) && !/^\s*\d+\.\d/.test(lines[i])) { items.push(lines[i].replace(/^\s*([-*•]|\d+[.)])\s+/, '')); i++; }
+        out.push('<' + (ordered ? 'ol' : 'ul') + '>' + items.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + (ordered ? 'ol' : 'ul') + '>');
+        continue;
+      }
+      var para = [];
+      while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|>|\s*\|)/.test(lines[i]) && !(/^\s*([-*•]|\d+[.)])\s+/.test(lines[i]) && !/^\s*\d+\.\d/.test(lines[i]))) { para.push(lines[i]); i++; }
+      out.push('<p>' + para.map(inline).join('<br>') + '</p>');
+    }
+    return out.join('');
+  }
   function legalSlice(text, marker) {
     if (!marker) return text;
     var start = text.indexOf(marker);
@@ -2396,7 +2438,7 @@
       fetch('/api/legal/placeholders', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).catch(function () { return { fields: [] }; })
     ]).then(function (pair) {
       return '<div class="page" id="legalDoc"><div class="crumbs"><a href="#/">Главная</a> / <span>' + esc(spec[1]) + '</span></div><h1>' + esc(spec[1]) + '</h1>' +
-        '<div class="warn-box">проект, на согласовании</div>' + legalGapBox(pair[1]) + '<article class="card legal-doc">' + esc(legalSlice(pair[0], spec[2])) + '</article></div>';
+        '<div class="warn-box">проект, на согласовании</div>' + legalGapBox(pair[1]) + '<article class="card legal-doc legal-doc--md">' + mdLite(legalSlice(pair[0], spec[2])) + '</article></div>';
     });
   };
   function publishedPage(path, id) {
@@ -3191,7 +3233,9 @@
     document.body.classList.toggle('is-home', r.name === 'home');
     document.body.classList.toggle('is-sheet', r.name === 'feedProduct' || r.name === 'part');
     document.body.classList.toggle('has-filters', !!FILTER_ROUTES[r.name]);
-    var fn = r.name === 'admin' ? window.CarvicAdmin.page : pages[r.name];
+    // админка (js/admin.js) пока не в репозитории — без неё раздел не падает, а честно говорит об этом
+    var adminPage = window.CarvicAdmin ? window.CarvicAdmin.page : function () { return Promise.resolve('<div class="page"><h1>Админка не подключена</h1><p class="muted">Модуль администрирования ещё не установлен на сайт.</p><a class="btn" href="#/">На главную</a></div>'); };
+    var fn = r.name === 'admin' ? adminPage : pages[r.name];
     if (previewMode() && PREVIEW_CAB[r.name]) {
       var section = PREVIEW_CAB[r.name];
       fn = function () { return Promise.resolve(previewCabinet(section)); };
@@ -3206,7 +3250,7 @@
       if (seq !== renderSeq) return;
       var keepScroll = lastRouteName === r.name;
       view.innerHTML = html;
-      var after = r.name === 'admin' ? window.CarvicAdmin.after : fn.after;
+      var after = r.name === 'admin' ? (window.CarvicAdmin && window.CarvicAdmin.after) : fn.after;
       if (after) after(view, r.arg);
       var stop = $('#stopAct', view);
       if (stop) stop.onclick = function () {
@@ -3216,7 +3260,12 @@
       lastRouteName = r.name;
       shownHash = hash;
       document.body.classList.remove('sb-open');
-    }).catch(function (e) { console.error(e); view.innerHTML = '<div class="page"><h1>Ошибка</h1><p>' + esc(e.message) + '</p></div>'; });
+    }).catch(function (e) {
+      console.error(e);
+      view.innerHTML = '<div class="page"><h1>Раздел временно недоступен</h1><p class="muted">' + esc(e.message) + '</p>' +
+        '<p>Подберём деталь и примем заказ по телефону <a href="tel:' + C.phoneHref + '">' + C.phone + '</a>.</p>' +
+        '<div class="deal-actions"><a class="btn" href="#/inquiry">Оставить заявку</a><a class="btn btn--ghost" href="#/">На главную</a></div></div>';
+    });
   }
 
   /* ------------------------- Глобальные события ------------------------- */
