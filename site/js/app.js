@@ -1114,7 +1114,11 @@
       return d && d.id && d.title && (!d.from || d.from <= today) && (!d.until || d.until >= today);
     });
   }
+  function dealPhoto(d, cls, eager) {
+    return '<img class="' + cls + '" src="' + esc(d.photo) + '" width="982" height="1133" alt="' + esc(d.photoAlt || '') + '"' + (eager ? '' : ' loading="lazy"') + ' decoding="async">';
+  }
   function dealArt(d) {
+    if (d.photo) return dealPhoto(d, 'deal-photo', true);
     if (d.ladder) {
       var n = d.ladder.length;
       return '<div class="deal-ladder" aria-hidden="true">' + d.ladder.map(function (st, k) {
@@ -1129,9 +1133,10 @@
     var many = list.length > 1;
     return '<section class="promo promo--deals" data-promo aria-roledescription="карусель" aria-label="Акции CARVIC">' +
       '<div class="promo__track">' + list.map(function (d, i) {
-        return '<div class="promo__slide promo__slide--' + esc(d.theme || 'red') + ' deal-slide" role="group" aria-roledescription="слайд" aria-label="' + (i + 1) + ' из ' + list.length + '"' + (i ? ' aria-hidden="true"' : '') + '>' +
+        return '<div class="promo__slide promo__slide--' + esc(d.theme || 'red') + ' deal-slide' + (d.photo ? ' deal-slide--photo' : '') + '" role="group" aria-roledescription="слайд" aria-label="' + (i + 1) + ' из ' + list.length + '"' + (i ? ' aria-hidden="true"' : '') + '>' +
           '<div class="promo__body"><p class="deal-slide__tag">Акция · ' + esc(d.name) + '</p>' +
           '<h2 class="promo__title">' + esc(d.title) + '</h2><p class="promo__text">' + esc(d.text) + '</p>' +
+          (d.photo && d.ladder ? '<ol class="deal-steps" aria-label="Скидка по числу разных позиций в чеке">' + d.ladder.map(function (st) { return '<li><b>' + esc(st[1]) + '</b><span>' + esc(st[0]) + ' поз.</span></li>'; }).join('') + '</ol>' : '') +
           '<a class="promo__cta" href="#/promo/' + esc(d.id) + '"' + (i ? ' tabindex="-1"' : '') + '>Условия акции</a></div>' +
           dealArt(d) + '</div>';
       }).join('') + '</div>' +
@@ -1153,7 +1158,7 @@
     }
     var other = list.filter(function (x) { return x.id !== d.id; });
     return Promise.resolve('<div class="page deal-page">' + crumbs +
-      '<div class="hero-strip"><p class="post-hero__tag">Акция · бессрочно · все магазины</p><h1>' + esc(d.title) + '</h1><p>' + esc(d.about) + '</p></div>' +
+      '<div class="hero-strip' + (d.photo ? ' deal-hero--photo' : '') + '"><p class="post-hero__tag">Акция · бессрочно · все магазины</p><h1>' + esc(d.title) + '</h1><p>' + esc(d.about) + '</p>' + (d.photo ? dealPhoto(d, 'deal-hero__img', true) : '') + '</div>' +
       (d.ladder ? '<section class="deal-sec"><h2>Лестница скидки</h2><div class="deal-table" role="table" aria-label="Скидка в зависимости от числа разных позиций в чеке">' +
         '<div class="deal-table__row deal-table__row--head" role="row"><span role="columnheader">Разных позиций в чеке</span><span role="columnheader">Скидка на комплект</span></div>' +
         '<div class="deal-table__row" role="row"><span role="cell">1 позиция</span><span role="cell" class="muted">не применяется</span></div>' +
