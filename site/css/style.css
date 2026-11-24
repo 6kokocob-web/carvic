@@ -1174,3 +1174,5 @@ body.modal-open { overflow: hidden; }
 .geo__store-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .geo__pop .gis-btn { color: var(--c-text); }
 .geo__pop .gis-btn:hover, .geo__pop .gis-btn:focus-visible { color: var(--c-signal); }
+/* фото павильонов — вертикальные кадры с вывеской вверху: держим вывеску в кадре */
+.store-photo img { object-position: 50% 15%; }
