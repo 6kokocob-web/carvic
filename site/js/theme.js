@@ -40,7 +40,7 @@
     setTimeout(function () { root.classList.remove('splash-on'); if (el.parentNode) el.parentNode.removeChild(el); }, 480);
   }
   if (splash) {
-    var MIN = 1300, MAX = 3000; // логотип успевает собраться; дольше 3 с не держим
+    var MIN = 1600, MAX = 3000; // иконка успевает прорисоваться и залиться; дольше 3 с не держим
     var started = (window.performance && performance.now) ? performance.now() : 0;
     window.addEventListener('load', function () {
       var spent = (window.performance && performance.now) ? performance.now() - started : MIN;
