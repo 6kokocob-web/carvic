@@ -2035,7 +2035,7 @@
     var cells = '';
     for (var i = 0; i < open; i++) cells += '<span class="ab-cell ab-cell--open" title="Открыт"></span>';
     for (i = 0; i < soonN; i++) cells += '<span class="ab-cell ab-cell--soon" title="Скоро открытие"></span>';
-    for (i = 0; i < 10; i++) cells += '<span class="ab-cell ab-cell--plan" title="План на 2027 год"></span>';
+    for (i = 0; i < 10; i++) cells += '<span class="ab-cell ab-cell--plan" title="План до конца 2027 года"></span>';
     return Promise.resolve('<div class="page about"><div class="crumbs"><a href="#/">Главная</a> / <span>О компании</span></div>' +
       '<div class="hero-strip"><h1 class="about-mission">Наша цель — знать о вашей машине больше, чтобы вам не приходилось ломать над ней голову.</h1>' +
         '<p>ООО «Карвик» — автозапчасти оптом и в розницу в Иркутске и Ангарске.</p></div>' +
@@ -2050,8 +2050,8 @@
           '<div class="ab-plan"><div class="ab-plan__num ab-plan__num--icon">' + homeIcon('factory', 56) + '<span>Запуск собственного<br>производства</span></div></div>' +
           '<div class="ab-plan"><div class="ab-plan__num"><b>20</b><span>многопрофильных сервисов<br>техобслуживания</span></div><div class="ab-pict ab-pict--20" aria-hidden="true">' + pict('service', 20, 'ab-pict__i') + '</div></div>' +
         '</div>' +
-        '<div class="ab-growth"><p class="ab-growth__title">Сеть магазинов</p><div class="ab-cells" role="img" aria-label="Сейчас ' + open + ' магазинов' + (soonN ? ', скоро ещё ' + soonN : '') + ', в 2027 году ещё 10">' + cells + '</div>' +
-          '<div class="ab-legend"><span><i class="ab-cell ab-cell--open"></i>Открыты — ' + open + '</span>' + (soonN ? '<span><i class="ab-cell ab-cell--soon"></i>Скоро — ' + soonN + '</span>' : '') + '<span><i class="ab-cell ab-cell--plan"></i>2027 год — ещё 10</span>' +
+        '<div class="ab-growth"><p class="ab-growth__title">Сеть магазинов</p><div class="ab-cells" role="img" aria-label="Сейчас ' + open + ' магазинов' + (soonN ? ', скоро ещё ' + soonN : '') + ', до конца 2027 года ещё 10">' + cells + '</div>' +
+          '<div class="ab-legend"><span><i class="ab-cell ab-cell--open"></i>Открыты — ' + open + '</span>' + (soonN ? '<span><i class="ab-cell ab-cell--soon"></i>Скоро — ' + soonN + '</span>' : '') + '<span><i class="ab-cell ab-cell--plan"></i>До конца 2027 года — ещё 10</span>' +
           '<a href="#/stores">Карта присутствия →</a></div></div>' +
       '</section>' +
       '<div class="card about-text about-text--photo"><figure class="about-text__img"><img src="img/team/brand-jacket.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Логотип CARVIC на форменной куртке сотрудника"></figure><div><p>Запчасти на китайские, европейские, японские и корейские автомобили. ' + (state.demoUi ? 'Подбор по VIN, по марке и модели, по артикулу и OEM-номеру.' : 'Подбор по артикулу и OEM-номеру. Если номера нет, оставьте заявку менеджеру.') + '</p>' +
