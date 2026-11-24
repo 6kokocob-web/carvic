@@ -46,6 +46,11 @@ window.COMPANY = {
     { id: 'irk-priboy-91a', short: 'Прибой, пав. 91/а', title: 'ТЦ «Прибой»', city: 'Иркутск', address: 'ул. Генерала Доватора, 39, пав. 91/а', gisUrl: 'https://2gis.ru/irkutsk/firm/70000001117000637', gisStatus: 'confirmed', hours: 'Пн–Вс 09:00–19:00', timezone: 'Asia/Irkutsk', hoursSource: '2gis', hoursVerifiedOn: '2026-11-08' },
     { id: 'irk-priboy-77', short: 'Прибой, пав. 77', title: 'ТЦ «Прибой»', city: 'Иркутск', address: 'ул. Генерала Доватора, 39, пав. 77', gisUrl: 'https://2gis.ru/irkutsk/firm/70000001118855620', gisStatus: 'confirmed', hours: 'Пн–Вс 09:00–19:00', timezone: 'Asia/Irkutsk', hoursSource: '2gis', hoursVerifiedOn: '2026-11-08' }
   ],
+  // Магазины для витрины (карта, главная, «Торговые точки», «Контакты»), но НЕ точки складского учёта:
+  // остатков, выбора точки в корзине и самовывоза по ним нет, пока точку не заведут в 1С и на сервере.
+  extraStores: [
+    { id: 'ang-avtomir', title: 'Автомир', city: 'Ангарск', address: 'ул. Чайковского, 1а, пав. 20 и 32', gisUrl: '', hours: 'Пн–Пт 09:00–19:00, Сб 10:00–18:00, Вс 10:00–17:00', timezone: 'Asia/Irkutsk', hoursSource: 'owner' }
+  ],
   hours: 'Пн–Сб 09:00–19:00; вс пав. 45 10:00–18:00, остальные точки 09:00–19:00, местное время Иркутска (Asia/Irkutsk)',
   hoursSource: '2gis',
   hoursVerifiedOn: '2026-11-08',
