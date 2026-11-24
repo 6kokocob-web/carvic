@@ -1148,7 +1148,8 @@
         return '<div class="deal-ladder__step" style="--h:' + Math.round(34 + 66 * (k + 1) / n) + '%"><b>' + esc(st[1]) + '</b><span>' + esc(st[0]) + ' поз.</span></div>';
       }).join('') + '</div>';
     }
-    return '<div class="deal-big" aria-hidden="true"><b>' + esc(d.badge || '') + '</b><span>наличными</span></div>';
+    return '<div class="deal-big" aria-hidden="true"><b>' + esc(d.badge || '') + '</b>' + (d.bigNote ? '<span>' + esc(d.bigNote) + '</span>' : '') +
+      (d.bigIcons ? '<span class="deal-big__icons">' + d.bigIcons.map(function (k) { return '<img src="img/social/' + esc(k) + '.svg" alt="" width="44" height="44">'; }).join('') + '</span>' : '') + '</div>';
   }
   function dealsSlider() {
     var list = activeDeals();
@@ -1183,7 +1184,7 @@
     }
     var other = list.filter(function (x) { return x.id !== d.id; });
     return Promise.resolve('<div class="page deal-page">' + crumbs +
-      '<div class="hero-strip' + (d.photo ? ' deal-hero--photo' : '') + '"><p class="post-hero__tag">Акция · бессрочно · все магазины</p><h1>' + esc(d.title) + '</h1><p>' + esc(d.about) + '</p>' + (d.photo ? dealPhoto(d, 'deal-hero__img', true) : '') + '</div>' +
+      '<div class="hero-strip' + (d.photo ? ' deal-hero--photo' : '') + '"><p class="post-hero__tag">Акция · ' + (d.until ? 'до ' + esc(d.until.split('-').reverse().join('.')) : 'бессрочно') + ' · все магазины</p><h1>' + esc(d.title) + '</h1><p>' + esc(d.about) + '</p>' + (d.photo ? dealPhoto(d, 'deal-hero__img', true) : '') + '</div>' +
       (d.ladder ? '<section class="deal-sec"><h2>Лестница скидки</h2><div class="deal-table" role="table" aria-label="Скидка в зависимости от числа разных позиций в чеке">' +
         '<div class="deal-table__row deal-table__row--head" role="row"><span role="columnheader">Разных позиций в чеке</span><span role="columnheader">Скидка на комплект</span></div>' +
         '<div class="deal-table__row" role="row"><span role="cell">1 позиция</span><span role="cell" class="muted">не применяется</span></div>' +
@@ -1193,7 +1194,8 @@
       '<section class="deal-sec deal-grid"><div class="card"><h3>Какие товары участвуют</h3><p>' + esc(d.items) + '</p></div>' +
         '<div class="card"><h3>Исключения</h3><p>' + esc(d.excl) + '</p></div></section>' +
       '<p class="deal-terms">' + esc(d.terms) + ' Подробности уточняйте у продавца или по телефону <a href="tel:' + C.phoneHref + '">' + C.phone + '</a>.</p>' +
-      '<div class="deal-actions"><a class="btn" href="#/stores">Адреса магазинов</a><a class="btn btn--ghost" href="#/inquiry?kind=selection">Подобрать запчасти по VIN</a></div>' +
+      '<div class="deal-actions">' + (d.links || []).map(function (l) { var u = (C.social || {})[l[1]]; return u ? '<a class="btn" href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(l[0]) + '</a>' : ''; }).join('') +
+        '<a class="btn' + (d.links ? ' btn--ghost' : '') + '" href="#/stores">Адреса магазинов</a><a class="btn btn--ghost" href="#/inquiry?kind=selection">Подобрать запчасти по VIN</a></div>' +
       (other.length ? '<section class="deal-sec"><h2>Другие акции</h2><div class="deal-cards">' + other.map(function (x) {
         return '<a class="deal-card deal-card--' + esc(x.theme || 'red') + '" href="#/promo/' + esc(x.id) + '"><span class="deal-card__badge">' + esc(x.badge || '') + '</span><b>' + esc(x.name) + '</b><span>' + esc(x.text) + '</span><span class="deal-card__more">Условия →</span></a>';
       }).join('') + '</div></section>' : '') +
