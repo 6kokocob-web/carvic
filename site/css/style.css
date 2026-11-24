@@ -1339,3 +1339,57 @@ html.splash-on .splash { position: fixed; inset: 0; z-index: 1000; display: grid
 @keyframes sp-fill { to { fill-opacity: 1; stroke-width: 0; } }
 @keyframes sp-pop { to { transform: scale(.86); } }
 @keyframes sp-out { to { opacity: 0; visibility: hidden; } }
+
+/* =====================================================================
+ * ПЛАВНАЯ СМЕНА ТЕМЫ: класс html.theme-anim ставится на 0,5 с при переключении
+ * (переключатель со своей «каплей» не трогаем)
+ * ===================================================================== */
+html.theme-anim body,
+html.theme-anim body *:not(.theme-toggle):not(.theme-toggle__opt):not(.theme-toggle__opt *),
+html.theme-anim body *:not(.theme-toggle)::before,
+html.theme-anim body *::after {
+  transition: background-color .45s ease, color .45s ease, border-color .45s ease, fill .45s ease, stroke .45s ease, box-shadow .45s ease, outline-color .45s ease !important;
+}
+
+/* =====================================================================
+ * ГЛАВНАЯ: первый экран — поиск по VIN + бонусы (гость) / широкий поиск (вошёл)
+ * ===================================================================== */
+.home-bonus { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 32px; border-radius: 16px; background: var(--c-surface); }
+.home-bonus__text { position: relative; z-index: 1; max-width: 78%; }
+.home-bonus__text h2 { margin: 0 0 6px; font-size: 26px; }
+.home-bonus__text p { margin: 0; font-size: 15px; color: var(--c-muted); }
+.home-bonus__form { position: relative; z-index: 1; display: flex; gap: 8px; }
+.home-bonus__form input { flex: 1 1 auto; min-width: 0; height: 52px; padding: 0 16px; border: 1px solid var(--c-field-border); border-radius: 10px; background: var(--c-field); color: var(--c-text); font-size: 16px; }
+.home-bonus__form input:focus { outline: 2px solid var(--c-signal); outline-offset: -1px; }
+.home-bonus__form input.is-bad { border-color: var(--c-signal); animation: hb-shake .35s; }
+.home-bonus__form .btn { flex: none; height: 52px; padding: 0 20px; }
+.home-bonus__alt { position: relative; z-index: 1; margin: 0; font-size: 13px; color: var(--c-muted); }
+.home-bonus__alt a { color: var(--c-red-text); font-weight: 600; }
+.home-bonus__art { position: absolute; right: -14px; top: -10px; width: 130px; height: 130px; opacity: .9; pointer-events: none; filter: drop-shadow(0 8px 12px rgba(0,0,0,.12)); }
+html[data-theme="dark"] .home-bonus__art { opacity: .18; }
+@keyframes hb-shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* вошедший покупатель: бонусный блок не нужен — поиск по VIN во всю ширину */
+.home-hero--wide { grid-template-columns: minmax(0, 1fr); }
+.home-hero--wide .home-hero__main { padding: 44px 48px; }
+.home-hero--wide .brand-lead { max-width: 720px; }
+.home-hero--wide .home-search { max-width: 860px; }
+.home-hero--wide .home-search input { height: 58px; font-size: 18px; }
+.home-hero--wide .home-search .btn { height: 58px; padding: 0 28px; }
+@media (max-width: 720px) {
+  .home-bonus { padding: 24px; }
+  .home-bonus__text { max-width: 85%; }
+  .home-bonus__text h2 { font-size: 22px; }
+  .home-bonus__form { flex-direction: column; }
+  .home-bonus__form .btn { width: 100%; }
+  .home-bonus__art { width: 96px; height: 96px; }
+  .home-hero--wide .home-hero__main { padding: 24px; }
+  .home-hero--wide .home-search input, .home-hero--wide .home-search .btn { height: 52px; font-size: 16px; }
+}
+@media (min-width: 1021px) {
+  .home-hero:not(.home-hero--wide) { grid-template-columns: minmax(0, 3fr) minmax(340px, 2fr); }
+}
+@media (min-width: 1021px) and (max-width: 1240px) {
+  .home-bonus__form { flex-direction: column; }
+  .home-bonus__form .btn { width: 100%; }
+}

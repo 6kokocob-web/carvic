@@ -61,6 +61,13 @@
       if (!btn) return;
       var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       try { localStorage.setItem(KEY, next); } catch (err) { /* приватный режим: тема до перезагрузки */ }
+      // плавная смена цветов: на время перехода включаем transition всем элементам (кроме самого переключателя)
+      var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!still) {
+        clearTimeout(apply._t);
+        root.classList.add('theme-anim');
+        apply._t = setTimeout(function () { root.classList.remove('theme-anim'); }, 520);
+      }
       apply(next);
     });
   });

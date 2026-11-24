@@ -500,6 +500,19 @@
     return '<svg class="hico" width="' + (size || 44) + '" height="' + (size || 44) + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (HOME_ICONS[name] || '') + '</svg>';
   }
 
+  /* Блок бонусной программы на первом экране — только для гостей. Телефон → окно регистрации
+   * с подставленным номером; после регистрации бонусная карта оформляется автоматически (сервер → 1С). */
+  function bonusCard() {
+    var B = C.bonus || {};
+    return '<div class="home-bonus">' +
+      '<div class="home-bonus__text"><h2>' + esc(B.title || 'Бонусы за покупки') + '</h2><p>' + esc(B.text || '') + '</p></div>' +
+      '<form class="home-bonus__form" id="bonusForm" novalidate><label class="sr" for="bonusPhone">Телефон</label>' +
+        '<input id="bonusPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="Телефон">' +
+        '<button class="btn" type="submit">' + esc(B.cta || 'Получить бонусы') + '</button></form>' +
+      '<p class="home-bonus__alt">Уже есть кабинет? <a href="#/signin">Войти</a></p>' +
+      '<svg class="home-bonus__art" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="hbG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d4d4d8"/></linearGradient></defs><rect x="52" y="-6" width="18" height="132" rx="9" transform="rotate(35 61 60)" fill="url(#hbG)"/><circle cx="30" cy="30" r="17" fill="url(#hbG)"/><circle cx="92" cy="92" r="17" fill="url(#hbG)"/></svg>' +
+    '</div>';
+  }
   function brandLanding() {
     var perks = [
       ['store', storesWord(C.stores.length + (C.extraStores || []).length), 'Иркутск и Ангарск'],
@@ -532,17 +545,14 @@
         (o.hours ? '<p>' + esc(o.hours) + '</p>' : '') + '</div>' + gisLink(o, 'gis-btn--corner') + '</article>';
     }).join('');
     return '' +
-      '<section class="home-hero">' +
+      '<section class="home-hero' + (loggedIn() ? ' home-hero--wide' : '') + '">' +
         '<div class="home-hero__main">' +
           '<h1>Всё подходит</h1>' +
           '<p class="brand-lead">Подберём деталь по VIN и проверим совместимость до оплаты. Подскажем, что стоит заменить вместе с ней.</p>' +
           '<form class="home-search" id="homeSearch"><label for="homeQuery" class="sr">VIN или номер кузова</label><input id="homeQuery" type="text" placeholder="VIN или номер кузова" maxlength="40" spellcheck="false"><button class="btn btn--dark" type="submit">Подобрать по VIN</button></form>' +
           '<p class="home-hero__note">Ищете по артикулу — введите его в строку поиска вверху. Нет VIN под рукой? Позвоните: <a href="tel:+73952575757">+7 (3952) 57-57-57</a></p>' +
         '</div>' +
-        '<div class="home-hero__sto">' +
-          '<div><h2>Для автосервисов</h2><p>Пришлите список деталей — подготовим предложение и условия закупки для вашего СТО.</p></div>' +
-          '<a class="btn btn--light" href="#/wholesale">Обсудить закупку</a>' +
-        '</div>' +
+        (loggedIn() ? '' : bonusCard()) +
       '</section>' +
       '<section class="home-perks" aria-label="Почему Карвик">' + perks.map(function (row) {
         return '<div class="home-perk">' + homeIcon(row[0], 24) + '<div><b>' + esc(row[1]) + '</b><span>' + esc(row[2]) + '</span></div></div>';
@@ -610,6 +620,17 @@
         $('#homeAsk', root).scrollIntoView({ behavior: 'smooth', block: 'center' });
         setTimeout(function () { var n = $('#homeName', root); if (n) n.focus({ preventScroll: true }); }, 350);
       }
+    };
+    var bonus = $('#bonusForm', root);
+    if (bonus) bonus.onsubmit = function (e) {
+      e.preventDefault();
+      var input = $('#bonusPhone', root), digits = input.value.replace(/\D/g, '');
+      if (digits.length < 10 || digits.length > 11) {
+        input.focus(); input.classList.remove('is-bad'); void input.offsetWidth; input.classList.add('is-bad');
+        toast('Укажите телефон: 10 или 11 цифр');
+        return;
+      }
+      location.hash = '#/register?phone=' + encodeURIComponent(input.value.trim());
     };
     var form = $('#homeInquiry', root);
     if (!form || !window.CarvicAccount) return;
@@ -1860,20 +1881,21 @@
   }
 
   /* --- Статические страницы --- */
-  function storeCard(o, n, note) {
+  function storeCard(o, n, note, opts) {
+    opts = opts || {};
     return '<article class="card store" data-store="' + esc(o.id) + '">' + storePhoto(o) +
       '<div class="store__head"><span class="num">' + n + '</span><h3>' + esc(o.title) + '</h3></div>' +
       '<div class="row"><span>Адрес</span><span>' + esc(o.city) + ', ' + esc(o.address) + '</span></div>' +
       '<div class="row"><span>Телефон</span><span><a href="tel:' + C.phoneHref + '">' + C.phone + '</a></span></div>' +
-      '<div class="row"><span>Часы</span><span>' + esc(o.hours) + '</span></div>' +
+      (opts.noHours ? '' : '<div class="row"><span>Часы</span><span>' + esc(o.hours) + '</span></div>') +
       (note ? '<p class="muted">' + esc(note) + '</p>' : '') +
       '<div class="actions"><a class="btn btn--ghost" href="tel:' + C.phoneHref + '">Позвонить</a>' + gisLink(o) + '</div></article>';
   }
-  function storeCards(withExtra) {
+  function storeCards(withExtra, opts) {
     var extra = withExtra ? (C.extraStores || []).map(function (o, i) {
-      return storeCard(o, C.stores.length + i + 1, 'Наличие по этому магазину на сайте пока не показывается — уточняйте по телефону.');
+      return storeCard(o, C.stores.length + i + 1, 'Наличие по этому магазину на сайте пока не показывается — уточняйте по телефону.', opts);
     }).join('') : '';
-    return '<div class="grid grid-3 stores" id="storeCards">' + C.stores.map(function (o, i) { return storeCard(o, i + 1); }).join('') + extra + '</div>';
+    return '<div class="grid grid-3 stores" id="storeCards">' + C.stores.map(function (o, i) { return storeCard(o, i + 1, '', opts); }).join('') + extra + '</div>';
   }
   /* Контакты под картой на главной: только данные из COMPANY и списка магазинов */
   function geoContacts() {
@@ -1951,12 +1973,12 @@
   };
   pages.contacts = function () {
     return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Контакты</span></div><h1>Контакты</h1>' +
-      '<div class="grid grid-3"><div class="card"><h3 style="margin-top:0">Основной телефон</h3><a class="price" style="text-align:left;display:block;text-decoration:none;font-size:22px" href="tel:' + C.phoneHref + '">' + C.phone + '</a><p class="muted" style="margin-bottom:0">Часы трёх точек: ' + esc(C.hours) + '. ' + esc(C.hoursNote) + '</p></div>' +
+      '<div class="grid grid-3"><div class="card"><h3 style="margin-top:0">Основной телефон</h3><a class="price" style="text-align:left;display:block;text-decoration:none;font-size:22px" href="tel:' + C.phoneHref + '">' + C.phone + '</a><p class="muted" style="margin-bottom:0">Единый номер для всех магазинов.</p></div>' +
       '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p></div>' +
       '<div class="card"><h3 style="margin-top:0">Адреса</h3><p style="margin:0 0 6px"><span class="muted">Фактический:</span> ' + esc(C.actualAddress) + '</p><p style="margin:0"><span class="muted">Юридический:</span> ' + esc(C.legalAddress) + '</p></div></div>' +
       (state.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(state.privacyEmail) + '">' + esc(state.privacyEmail) + '</a></p>' : '') +
       '<h2>Обратный звонок</h2><div class="card callback-cta"><p>Оставьте имя и телефон — менеджер перезвонит.</p><a class="btn" href="#/callback">Заказать звонок</a></div>' +
-      '<h2>Торговые точки</h2>' + storeCards(true) + '</div>');
+      '<h2>Торговые точки</h2>' + storeCards(true, { noHours: true }) + '</div>');
   };
   /* Заказать звонок — окно поверх страницы (см. MODAL_ROUTES) */
   pages.callback = function () {
@@ -2318,11 +2340,11 @@
    * заявкой через /api/inquiries — чтобы регистрация не терялась. */
   pages.register = function () {
     return Promise.resolve('<div id="registerPage"><h2 class="modal__title" id="modalTitle">Регистрация</h2>' +
-      '<p class="modal__lead">Личный кабинет: история заказов, гараж, блокнот и быстрый повтор покупок.</p>' +
+      '<p class="modal__lead">Личный кабинет и бонусная карта — оформится автоматически. История заказов, гараж и блокнот.</p>' +
       '<form class="form inq-form" id="regForm" novalidate>' +
       '<div class="field"><label for="regFirst">Имя</label><input id="regFirst" maxlength="60" autocomplete="given-name" required></div>' +
       '<div class="field"><label for="regLast">Фамилия</label><input id="regLast" maxlength="60" autocomplete="family-name"></div>' +
-      '<div class="field"><label for="regPhone">Телефон</label><input id="regPhone" inputmode="tel" maxlength="18" autocomplete="tel" placeholder="+7" required></div>' +
+      '<div class="field"><label for="regPhone">Телефон</label><input id="regPhone" inputmode="tel" maxlength="18" autocomplete="tel" placeholder="+7" required value="' + esc((currentRoute.params || {}).phone || '') + '"></div>' +
       '<div class="field"><label for="regEmail">E-mail</label><input id="regEmail" type="email" maxlength="120" autocomplete="email"></div>' +
       '<p class="reg-sub">Автомобиль <span>— необязательно. Сохраним в «Гараж», чтобы подбирать детали под эту машину</span></p>' +
       '<div class="field"><label for="regCar">Марка и модель</label><input id="regCar" maxlength="80" placeholder="Например, Toyota Corolla 2014"></div>' +
@@ -2403,7 +2425,7 @@
           kind: 'contact', name: name, contact: body.phone + (body.email ? ', ' + body.email : ''),
           message: 'Заявка на регистрацию в личном кабинете. ' + (body.email ? 'E-mail: ' + body.email + '. ' : '') +
             (body.car ? 'Автомобиль для «Гаража»: ' + (body.car.label || 'без названия') + (body.car.vin ? ', VIN/кузов ' + body.car.vin : '') + ' (согласие на «Гараж» дано). ' : '') +
-            'Пользовательское соглашение: принято. Рассылки: ' + (body.acceptAds ? 'согласен' : 'нет') + '.',
+            'Оформить бонусную карту. Пользовательское соглашение: принято. Рассылки: ' + (body.acceptAds ? 'согласен' : 'нет') + '.',
           article: '', vin: body.car && body.car.vin.length === 17 ? body.car.vin : '', company: body.company, consentRequest: true
         }).then(function () {
           done('Заявка принята', 'Менеджер создаст кабинет' + (body.car ? ', добавит автомобиль в «Гараж»' : '') + ' и сообщит вам. Потом вход — по номеру телефона и коду из SMS.');
