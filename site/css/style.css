@@ -2037,3 +2037,13 @@ html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s 
 @keyframes sl-draw { to { stroke-dashoffset: 0; } }
 @keyframes sl-fill { to { fill-opacity: 1; stroke-opacity: 0; } }
 @keyframes sl-up { to { opacity: 1; transform: none; } }
+/* официант крупнее и без затемнения справа: ролик прижат к правому краю слайда, растворяется только левый край */
+@media (min-width: 721px) {
+  .promo--deals .deal-slide--photo { min-height: 540px; }
+  .deal-video { right: 0;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16%), linear-gradient(to bottom, transparent 0, #000 8%);
+    mask-image: linear-gradient(to right, transparent 0, #000 16%), linear-gradient(to bottom, transparent 0, #000 8%);
+    -webkit-mask-composite: source-in; mask-composite: intersect; }
+}
+@media (min-width: 721px) and (max-width: 1020px) { .promo--deals .deal-slide--photo { min-height: 480px; } }
+@media (min-width: 721px) and (max-width: 1020px) { .deal-slide--photo .promo__body { max-width: 50%; } .promo--deals .deal-slide--photo .promo__title { font-size: 34px; white-space: normal; } .deal-slide--photo .deal-slide__sub { font-size: 19px; } }
