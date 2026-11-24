@@ -1951,3 +1951,36 @@ a.soc--drom:hover { background: transparent; }
   .promo--deals .deal-slide--photo .promo__title { font-size: 50px; }
   .deal-slide--photo .promo__body { max-width: 50%; }
 }
+
+/* =====================================================================
+ * ЗАСТАВКА — «люкс»: медленная прорисовка на длинных кривых, мягкая заливка,
+ * красная черта раскрывается из центра, логотип проявляется из лёгкого размытия,
+ * уход — подъём с растворением, сайт под ней проявляется.
+ * ===================================================================== */
+html.splash-on .splash { background: var(--c-bg); }
+.splash__stage { width: auto; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; will-change: transform, opacity, filter; }
+.splash__icon { width: 84px; height: 84px; }
+.splash__frame { stroke-width: 14; animation: sp-draw 1.05s cubic-bezier(.65, 0, .35, 1) .1s forwards; }
+.splash__glyph { stroke-width: 2.2; animation: sp-draw 1s cubic-bezier(.45, 0, .2, 1) forwards, sp-fill-lux .7s cubic-bezier(.22, 1, .36, 1) 1.35s forwards; }
+@keyframes sp-fill-lux { to { fill-opacity: 1; stroke-opacity: 0; } }
+.splash__line { display: block; width: 72px; height: 2px; margin: 22px 0 18px; border-radius: 2px; background: var(--c-signal);
+  transform: scaleX(0); animation: sp-line .8s cubic-bezier(.22, 1, .36, 1) 1.45s forwards; }
+@keyframes sp-line { to { transform: scaleX(1); } }
+.splash__logo { position: relative; display: block; width: 132px; height: 40px; opacity: 0; filter: blur(8px); transform: translateY(8px);
+  animation: sp-logo .9s cubic-bezier(.22, 1, .36, 1) 1.6s forwards; }
+.splash__logo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.splash__logo--dark { display: none; }
+html[data-theme="dark"] .splash__logo--light { display: none; }
+html[data-theme="dark"] .splash__logo--dark { display: block; }
+@keyframes sp-logo { to { opacity: 1; filter: blur(0); transform: none; } }
+/* уход */
+.splash.is-out { animation: sp-out-lux 1s cubic-bezier(.65, 0, .35, 1) .1s forwards; }
+.splash.is-out .splash__icon { animation: none; }
+.splash.is-out .splash__stage { animation: sp-stage-out .8s cubic-bezier(.55, 0, .45, 1) forwards; }
+@keyframes sp-stage-out { to { opacity: 0; transform: translateY(-14px) scale(.985); filter: blur(6px); } }
+@keyframes sp-out-lux { 0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+/* сайт проявляется под заставкой */
+html.splash-reveal #view { animation: sp-reveal 1.1s cubic-bezier(.22, 1, .36, 1) .25s both; }
+html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s cubic-bezier(.22, 1, .36, 1) .15s both; }
+@keyframes sp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sp-reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

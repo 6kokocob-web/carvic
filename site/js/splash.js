@@ -23,7 +23,15 @@
     svg.appendChild(p);
   }
   path(ic.frame, 'splash__frame');
-  ic.glyph.forEach(function (d, i) { path(d, 'splash__glyph', (0.35 + Math.min(i, 30) * 0.012).toFixed(3) + 's'); });
-  box.querySelector('.splash__stage').appendChild(svg);
+  // контуры детали прорисовываются мягкой волной, одна за другой
+  ic.glyph.forEach(function (d, i) { path(d, 'splash__glyph', (0.55 + Math.min(i, 24) * 0.018).toFixed(3) + 's'); });
+  var stage = box.querySelector('.splash__stage');
+  stage.appendChild(svg);
+  // под иконкой — фирменная красная черта и логотип
+  var line = document.createElement('span'); line.className = 'splash__line'; stage.appendChild(line);
+  var logo = document.createElement('span'); logo.className = 'splash__logo';
+  logo.innerHTML = '<img class="splash__logo--light" src="img/brand/carvic-logo-on-light.png" alt="" width="132" height="40">' +
+    '<img class="splash__logo--dark" src="img/brand/carvic-logo-on-dark.png" alt="" width="132" height="40">';
+  stage.appendChild(logo);
   box.setAttribute('data-icon', ic.name);
 })();
