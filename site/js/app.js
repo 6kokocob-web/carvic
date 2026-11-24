@@ -2003,7 +2003,7 @@
       return '<form class="card form" id="accForm"><div class="field"><label for="accPhone">Телефон</label><input id="accPhone" inputmode="numeric" autocomplete="username" placeholder="+7 9XX XXX-XX-XX"></div>' +
         '<button class="btn btn--ghost" id="accSend" type="button">Получить код</button>' +
         '<div class="field"><label for="accCode">Код из SMS</label><input id="accCode" inputmode="numeric" autocomplete="one-time-code"></div>' +
-        '<button class="btn btn--lg">Войти</button><p class="muted">Если номер подходит, код отправлен. В ответе сайта кода нет.</p></form>';
+        '<button class="btn btn--lg">Войти</button><p class="muted">Если номер подходит, код отправлен.</p></form>';
     }
     if (!st.demo) return null;
     return demoBanner('Учебный вход только при включённом демо-режиме сервера. Это не боевой пароль и не SMS.') +
@@ -2073,7 +2073,8 @@
     var A = window.CarvicAccount;
     var head = '<div id="signinPage"><h2 class="modal__title" id="modalTitle">Вход в личный кабинет</h2>' +
       '<p class="modal__lead">Один вход для покупателей, автосервисов и оптовиков — по номеру телефона.</p>';
-    var foot = '<p class="signin-alt">Оптовик или автосервис без кабинета? <a href="#/login">Регистрация контрагента</a></p></div>';
+    var foot = '<div class="signin-alt"><p>Нет кабинета? <a href="#/register">Зарегистрироваться</a></p>' +
+      '<p>Оптовик или автосервис? <a href="#/login">Регистрация контрагента</a></p></div></div>';
     return A.status().then(function (st) {
       state.demoAccounts = Boolean(st.demoAccounts);
       if (!st.available) return head + '<div class="warn-box">' + esc(st.note || 'Личный кабинет временно недоступен.') + '</div>' + foot;
@@ -2089,6 +2090,83 @@
   };
   pages.signin.after = function (root) {
     bindLoginForm(root, function () { location.hash = '#/account'; });
+  };
+  /* Регистрация покупателя — окно (#/register). Отправка: POST /api/account/register.
+   * Пока сервер этот адрес не знает (404/405/501), данные уходят менеджеру
+   * заявкой через /api/inquiries — чтобы регистрация не терялась. */
+  pages.register = function () {
+    return Promise.resolve('<div id="registerPage"><h2 class="modal__title" id="modalTitle">Регистрация</h2>' +
+      '<p class="modal__lead">Личный кабинет: история заказов, гараж, блокнот и быстрый повтор покупок.</p>' +
+      '<form class="form inq-form" id="regForm" novalidate>' +
+      '<div class="field"><label for="regFirst">Имя</label><input id="regFirst" maxlength="60" autocomplete="given-name" required></div>' +
+      '<div class="field"><label for="regLast">Фамилия</label><input id="regLast" maxlength="60" autocomplete="family-name"></div>' +
+      '<div class="field"><label for="regPhone">Телефон</label><input id="regPhone" inputmode="tel" maxlength="18" autocomplete="tel" placeholder="+7" required></div>' +
+      '<div class="field"><label for="regEmail">E-mail</label><input id="regEmail" type="email" maxlength="120" autocomplete="email"></div>' +
+      '<label class="check"><input type="checkbox" id="regTerms"> Принимаю <a href="#/legal/terms" target="_blank" rel="noopener">Пользовательское соглашение</a></label>' +
+      '<label class="check"><input type="checkbox" id="regPd"> Ознакомлен с <a href="#/legal/privacy" target="_blank" rel="noopener">Политикой обработки персональных данных</a> и даю <a href="#/legal/consent-request" target="_blank" rel="noopener">согласие на их обработку</a></label>' +
+      '<label class="check"><input type="checkbox" id="regAds"> Согласен получать <a href="#/legal/consent-ads" target="_blank" rel="noopener">информационные и рекламные рассылки</a></label>' +
+      '<div class="field" style="position:absolute;left:-9999px" aria-hidden="true"><label>Компания<input id="regCompany" tabindex="-1" autocomplete="off"></label></div>' +
+      '<p class="reg-err" id="regErr" role="alert" hidden></p>' +
+      '<button class="btn" type="submit">Зарегистрироваться</button></form>' +
+      '<div id="regResult"></div>' +
+      '<p class="signin-alt" id="regAlt">Уже есть кабинет? <a href="#/signin">Войти</a></p></div>');
+  };
+  pages.register.after = function (root) {
+    var form = $('#regForm', root);
+    if (!form) return;
+    function fail(text, el) {
+      var box = $('#regErr', root);
+      box.textContent = text; box.hidden = false;
+      if (el) el.focus();
+    }
+    function done(title, text) {
+      form.hidden = true;
+      $('#regAlt', root).hidden = true;
+      var lead = $('.modal__lead', root);
+      if (lead) lead.hidden = true;
+      $('#regResult', root).innerHTML = '<div class="inq-done"><span class="inq-done__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><p class="inq-done__title">' + esc(title) + '</p><p class="muted">' + esc(text) + '</p>' +
+        '<button class="btn" type="button" data-modal-close>Закрыть</button></div>';
+      var btn = $('[data-modal-close]', $('#regResult', root));
+      if (btn) btn.focus();
+    }
+    form.onsubmit = function (e) {
+      e.preventDefault();
+      $('#regErr', root).hidden = true;
+      var first = $('#regFirst', root), phone = $('#regPhone', root), email = $('#regEmail', root);
+      var digits = phone.value.replace(/\D/g, '');
+      if (!first.value.trim()) return fail('Укажите имя.', first);
+      if (digits.length < 10 || digits.length > 11) return fail('Укажите телефон: 10 или 11 цифр.', phone);
+      if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) return fail('Проверьте e-mail.', email);
+      if (!$('#regTerms', root).checked) return fail('Нужно принять Пользовательское соглашение.', $('#regTerms', root));
+      if (!$('#regPd', root).checked) return fail('Нужно согласие на обработку персональных данных.', $('#regPd', root));
+      var body = {
+        firstName: first.value.trim(), lastName: $('#regLast', root).value.trim(), phone: phone.value.trim(), email: email.value.trim(),
+        acceptTerms: true, consentRequest: true, acceptAds: $('#regAds', root).checked, company: $('#regCompany', root).value
+      };
+      var submit = $('button[type="submit"]', form);
+      submit.disabled = true;
+      window.CarvicAccount.register(body).then(function (res) {
+        done('Готово', (res && res.note) || 'Кабинет создан. Войдите по номеру телефона — придёт код в SMS.');
+      }).catch(function (err) {
+        if (!(err && (err.status === 404 || err.status === 405 || err.status === 501 || (err.code === 'network' && !err.status)))) {
+          submit.disabled = false;
+          return fail(err && err.message ? err.message : 'Не удалось отправить. Попробуйте ещё раз.');
+        }
+        // сервер ещё не умеет регистрировать — передаём менеджеру заявкой
+        var name = (body.firstName + ' ' + body.lastName).trim();
+        return window.CarvicAccount.sendInquiry({
+          kind: 'contact', name: name, contact: body.phone + (body.email ? ', ' + body.email : ''),
+          message: 'Заявка на регистрацию в личном кабинете. ' + (body.email ? 'E-mail: ' + body.email + '. ' : '') +
+            'Пользовательское соглашение: принято. Рассылки: ' + (body.acceptAds ? 'согласен' : 'нет') + '.',
+          article: '', vin: '', company: body.company, consentRequest: true
+        }).then(function () {
+          done('Заявка принята', 'Менеджер создаст кабинет и сообщит вам. Потом вход — по номеру телефона и коду из SMS.');
+        }).catch(function () {
+          submit.disabled = false;
+          fail('Не удалось отправить. Позвоните нам: ' + C.phone + '.');
+        });
+      });
+    };
   };
   pages.account.after = function (root) {
     bindLoginForm(root);
@@ -2383,7 +2461,7 @@
   /* ---- Всплывающее окно для форм (#/inquiry) ----
    * Адреса #/inquiry?… и #/callback сохраняются: ссылки и «Назад» работают как раньше,
    * но форма открывается поверх текущей страницы, а не вместо неё. */
-  var MODAL_ROUTES = { inquiry: true, callback: true, signin: true };
+  var MODAL_ROUTES = { inquiry: true, callback: true, signin: true, register: true };
   var shownHash = null;       // адрес страницы, которая сейчас под окном
   var modalFromApp = false;   // окно открыто переходом внутри сайта (можно вернуться «Назад»)
   var modalOpener = null;
@@ -2400,7 +2478,18 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '<div class="modal__body"></div></div>';
     document.body.appendChild(modal);
-    modal.addEventListener('click', function (e) { if (e.target.closest('[data-modal-close]')) requestCloseModal(); });
+    modal.addEventListener('click', function (e) {
+      if (e.target.closest('[data-modal-close]')) { requestCloseModal(); return; }
+      // переход из окна в другое окно (вход ↔ регистрация) — без новой записи в истории,
+      // чтобы крестик и «Назад» возвращали на страницу, а не в предыдущее окно
+      var a = e.target.closest('a[href^="#/"]');
+      if (!a || a.target === '_blank') return;
+      var name = a.getAttribute('href').replace(/^#\/?/, '').split(/[/?]/)[0];
+      if (!MODAL_ROUTES[name]) return;
+      e.preventDefault();
+      history.replaceState(null, '', a.getAttribute('href'));
+      route();
+    });
     document.addEventListener('keydown', function (e) {
       if (modal.hidden) return;
       if (e.key === 'Escape') { e.preventDefault(); requestCloseModal(); return; }

@@ -91,6 +91,7 @@
     sendInquiry: function (body) { return call('POST', '/api/inquiries', body); },
     setOutlet: function (body) { return call('POST', '/api/account/outlet', body); },
     registerOpt: function (body) { return call('POST', '/api/opt/register', body); },
+    register: function (body) { return call('POST', '/api/account/register', body); },
     checkout: function (payload, key) { return call('POST', '/api/account/checkout', payload, key); },
     rub: rub
   };

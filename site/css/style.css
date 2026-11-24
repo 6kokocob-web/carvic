@@ -1071,3 +1071,10 @@ body.modal-open { overflow: hidden; }
   .hdr-btn, .banner__phone-icon, .catalog-btn { width: 40px; height: 40px; }
   .logo .logo__full { width: 88px; }
 }
+
+/* окно регистрации */
+.signin-alt p { margin: 0; }
+.signin-alt p + p { margin-top: 8px; }
+.reg-err { grid-column: 1 / -1; margin: 0; padding: 10px 12px; border-radius: 8px; background: rgba(217,45,39,.08); color: var(--c-red-text); font-size: 14px; }
+.reg-err[hidden] { display: none; }
+.inq-form .check + .check { margin-top: -4px; }
