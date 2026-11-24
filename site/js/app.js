@@ -1725,16 +1725,16 @@
     var kind = params.kind || 'contact';
     if (kind !== 'contact' && kind !== 'selection' && kind !== 'price' && kind !== 'analog') kind = 'contact';
     function optKind(value, label) { return '<option value="' + value + '"' + (kind === value ? ' selected' : '') + '>' + label + '</option>'; }
-    return Promise.resolve('<div class="page" id="inquiryPage"><div class="crumbs"><a href="#/">Главная</a> / <span>Обращение</span></div><h1>Обращение и подбор</h1>' +
+    return Promise.resolve('<div id="inquiryPage"><h2 class="modal__title" id="modalTitle">Обращение и подбор</h2>' +
       '<p class="muted">Заявка сохраняется для менеджера и видна в админке. Письмо и SMS не отправляются.</p>' +
-      '<form class="card form" id="inquiryForm"><div class="field"><label for="inqKind">Тема</label><select id="inqKind">' + optKind('contact', 'Спросить менеджера') + optKind('price', 'Ошибка в цене или остатке') + optKind('analog', 'Подобрать аналог') + optKind('selection', 'Подбор') + '</select></div>' +
+      '<form class="form inq-form" id="inquiryForm"><div class="field field--wide"><label for="inqKind">Тема</label><select id="inqKind">' + optKind('contact', 'Спросить менеджера') + optKind('price', 'Ошибка в цене или остатке') + optKind('analog', 'Подобрать аналог') + optKind('selection', 'Подбор') + '</select></div>' +
       '<div class="field"><label for="inqArticle">Артикул</label><input id="inqArticle" maxlength="80" value="' + esc(article) + '"></div>' +
       '<div class="field"><label for="inqBrand">Бренд</label><input id="inqBrand" maxlength="80" value="' + esc(brand) + '"></div>' +
-      '<div class="field"><label for="inqOutlet">Точка</label><select id="inqOutlet">' + C.stores.map(function (s) { return '<option value="' + esc(s.id) + '"' + (s.id === point ? ' selected' : '') + '>' + esc(s.short) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field field--wide"><label for="inqOutlet">Точка</label><select id="inqOutlet">' + C.stores.map(function (s) { return '<option value="' + esc(s.id) + '"' + (s.id === point ? ' selected' : '') + '>' + esc(s.short) + '</option>'; }).join('') + '</select></div>' +
       '<div class="field"><label for="inqName">Имя</label><input id="inqName" maxlength="80"></div>' +
       '<div class="field"><label for="inqContact">Телефон или e-mail</label><input id="inqContact" maxlength="120"></div>' +
       (state.demoUi ? '<div class="field"><label for="inqVin">VIN, если есть</label><input id="inqVin" maxlength="17"></div>' : '') +
-      '<div class="field"><label for="inqMsg">Сообщение</label><textarea id="inqMsg" maxlength="2000" rows="5"></textarea></div>' +
+      '<div class="field field--wide"><label for="inqMsg">Сообщение</label><textarea id="inqMsg" maxlength="2000" rows="4"></textarea></div>' +
       '<label class="check"><input type="checkbox" id="inqConsent"> Я даю <a href="#/legal/consent-request" target="_blank" rel="noopener">согласие на обработку моих персональных данных</a> (имя, телефон' + (state.demoUi ? ', VIN' : '') + ', вопрос) для ответа на обращение и подбора запчастей</label>' +
       '<p class="muted">Подробнее — в <a href="#/legal/privacy">Политике обработки персональных данных</a></p>' +
       '<div class="field" style="position:absolute;left:-9999px" aria-hidden="true"><label>Компания<input id="inqCompany" tabindex="-1" autocomplete="off"></label></div>' +
@@ -1757,7 +1757,10 @@
         company: $('#inqCompany', root).value,
         consentRequest: $('#inqConsent', root).checked
       }).then(function (res) {
-        $('#inquiryResult', root).innerHTML = '<div class="warn-box">Номер ' + esc(res.id) + '. ' + esc(res.note) + '</div>';
+        form.hidden = true;
+        $('#inquiryResult', root).innerHTML = '<div class="inq-done"><p class="inq-done__title">Заявка принята</p><div class="warn-box">Номер ' + esc(res.id) + '. ' + esc(res.note) + '</div><button class="btn" type="button" data-modal-close>Закрыть</button></div>';
+        var done = $('[data-modal-close]', $('#inquiryResult', root));
+        if (done) done.focus();
       }).catch(function (err) { toast(err.message); });
     };
   };
@@ -2289,9 +2292,100 @@
     if (n === 'admin') return { name: 'admin', arg: parts[1] || 'products' };
     return { name: pages[n] ? n : 'notfound', arg: null };
   }
+  /* ---- Всплывающее окно для форм (#/inquiry) ----
+   * Адрес #/inquiry?… сохраняется: ссылки и «Назад» работают как раньше,
+   * но форма открывается поверх текущей страницы, а не вместо неё. */
+  var MODAL_ROUTES = { inquiry: true };
+  var shownHash = null;       // адрес страницы, которая сейчас под окном
+  var modalFromApp = false;   // окно открыто переходом внутри сайта (можно вернуться «Назад»)
+  var modalOpener = null;
+  var modal = null;
+  function normHash(h) { h = (h || '').replace(/^#\/?/, ''); return '#/' + h; }
+  function ensureModal() {
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.hidden = true;
+    modal.innerHTML = '<div class="modal__backdrop" data-modal-close></div>' +
+      '<div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">' +
+      '<button type="button" class="modal__close" data-modal-close aria-label="Закрыть">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '<div class="modal__body"></div></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function (e) { if (e.target.closest('[data-modal-close]')) requestCloseModal(); });
+    document.addEventListener('keydown', function (e) {
+      if (modal.hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); requestCloseModal(); return; }
+      if (e.key !== 'Tab') return;
+      var f = $$('a[href], button:not([disabled]), input:not([disabled]):not([tabindex="-1"]), select:not([disabled]), textarea:not([disabled])', modal)
+        .filter(function (el) { return el.offsetParent !== null; });
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    });
+    return modal;
+  }
+  function modalOpen() { return !!modal && !modal.hidden; }
+  function closeModal() {
+    if (!modalOpen()) return;
+    modal.hidden = true;
+    $('.modal__body', modal).innerHTML = '';
+    document.body.classList.toggle('modal-open', false);
+    if (modalOpener && document.contains(modalOpener)) modalOpener.focus({ preventScroll: true });
+    modalOpener = null;
+  }
+  function requestCloseModal() {
+    if (!modalOpen()) return;
+    if (modalFromApp) { history.back(); return; } // hashchange вернёт адрес страницы под окном
+    history.replaceState(null, '', shownHash || '#/');
+    closeModal();
+  }
+  function openModalRoute(r, seq) {
+    var fn = pages[r.name];
+    ensureModal();
+    return fn(r.arg).then(function (html) {
+      if (seq !== renderSeq) return;
+      var body = $('.modal__body', modal);
+      body.innerHTML = html;
+      if (fn.after) fn.after(body, r.arg);
+      if (!modalOpen()) {
+        modalOpener = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+        modal.hidden = false;
+        document.body.classList.toggle('modal-open', true);
+      }
+      body.scrollTop = 0;
+      var first = $('input:not([type="hidden"]):not([tabindex="-1"]), select, textarea', body);
+      (first || $('.modal__box', modal)).focus({ preventScroll: true });
+      document.body.classList.toggle('sb-open', false);
+    });
+  }
+
   var renderSeq = 0, lastRouteName = null;
   function route() {
     var r = currentRoute(), seq = ++renderSeq;
+    var hash = normHash(location.hash);
+    if (MODAL_ROUTES[r.name]) {
+      if (shownHash !== null) {
+        if (!modalOpen()) modalFromApp = true;
+        openModalRoute(r, seq).catch(function (e) { console.error(e); toast(e.message); });
+        return;
+      }
+      // прямой заход по ссылке на форму: под окном — главная
+      modalFromApp = false;
+      document.body.classList.toggle('is-home', true);
+      pages.home().then(function (html) {
+        if (seq !== renderSeq) return;
+        view.innerHTML = html;
+        if (pages.home.after) pages.home.after(view);
+        shownHash = '#/'; lastRouteName = 'home';
+        return openModalRoute(r, seq);
+      }).catch(function (e) { console.error(e); });
+      return;
+    }
+    if (modalOpen()) {
+      closeModal();
+      if (hash === shownHash) return; // «Назад» из окна: страница под ним уже на месте
+    }
     document.body.classList.toggle('is-home', r.name === 'home');
     document.body.classList.toggle('is-sheet', r.name === 'feedProduct' || r.name === 'part');
     var fn = r.name === 'admin' ? window.CarvicAdmin.page : pages[r.name];
@@ -2312,6 +2406,7 @@
       };
       if (!keepScroll) window.scrollTo(0, 0);
       lastRouteName = r.name;
+      shownHash = hash;
       document.body.classList.remove('sb-open');
     }).catch(function (e) { console.error(e); view.innerHTML = '<div class="page"><h1>Ошибка</h1><p>' + esc(e.message) + '</p></div>'; });
   }

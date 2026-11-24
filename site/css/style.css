@@ -936,3 +936,43 @@ html[data-theme="dark"] .theme-toggle__opt--dark { background: var(--c-signal); 
   .sb-theme .theme-toggle__opt { width: 32px; height: 32px; }
   .sb-theme .theme-toggle svg { width: 18px; height: 18px; }
 }
+
+/* =====================================================================
+ * ВСПЛЫВАЮЩЕЕ ОКНО ДЛЯ ФОРМ (#/inquiry открывается поверх страницы)
+ * Цвета — через переменные темы, работает и в светлой, и в тёмной.
+ * ===================================================================== */
+body.modal-open { overflow: hidden; }
+.modal { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.modal[hidden] { display: none; }
+.modal__backdrop { position: absolute; inset: 0; background: rgba(9,9,11,.55); animation: modal-fade .15s ease-out; }
+.modal__box { position: relative; width: min(640px, 100%); max-height: calc(100dvh - 48px); overflow: auto; overscroll-behavior: contain; background: var(--c-card); color: var(--c-text); border: 1px solid var(--c-border); border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,.28); padding: 28px 32px 32px; animation: modal-in .18s ease-out; }
+.modal__box:focus { outline: none; }
+.modal__close { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: var(--c-muted); cursor: pointer; }
+.modal__close:hover { background: var(--c-surface); color: var(--c-text); }
+.modal__close:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+.modal__close svg { width: 22px; height: 22px; }
+.modal__title { font-size: 26px; line-height: 1.2; letter-spacing: -0.01em; margin: 0 48px 6px 0; }
+.modal__body > div > .muted { margin: 0 0 18px; font-size: 14px; color: var(--c-muted); }
+.inq-form { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+.inq-form .field--wide, .inq-form .check, .inq-form .muted, .inq-form .btn { grid-column: 1 / -1; }
+.inq-form .field label { font-size: 13px; }
+.inq-form .field input, .inq-form .field select { height: 46px; padding: 0 14px; }
+.inq-form .field textarea { padding: 12px 14px; resize: vertical; }
+.inq-form .check { margin: 2px 0 0; font-size: 13px; color: var(--c-muted); }
+.inq-form .check a, .inq-form .muted a { color: var(--c-red-text); }
+.inq-form .muted { margin: 0; font-size: 13px; }
+.inq-form .btn { justify-self: start; height: 48px; padding: 0 28px; }
+.inq-done { display: grid; gap: 14px; justify-items: start; }
+.inq-done__title { margin: 0; font-family: var(--font-brand); font-weight: 800; font-size: 20px; }
+@keyframes modal-fade { from { opacity: 0; } }
+@keyframes modal-in { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .modal__backdrop, .modal__box { animation: none; } }
+@media (max-width: 720px) {
+  /* на телефоне — лист снизу во всю ширину */
+  .modal { padding: 0; align-items: flex-end; }
+  .modal__box { width: 100%; max-height: calc(100dvh - 24px); border-radius: 16px 16px 0 0; border-width: 1px 0 0; padding: 22px 16px calc(24px + env(safe-area-inset-bottom)); }
+  .modal__close { top: 10px; right: 8px; }
+  .modal__title { font-size: 22px; }
+  .inq-form { grid-template-columns: minmax(0, 1fr); }
+  .inq-form .btn { width: 100%; justify-self: stretch; }
+}
