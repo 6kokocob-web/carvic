@@ -565,12 +565,7 @@
       ['cooling', 'cooling', 'Охлаждение'],
       ['fluids', 'fluids', 'Масла и жидкости']
     ];
-    var posts = [
-      ['Тормоза', 'Когда менять тормозные колодки: 6 признаков износа', '#/catalog/brakes'],
-      ['Электрика', 'Аккумулятор для сибирской зимы: как выбрать', '#/catalog/electrics'],
-      ['Подвеска', 'Стук в подвеске: как найти причину по звуку', '#/catalog/suspension'],
-      ['Подбор', 'Как найти запчасть по VIN-коду', '#/inquiry']
-    ];
+    var posts = (window.CARVIC_BLOG || []).slice(0, 4).map(function (x) { return [x.tag, x.title, '#/blog/' + x.slug]; });
     var stores = C.stores.concat(C.extraStores || []).map(function (o) {
       var m = /,\s*пав\.\s*([^,]+)$/.exec(o.address || '');
       var title = (o.title || '') + (m ? ', пав. ' + m[1] : '');
@@ -2065,13 +2060,31 @@
   pages.aboutTeam = function () {
     return Promise.resolve('<div class="page" id="teamPage"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/about">О компании</a> / <span>Команда</span></div><h1>Команда Карвика</h1><div class="card"><p>В магазинах Карвика помогают с подбором детали и проверкой совместимости. Напишите или позвоните по общему номеру, если нужна консультация по заказу.</p><p><a class="btn btn--ghost" href="#/contacts">Контакты</a></p></div></div>');
   };
+  /* Блог: статьи — в js/blog.js (window.CARVIC_BLOG) */
+  function blogList() { return window.CARVIC_BLOG || []; }
+  function blogCard(x) {
+    return '<a class="blog-card2" href="#/blog/' + esc(x.slug) + '"><span class="blog-card2__icon">' + homeIcon(x.icon || 'check', 30) + '</span>' +
+      '<small>' + esc(x.tag) + ' · ' + x.minutes + ' мин</small><b>' + esc(x.title) + '</b><span class="blog-card2__lead">' + esc(x.lead) + '</span>' +
+      '<span class="blog-card2__more">Читать →</span></a>';
+  }
   pages.blog = function () {
-    return Promise.resolve('<div class="page" id="blogPage"><div class="crumbs"><a href="#/">Главная</a> / <span>Блог</span></div><h1>Блог</h1><div class="blog-grid">' +
-      '<a class="blog-card" href="#/catalog/brakes"><b>Когда менять тормозные колодки: 6 признаков износа</b> <span class="blog-more">Колодки в каталоге →</span></a>' +
-      '<a class="blog-card" href="#/catalog/electrics"><b>Аккумулятор для сибирской зимы: ёмкость, пусковой ток, как выбрать</b> <span class="blog-more">Аккумуляторы в каталоге →</span></a>' +
-      '<a class="blog-card" href="#/catalog/suspension"><b>Стук в подвеске: как найти причину по звуку</b> <span class="blog-more">Подвеска в каталоге →</span></a>' +
-      '<a class="blog-card" href="#/search"><b>Как найти запчасть по VIN-коду: пошаговая инструкция</b> <span class="blog-more">Подобрать по VIN →</span></a>' +
-      '</div></div>');
+    return Promise.resolve('<div class="page blog" id="blogPage"><div class="crumbs"><a href="#/">Главная</a> / <span>Блог</span></div>' +
+      '<div class="hero-strip"><h1>Блог <em>CARVIC</em></h1><p>Простыми словами — как понять, что с машиной, и подобрать нужную деталь.</p></div>' +
+      '<div class="blog-grid2">' + blogList().map(blogCard).join('') + '</div></div>');
+  };
+  pages.blogPost = function (slug) {
+    var list = blogList(), x = list.filter(function (a) { return a.slug === slug; })[0];
+    if (!x) return Promise.resolve('<div class="page"><h1>Статья не найдена</h1><p><a href="#/blog">Все статьи</a></p></div>');
+    var more = list.filter(function (a) { return a.slug !== slug; }).slice(0, 3);
+    return Promise.resolve('<div class="page blog-post"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/blog">Блог</a> / <span>' + esc(x.tag) + '</span></div>' +
+      '<header class="hero-strip post-hero"><p class="post-hero__tag">' + esc(x.tag) + ' · ' + x.minutes + ' мин чтения</p><h1>' + esc(x.title) + '</h1></header>' +
+      '<article class="post"><p class="post__lead">' + esc(x.lead) + '</p>' + x.body +
+        '<aside class="post-cta"><div><b>Подберём деталь под вашу машину</b><span>Пришлите VIN — назовём цену, наличие и проверим совместимость до оплаты.</span></div>' +
+        '<div class="post-cta__actions"><a class="btn" href="#/inquiry?kind=selection">' + esc(x.cta && x.cta.vin || 'Подобрать по VIN') + '</a>' +
+        (x.cta && x.cta.href && x.cta.href.indexOf('#/inquiry') !== 0 ? '<a class="btn btn--ghost" href="' + esc(x.cta.href) + '">' + esc(x.cta.text) + '</a>' : '') + '</div></aside>' +
+      '</article>' +
+      (more.length ? '<section class="post-more"><h2>Ещё статьи</h2><div class="blog-grid2">' + more.map(blogCard).join('') + '</div></section>' : '') +
+    '</div>');
   };
   pages.contacts = function () {
     return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Контакты</span></div><h1>Контакты</h1>' +
@@ -2858,7 +2871,7 @@
     if (n === 'notebook') return { name: 'notebook', arg: null };
     if (n === 'account') return { name: 'account', arg: null };
     if (n === 'about' && parts[1] === 'team') return { name: 'aboutTeam', arg: null };
-    if (n === 'blog') return { name: 'blog', arg: null };
+    if (n === 'blog') return parts[1] ? { name: 'blogPost', arg: decodeURIComponent(parts[1]) } : { name: 'blog', arg: null };
     if (n === 'admin') return { name: 'admin', arg: parts[1] || 'products' };
     return { name: pages[n] ? n : 'notfound', arg: null };
   }
