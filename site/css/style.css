@@ -1477,3 +1477,10 @@ html[data-theme="dark"] .cab-badge--ok { color: #86EFAC; }
   .cab-form, .cab-tiles { grid-template-columns: minmax(0, 1fr); }
 }
 .page.cab { max-width: none; } /* кабинет — по линии шапки, без старого ограничения 1060 px */
+
+/* «Скоро открытие» на карточках магазинов */
+.card.store, .home-stores .store-card { position: relative; }
+.soon-badge { position: absolute; top: 12px; left: 12px; z-index: 1; padding: 5px 10px; border-radius: 999px; background: var(--c-signal); color: #fff; font: 700 12px/1 var(--font-body); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+.store--soon .num { background: var(--c-muted); }
+.geo__store-head .geo__pop-soon { margin: 0 !important; }
+@media (min-width: 1021px) { .home-stores { grid-template-columns: repeat(3, minmax(0, 1fr)); } } /* 6 магазинов — ровно 3 × 2 */

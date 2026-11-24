@@ -20,6 +20,8 @@
   function catName(k) { var c = CATS.filter(function (x) { return x.key === k; })[0]; return c ? c.name : k; }
   function outlet(id) { return C.stores.filter(function (o) { return o.id === id; })[0]; }
   function mapUrl(o) { return o.gisUrl || ''; }
+  function openExtra() { return (C.extraStores || []).filter(function (o) { return !o.soon; }); }
+  function soonStores() { return (C.extraStores || []).filter(function (o) { return o.soon; }); }
   function storesWord(n) { var m10 = n % 10, m100 = n % 100; return n + ' ' + (m10 === 1 && m100 !== 11 ? 'магазин' : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'магазина' : 'магазинов'); }
   /* Значок «открыть в 2ГИС»: нейтральная иконка «карта с меткой» (официальный логотип 2ГИС —
    * по их брендбуку; если будет файл, заменить содержимое GIS_ICON). */
@@ -516,7 +518,7 @@
   }
   function brandLanding() {
     var perks = [
-      ['store', storesWord(C.stores.length + (C.extraStores || []).length), 'Иркутск и Ангарск'],
+      ['store', storesWord(C.stores.length + openExtra().length), 'Иркутск и Ангарск'],
       ['check', 'Проверка до оплаты', 'Сверяем по VIN и артикулу'],
       ['swap', 'Оригиналы и аналоги', 'Объясним разницу в цене'],
       ['wrench', 'Для СТО', 'Закупка списком, свои условия']
@@ -541,7 +543,8 @@
       var m = /,\s*пав\.\s*([^,]+)$/.exec(o.address || '');
       var title = (o.title || '') + (m ? ', пав. ' + m[1] : '');
       var addr = (o.city && o.city !== 'Иркутск' ? o.city + ', ' : '') + (m ? o.address.slice(0, m.index) : (o.address || ''));
-      return '<article class="store-card" data-store="' + esc(o.id) + '">' + storePhoto(o, 'store-photo--sm') +
+      return '<article class="store-card' + (o.soon ? ' store-card--soon-open' : '') + '" data-store="' + esc(o.id) + '">' + storePhoto(o, 'store-photo--sm') +
+        (o.soon ? '<span class="soon-badge">Скоро открытие</span>' : '') +
         '<div class="store-card__body"><h3>' + esc(title) + '</h3><p class="muted">' + esc(addr) + '</p>' +
         (o.hours ? '<p>' + esc(o.hours) + '</p>' : '') + '</div>' + gisLink(o, 'gis-btn--corner') + '</article>';
     }).join('');
@@ -1421,7 +1424,7 @@
   /* Карточка товара в режиме просмотра (без сервера): чистая вёрстка, без выдуманных цен и остатков */
   function previewPart(p) {
     var ask = function (kind) { return '#/inquiry?kind=' + kind + '&article=' + encodeURIComponent(p.article) + '&brand=' + encodeURIComponent(p.brand); };
-    var all = C.stores.concat(C.extraStores || []);
+    var all = C.stores.concat(openExtra());
     var cities = all.map(function (o) { return o.city; }).filter(function (c, i, a) { return a.indexOf(c) === i; });
     var similar = PARTS.filter(function (x) { return x.cat === p.cat && x.sku !== p.sku && !x.fixture; })
       .filter(function (x, i, a) { return a.findIndex(function (y) { return y.name === x.name; }) === i && x.name !== p.name; }).slice(0, 4);
@@ -1884,7 +1887,7 @@
   /* --- Статические страницы --- */
   function storeCard(o, n, note, opts) {
     opts = opts || {};
-    return '<article class="card store" data-store="' + esc(o.id) + '">' + storePhoto(o) +
+    return '<article class="card store' + (opts.soon ? ' store--soon' : '') + '" data-store="' + esc(o.id) + '">' + storePhoto(o) + (opts.soon ? '<span class="soon-badge">Скоро открытие</span>' : '') +
       '<div class="store__head"><span class="num">' + n + '</span><h3>' + esc(o.title) + '</h3></div>' +
       '<div class="row"><span>Адрес</span><span>' + esc(o.city) + ', ' + esc(o.address) + '</span></div>' +
       '<div class="row"><span>Телефон</span><span><a href="tel:' + C.phoneHref + '">' + C.phone + '</a></span></div>' +
@@ -1894,13 +1897,15 @@
   }
   function storeCards(withExtra, opts) {
     var extra = withExtra ? (C.extraStores || []).map(function (o, i) {
-      return storeCard(o, C.stores.length + i + 1, 'Наличие по этому магазину на сайте пока не показывается — уточняйте по телефону.', opts);
+      return storeCard(o, C.stores.length + i + 1, o.soon ? 'Скоро открытие. Следите за новостями или звоните.' : 'Наличие по этому магазину на сайте пока не показывается — уточняйте по телефону.', Object.assign({ soon: o.soon }, opts || {}));
     }).join('') : '';
     return '<div class="grid grid-3 stores" id="storeCards">' + C.stores.map(function (o, i) { return storeCard(o, i + 1, '', opts); }).join('') + extra + '</div>';
   }
   /* Контакты под картой на главной: только данные из COMPANY и списка магазинов */
   function geoContacts() {
-    var irk = C.stores.length, ang = (C.extraStores || []).filter(function (o) { return o.city === 'Ангарск'; }).length;
+    var irk = C.stores.filter(function (o) { return o.city === 'Иркутск'; }).length + openExtra().filter(function (o) { return o.city === 'Иркутск'; }).length;
+    var ang = openExtra().filter(function (o) { return o.city === 'Ангарск'; }).length;
+    var soonN = soonStores().length;
     function ic(path) { return '<span class="geo-contacts__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg></span>'; }
     return '<div class="geo-contacts">' +
       '<div class="geo-contacts__item">' + ic('<path d="M6 4h3l2 5-2 1a12 12 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2z"/>') +
@@ -1908,7 +1913,7 @@
       '<div class="geo-contacts__item">' + ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>') +
         '<div><span class="geo-contacts__label">Почта</span><a class="geo-contacts__main" href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><a href="#/inquiry">Написать менеджеру</a></div></div>' +
       '<div class="geo-contacts__item">' + ic('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>') +
-        '<div><span class="geo-contacts__label">Магазины</span><span class="geo-contacts__main">' + storesWord(irk + ang) + '</span><span class="muted">Иркутск — ' + irk + (ang ? ', Ангарск — ' + ang : '') + '</span><a href="#/stores">Адреса и часы работы</a></div></div>' +
+        '<div><span class="geo-contacts__label">Магазины</span><span class="geo-contacts__main">' + storesWord(irk + ang) + '</span><span class="muted">Иркутск — ' + irk + (ang ? ', Ангарск — ' + ang : '') + (soonN ? '; скоро ещё ' + soonN : '') + '</span><a href="#/stores">Адреса и часы работы</a></div></div>' +
       '<div class="geo-contacts__item">' + ic('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>') +
         '<div><span class="geo-contacts__label">Режим работы</span><span class="geo-contacts__main">Без выходных</span><span class="muted">Пн–Пт 09:00–19:00, в выходные часы у магазинов разные</span></div></div>' +
     '</div>';
@@ -1920,15 +1925,18 @@
       return { id: id, name: name, status: 'soon', label: name + ': скоро открытие',
         popup: '<p class="geo__pop-title">' + esc(name) + '</p><p class="geo__pop-soon">Скоро открытие</p>' };
     }
-    var irk = C.stores.filter(function (o) { return o.city === 'Иркутск'; });
+    var irk = C.stores.concat(openExtra()).filter(function (o) { return o.city === 'Иркутск'; });
+    var irkSoon = soonStores().filter(function (o) { return o.city === 'Иркутск'; });
     return [
       { id: 'irkutsk', name: 'Иркутск', status: 'open', label: 'Иркутск: ' + storesWord(irk.length) + ' CARVIC',
         popup: '<p class="geo__pop-title">Иркутск</p><p class="geo__pop-sub">' + storesWord(irk.length) + ' CARVIC</p>' +
           irk.map(function (o) {
             return '<div class="geo__store"><div class="geo__store-head"><b>' + esc(o.title) + '</b>' + gisLink(o, 'gis-btn--sm') + '</div><span>' + esc(o.address) + '</span>' + (o.hours ? '<span class="muted">' + esc(o.hours) + '</span>' : '') + '</div>';
+          }).join('') + irkSoon.map(function (o) {
+            return '<div class="geo__store"><div class="geo__store-head"><b>' + esc(o.title) + '</b><span class="geo__pop-soon">Скоро открытие</span></div><span>' + esc(o.address) + '</span></div>';
           }).join('') + '<p class="geo__pop-foot">' + phone + '</p>' },
       (function () {
-        var ang = (C.extraStores || []).filter(function (o) { return o.city === 'Ангарск'; });
+        var ang = openExtra().filter(function (o) { return o.city === 'Ангарск'; });
         return { id: 'angarsk', name: 'Ангарск', status: 'open', label: 'Ангарск: ' + storesWord(ang.length || 1) + ' CARVIC',
           popup: '<p class="geo__pop-title">Ангарск</p><p class="geo__pop-sub">' + storesWord(ang.length || 1) + ' CARVIC</p>' +
             (ang.length ? ang.map(function (o) {
@@ -1940,7 +1948,7 @@
   }
   pages.stores = function () {
     var geo = window.CarvicGeo ? '<h2 class="geo__title">География</h2>' + window.CarvicGeo.html(geoCities()) : '';
-    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Пять магазинов CARVIC: три в Иркутске и два в Ангарске. Наличие товара по иркутским магазинам показывается в каталоге и корзине.</p>' + geo + '<h2 class="geo__title">Магазины</h2>' + storeCards(true) + '</div>');
+    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Пять магазинов CARVIC: три в Иркутске и два в Ангарске. Скоро откроется ещё один — в ТЦ «Автоград» в Иркутске. Наличие товара по иркутским магазинам показывается в каталоге и корзине.</p>' + geo + '<h2 class="geo__title">Магазины</h2>' + storeCards(true) + '</div>');
   };
   pages.stores.after = function (root) { if (window.CarvicGeo) window.CarvicGeo.bind(root); };
   pages.wholesale = function () {
