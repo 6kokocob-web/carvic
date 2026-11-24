@@ -258,7 +258,7 @@
       renderBuyer();
       renderCartCount();
     }).catch(function () {
-      state.buyer = null;
+      state.buyer = demoLoggedIn() ? { name: DEMO.buyer.name, demo: true } : null;
       state.wholesale = null;
       state.act = null;
       state.serverQty = null;
@@ -289,6 +289,7 @@
         '<hr><button type="button" role="menuitem" class="profile-menu__out" id="profileLogout">Выйти</button>';
       $('#profileLogout').onclick = function () {
         closeProfileMenu();
+        if (state.buyer && state.buyer.demo) { demoLogout(); return; }
         var done = state.act ? window.CarvicAccount.stopAct() : window.CarvicAccount.logout();
         done.then(function () { state.buyer = null; state.wholesale = null; state.act = null; state.serverQty = null; renderBuyer(); renderCartCount(); route(); });
       };
@@ -2308,12 +2309,22 @@
         return '<div class="page"><h1>Вход в кабинет</h1>' + block + '<p><a href="#/notebook">Блокнот</a></p></div>';
       });
     }).catch(function () {
-      return '<div class="page"><h1>Личный кабинет</h1><div class="card">Сервер кабинета не ответил. Запустите <span class="mono">node server/index.js</span>.</div></div>';
+      return '<div class="page"><h1>Личный кабинет</h1><div class="card">Личный кабинет временно недоступен. Попробуйте позже или позвоните: <a href="tel:' + C.phoneHref + '">' + C.phone + '</a>.</div></div>';
     });
   };
   /* Вход в личный кабинет — окно из иконки в шапке. Один вход для покупателей,
    * автосервисов и оптовиков; регистрация контрагента — отдельной ссылкой. */
   pages.signin = function () {
+    if (previewMode()) {
+      return Promise.resolve('<div id="signinPage"><h2 class="modal__title" id="modalTitle">Вход в личный кабинет</h2>' +
+        '<div class="warn-box preview-note">Режим просмотра: демо-вход — логин <b>1</b>, пароль <b>1</b>. На рабочем сайте вход по номеру телефона и коду из SMS.</div>' +
+        '<form class="form inq-form" id="demoLogin" novalidate>' +
+          '<div class="field field--wide"><label for="demoUser">Логин</label><input id="demoUser" autocomplete="username" autocapitalize="off" spellcheck="false"></div>' +
+          '<div class="field field--wide"><label for="demoPass">Пароль</label><input id="demoPass" type="password" autocomplete="current-password"></div>' +
+          '<p class="reg-err" id="demoErr" role="alert" hidden></p>' +
+          '<button class="btn" type="submit">Войти</button></form>' +
+        '<div class="signin-alt"><p>Нет кабинета? <a href="#/register">Зарегистрироваться</a></p></div></div>');
+    }
     var A = window.CarvicAccount;
     var head = '<div id="signinPage"><h2 class="modal__title" id="modalTitle">Вход в личный кабинет</h2>' +
       '<p class="modal__lead">Один вход для покупателей, автосервисов и оптовиков — по номеру телефона.</p>';
@@ -2333,6 +2344,23 @@
     });
   };
   pages.signin.after = function (root) {
+    var demoForm = $('#demoLogin', root);
+    if (demoForm) {
+      demoForm.addEventListener('input', function () { $('#demoErr', root).hidden = true; });
+      demoForm.onsubmit = function (e) {
+        e.preventDefault();
+        if (!previewMode()) return; // на рабочем сайте демо-вход не принимается
+        if ($('#demoUser', root).value.trim() !== '1' || $('#demoPass', root).value !== '1') {
+          var err = $('#demoErr', root); err.textContent = 'Неверный логин или пароль.'; err.hidden = false; $('#demoPass', root).focus();
+          return;
+        }
+        try { sessionStorage.setItem(DEMO_KEY, '1'); } catch (er) { /* без хранилища — до перезагрузки */ }
+        state.buyer = { name: DEMO.buyer.name, demo: true };
+        renderBuyer();
+        location.hash = '#/account';
+      };
+      return;
+    }
     bindLoginForm(root, function () { location.hash = '#/account'; });
   };
   /* Регистрация покупателя — окно (#/register). Отправка: POST /api/account/register.
@@ -2807,6 +2835,83 @@
 
   // страницы подбора запчастей: на них слева панель каталога (фильтры); на остальных её нет
   var FILTER_ROUTES = { catalog: true, catalogCat: true, search: true, vin: true };
+  /* ---- Демо-вход «1 / 1» и демо-кабинет: ТОЛЬКО в режиме просмотра ----
+   * (сервер недоступен И домен не carvic.ru — см. previewMode). На рабочем сайте этот вход
+   * не работает: там кабинет и вход только через сервер (телефон + код из SMS).
+   * Все данные ниже — примеры для показа вёрстки, ничего не сохраняется и не уходит в 1С. */
+  var DEMO_KEY = 'carvic_demo_login';
+  var DEMO = {
+    buyer: { name: 'Иван Петров', first: 'Иван', last: 'Петров', phone: '+7 999 123-45-67', email: 'ivan@example.com' },
+    bonus: { balance: 1250, card: '7000 0000 1234' },
+    garage: [{ label: 'Toyota Camry 2019', vin: 'JTNB11HK103456789', make: 'Toyota' }],
+    orders: [
+      { id: 'CV-10482', date: '18.11.2026', status: 'Готов к выдаче', ok: true, store: 'ТЦ «Прибой», пав. 91/а', items: ['Тормозные колодки передние, Brembo', 'Датчик износа колодок', 'Жидкость тормозная DOT-4, 1 л'], total: 6480 },
+      { id: 'CV-10377', date: '02.11.2026', status: 'Выдан', ok: false, store: 'Автосити на Сергеевском, пав. 45', items: ['Фильтр масляный, Mann-Filter'], total: 2150 }
+    ]
+  };
+  function demoLoggedIn() {
+    if (!previewMode()) return false;
+    try { return sessionStorage.getItem(DEMO_KEY) === '1'; } catch (e) { return false; }
+  }
+  function demoLogout() {
+    try { sessionStorage.removeItem(DEMO_KEY); } catch (e) { /* нет хранилища */ }
+    state.buyer = null; state.wholesale = null;
+    renderBuyer(); renderCartCount();
+    toast('Вы вышли из демо-кабинета');
+    location.hash = '#/';
+  }
+  var PREVIEW_CAB = { account: 'profile', accountSettings: 'profile', accountOrders: 'orders', accountOrder: 'orders', accountBalance: 'bonus', accountGarage: 'garage', notebook: 'notebook', accountWholesaleReturns: 'orders' };
+  function previewCabinet(section) {
+    if (!demoLoggedIn()) {
+      return '<div class="page cab"><h1>Личный кабинет</h1><div class="card cab-empty"><p>Войдите, чтобы открыть кабинет.</p><a class="btn" href="#/signin">Войти</a></div></div>';
+    }
+    var B = DEMO.buyer, nav = [['profile', '#/account', 'Профиль'], ['orders', '#/account/orders', 'Мои заказы'], ['bonus', '#/account/balance', 'Бонусы'], ['garage', '#/account/garage', 'Гараж'], ['notebook', '#/notebook', 'Блокнот']];
+    var money = function (v) { return v.toLocaleString('ru-RU') + ' ₽'; };
+    var orderCard = function (o) {
+      return '<article class="cab-order"><div class="cab-order__head"><b>Заказ ' + esc(o.id) + '</b><span class="cab-badge' + (o.ok ? ' cab-badge--ok' : '') + '">' + esc(o.status) + '</span></div>' +
+        '<p class="muted">' + esc(o.date) + ' · ' + esc(o.store) + '</p><ul>' + o.items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>' +
+        '<div class="cab-order__foot"><b>' + money(o.total) + '</b><button type="button" class="btn btn--ghost" data-demo-toast="Повтор заказа появится на рабочем сайте">Повторить заказ</button></div></article>';
+    };
+    var body = '';
+    if (section === 'profile') {
+      body = '<h1>Профиль</h1><form class="cab-form" id="cabForm">' +
+        '<div class="field"><label>Имя</label><input value="' + esc(B.first) + '"></div>' +
+        '<div class="field"><label>Фамилия</label><input value="' + esc(B.last) + '"></div>' +
+        '<div class="field"><label>Телефон</label><input value="' + esc(B.phone) + '" disabled title="Телефон меняется через менеджера"></div>' +
+        '<div class="field"><label>Электронная почта</label><input type="email" value="' + esc(B.email) + '"></div>' +
+        '<button type="button" class="btn" data-demo-toast="В демо-кабинете изменения не сохраняются">Сохранить</button></form>' +
+        '<div class="cab-tiles">' +
+          '<a class="cab-tile" href="#/account/balance"><small>Бонусы</small><b>' + DEMO.bonus.balance.toLocaleString('ru-RU') + '</b><span>на карте ' + esc(DEMO.bonus.card) + '</span></a>' +
+          '<a class="cab-tile" href="#/account/orders"><small>Заказы</small><b>' + DEMO.orders.length + '</b><span>последний — ' + esc(DEMO.orders[0].status.toLowerCase()) + '</span></a>' +
+          '<a class="cab-tile" href="#/account/garage"><small>Гараж</small><b>' + DEMO.garage.length + '</b><span>' + esc(DEMO.garage[0].label) + '</span></a>' +
+        '</div>';
+    } else if (section === 'orders') {
+      body = '<h1>Мои заказы</h1>' + DEMO.orders.map(orderCard).join('');
+    } else if (section === 'bonus') {
+      body = '<h1>Бонусы</h1><div class="cab-bonus"><small>Бонусная карта ' + esc(DEMO.bonus.card) + '</small><b>' + DEMO.bonus.balance.toLocaleString('ru-RU') + ' бонусов</b>' +
+        '<span>Карта оформлена автоматически при регистрации. Условия начисления и списания появятся здесь, когда будут утверждены правила программы.</span></div>' +
+        '<h2 class="cab-h2">История</h2><ul class="cab-hist">' + DEMO.orders.map(function (o) { return '<li><span>' + esc(o.date) + ' · заказ ' + esc(o.id) + '</span><b>начисление — по правилам программы</b></li>'; }).join('') + '</ul>';
+    } else if (section === 'garage') {
+      body = '<h1>Гараж</h1>' + DEMO.garage.map(function (c) {
+        return '<article class="cab-car"><div><b>' + esc(c.label) + '</b><p class="muted mono">VIN ' + esc(c.vin) + '</p></div>' +
+          '<div class="cab-car__actions"><a class="btn" href="#/catalog" data-demo-make="' + esc(c.make) + '">Подобрать запчасти</a><a class="btn btn--ghost" href="#/inquiry?kind=selection">Подбор по VIN</a></div></article>';
+      }).join('') + '<button type="button" class="btn btn--ghost cab-add" data-demo-toast="Добавление автомобиля появится на рабочем сайте">+ Добавить автомобиль</button>';
+    } else {
+      body = '<h1>Блокнот</h1><div class="cab-empty"><p>Здесь будут товары, которые вы отложили. Пока пусто.</p><a class="btn" href="#/catalog">Перейти в каталог</a></div>';
+    }
+    return '<div class="page cab"><div class="warn-box preview-note">Демо-кабинет для просмотра: данные — примеры, ничего не сохраняется. На рабочем сайте вход — по номеру телефона и коду из SMS.</div>' +
+      '<div class="cab-grid"><nav class="cab-nav" aria-label="Личный кабинет"><p class="cab-nav__name">' + esc(B.name) + '</p>' +
+        nav.map(function (n) { return '<a href="' + n[1] + '"' + (n[0] === section ? ' aria-current="page"' : '') + '>' + n[2] + '</a>'; }).join('') +
+        '<hr><button type="button" class="cab-nav__out" data-demo-logout>Выйти</button></nav>' +
+      '<section class="cab-main">' + body + '</section></div></div>';
+  }
+  function bindPreviewCabinet(root) {
+    var cf = $('#cabForm', root); if (cf) cf.onsubmit = function (e) { e.preventDefault(); toast('В демо-кабинете изменения не сохраняются'); };
+    $$('[data-demo-toast]', root).forEach(function (b) { b.onclick = function () { toast(b.dataset.demoToast); }; });
+    $$('[data-demo-logout]', root).forEach(function (b) { b.onclick = demoLogout; });
+    $$('[data-demo-make]', root).forEach(function (a) { a.onclick = function () { state.make = a.dataset.demoMake; state.model = ''; state.year = ''; syncCarSelects(); }; });
+  }
+
   var renderSeq = 0, lastRouteName = null;
   function route() {
     var r = currentRoute(), seq = ++renderSeq;
@@ -2837,6 +2942,11 @@
     document.body.classList.toggle('is-sheet', r.name === 'feedProduct' || r.name === 'part');
     document.body.classList.toggle('has-filters', !!FILTER_ROUTES[r.name]);
     var fn = r.name === 'admin' ? window.CarvicAdmin.page : pages[r.name];
+    if (previewMode() && PREVIEW_CAB[r.name]) {
+      var section = PREVIEW_CAB[r.name];
+      fn = function () { return Promise.resolve(previewCabinet(section)); };
+      fn.after = bindPreviewCabinet;
+    }
     $$('.sb-nav a').forEach(function (a) { var href = a.getAttribute('href').replace(/^#\/?/, '').split('/')[0] || 'home'; a.classList.toggle('on', href === (r.name === 'catalogCat' ? 'catalog' : r.name)); });
     $$('.qi').forEach(function (a) { a.classList.toggle('on', r.name === 'catalogCat' && a.getAttribute('href') === '#/catalog/' + r.arg); });
     if (r.name === 'cart' || r.name === 'checkout' || r.name.indexOf('account') === 0) {
