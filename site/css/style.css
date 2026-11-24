@@ -2056,3 +2056,7 @@ html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s 
   .deal-big__icons { flex-basis: 100%; justify-content: flex-start; margin: 14px 0 0 !important; }
   .promo--deals .promo__slide:not(.deal-slide--photo) { justify-content: center; }
 }
+/* официант ближе к тексту: ролик крупнее (выше слайда, низ уходит за край), правый край — по краю слайда */
+@media (min-width: 1021px) {
+  .deal-video { top: 0; bottom: auto; height: 114%; }
+}
