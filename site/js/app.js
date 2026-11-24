@@ -20,6 +20,7 @@
   function catName(k) { var c = CATS.filter(function (x) { return x.key === k; })[0]; return c ? c.name : k; }
   function outlet(id) { return C.stores.filter(function (o) { return o.id === id; })[0]; }
   function mapUrl(o) { return o.gisUrl || ''; }
+  function storesWord(n) { var m10 = n % 10, m100 = n % 100; return n + ' ' + (m10 === 1 && m100 !== 11 ? 'магазин' : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'магазина' : 'магазинов'); }
   /* Значок «открыть в 2ГИС»: нейтральная иконка «карта с меткой» (официальный логотип 2ГИС —
    * по их брендбуку; если будет файл, заменить содержимое GIS_ICON). */
   var GIS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -52,6 +53,11 @@
   var priceCache = {}, stockCache = {};
   function cpId() { return state.cp ? state.cp.id : null; }
   function ensureData(skus) {
+    if (previewMode()) {
+      // режим просмотра без сервера: цены и остатки не выдумываем — карточки с «цена по запросу»
+      skus.forEach(function (s) { if (!(s in priceCache)) priceCache[s] = { sku: s, price: null, source: 'preview', priceType: 'retail' }; });
+      return Promise.resolve();
+    }
     var needP = skus.filter(function (s) { return !(s in priceCache); });
     var needS = skus.filter(function (s) { return !(s in stockCache); });
     return Promise.all([
@@ -64,6 +70,7 @@
   function priceHTML(sku) {
     var p = priceCache[sku];
     if (!p) return '<div class="price loading">…</div>';
+    if (p.price == null) return '<div class="price price--ask">цена по запросу</div>';
     var note = '';
     if (p.source === 'individual') note = '<small><span class="src individual">ваша цена</span></small>';
     else if (p.source === 'base-discount') note = '<small><span class="src individual">−' + p.discountPercent + ' %</span> ' + esc(p.priceTypeName) + '</small>';
@@ -331,8 +338,10 @@
   function onFilters() {
     state.page = 1;
     var r = currentRoute();
-    if (r.name === 'home' || r.name === 'catalogCat') route();
-    else location.hash = '#/';
+    // фильтры применяются там, где есть список товаров; раньше с любой другой страницы
+    // перекидывало на главную — в рабочем режиме это лендинг без фильтров
+    if (r.name === 'home' && !state.demoUi) return;
+    if (r.name === 'home' || r.name === 'catalog' || r.name === 'catalogCat' || r.name === 'search') route();
   }
 
   /* ------------------------- Фильтрация ------------------------- */
@@ -357,7 +366,9 @@
     return '<li class="res-item"><div class="thumb">' + icon(p.icon) + '</div>' +
       '<div><div class="res-name"><a href="#/part/' + encodeURIComponent(p.sku) + '">' + esc(p.name) + '</a></div>' +
       '<div class="res-sub">' + esc(p.brand) + ' <span>· арт. ' + esc(p.article) + ' · OEM ' + esc(p.oem) + '</span></div></div>' +
-      priceHTML(p.sku) + '<button class="btn" data-add="' + esc(p.sku) + '">В корзину</button>' + stockHTML(p.sku) + '</li>';
+      priceHTML(p.sku) + (priceOf(p.sku) == null
+        ? '<a class="btn btn--ghost" href="#/inquiry?kind=price&article=' + encodeURIComponent(p.article) + '&brand=' + encodeURIComponent(p.brand) + '">Узнать цену</a>'
+        : '<button class="btn" data-add="' + esc(p.sku) + '">В корзину</button>') + stockHTML(p.sku) + '</li>';
   }
   function resultsBlock(list, perPage, title, emptyText) {
     var pages = Math.max(1, Math.ceil(list.length / perPage));
@@ -491,7 +502,7 @@
 
   function brandLanding() {
     var perks = [
-      ['store', (C.stores.length + (C.extraStores || []).length) + ' магазина', 'Иркутск и Ангарск'],
+      ['store', storesWord(C.stores.length + (C.extraStores || []).length), 'Иркутск и Ангарск'],
       ['check', 'Проверка до оплаты', 'Сверяем по VIN и артикулу'],
       ['swap', 'Оригиналы и аналоги', 'Объясним разницу в цене'],
       ['wrench', 'Для СТО', 'Закупка списком, свои условия']
@@ -915,6 +926,7 @@
     return abs + ' ' + word;
   }
   pages.catalog = function () {
+    if (previewMode()) return previewCatalog();
       var params = currentRoute.params || {};
       if (params.inStock === '1') state.onlyStock = true;
       var offset = Math.max(0, Number(params.offset) || 0);
@@ -978,7 +990,7 @@
         var next = offset + (data.products || []).length < data.total ? '<a class="btn btn--ghost" href="#/catalog?offset=' + (offset + (data.limit || 48)) + filterQs + '">Дальше</a>' : '';
         pager = '<p class="pager">' + prev + ' ' + next + ' <span class="muted">' + (offset + 1) + '–' + (offset + (data.products || []).length) + ' из ' + data.total + '</span></p>';
       }
-      return '<div class="page" id="feedCatalog"><div class="crumbs"><a href="#/">Главная</a> / <span>Каталог</span></div><h1>Каталог <em>запчастей</em></h1>' + stockFilterHtml(data.brands) +
+      return '<div class="page" id="feedCatalog"><div class="crumbs"><a href="#/">Главная</a> / <span>Каталог</span></div><h1>Каталог <em>запчастей</em></h1>' + promoHTML() + stockFilterHtml(data.brands) +
         '<p class="muted" id="feedSlice">' + esc(data.stockStamp || data.snapshotLabel || 'Срез ещё не принят') + '. Это файл выгрузки, не живой обмен с 1С.</p>' +
         (cats || '') +
         picked +
@@ -993,6 +1005,8 @@
     });
   };
   pages.catalog.after = function (root) {
+    bindPromo(root);
+    if ($('#previewCatalog', root)) { bindResults(root); bindChips(root); return; }
     bindStockFilter(root);
     var filter = $('#feedCatFilter', root);
     if (filter) filter.oninput = function () {
@@ -1011,15 +1025,109 @@
     bindNotebook(root);
   };
 
+  /* ---- Промобаннеры каталога (данные — js/promos.js) ---- */
+  function activePromos() {
+    var today = new Date().toISOString().slice(0, 10);
+    return (window.CARVIC_PROMOS || []).filter(function (p) {
+      return p && p.title && (!p.from || p.from <= today) && (!p.until || p.until >= today);
+    });
+  }
+  function promoHTML() {
+    var list = activePromos();
+    if (!list.length) return '';
+    var many = list.length > 1;
+    return '<section class="promo" data-promo aria-roledescription="карусель" aria-label="Акции CARVIC">' +
+      '<div class="promo__track">' + list.map(function (p, i) {
+        var ext = /^https?:/i.test(p.href || '');
+        var art = p.image
+          ? '<img class="promo__img" src="' + esc(p.image) + '" alt="" loading="' + (i ? 'lazy' : 'eager') + '">'
+          : '<span class="promo__art" aria-hidden="true">' + homeIcon(p.icon || 'check', 120) + '</span>';
+        return '<div class="promo__slide promo__slide--' + esc(p.theme || 'red') + (p.image ? ' promo__slide--image' : '') + '" role="group" aria-roledescription="слайд" aria-label="' + (i + 1) + ' из ' + list.length + '"' + (i ? ' aria-hidden="true"' : '') + '>' +
+          art + '<div class="promo__body"><p class="promo__title">' + esc(p.title) + '</p>' + (p.text ? '<p class="promo__text">' + esc(p.text) + '</p>' : '') +
+          (p.cta && p.href ? '<a class="promo__cta" href="' + esc(p.href) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + (i ? ' tabindex="-1"' : '') + '>' + esc(p.cta) + '</a>' : '') + '</div>' +
+          (p.label ? '<span class="promo__label">' + esc(p.label) + '</span>' : '') + '</div>';
+      }).join('') + '</div>' +
+      (many ? '<button type="button" class="promo__nav promo__nav--prev" data-promo-step="-1" aria-label="Предыдущая акция"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>' +
+        '<button type="button" class="promo__nav promo__nav--next" data-promo-step="1" aria-label="Следующая акция"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>' +
+        '<div class="promo__dots">' + list.map(function (p, i) { return '<button type="button" data-promo-go="' + i + '" aria-label="Акция ' + (i + 1) + '"' + (i ? '' : ' aria-current="true"') + '></button>'; }).join('') + '</div>' : '') +
+    '</section>';
+  }
+  function bindPromo(root) {
+    var box = $('[data-promo]', root);
+    if (!box) return;
+    var track = $('.promo__track', box), slides = $$('.promo__slide', box), dots = $$('[data-promo-go]', box);
+    if (slides.length < 2) return;
+    var i = 0, timer = 0, hold = false;
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function go(n) {
+      i = (n + slides.length) % slides.length;
+      track.style.transform = 'translateX(' + (-100 * i) + '%)';
+      slides.forEach(function (s, k) {
+        s.setAttribute('aria-hidden', k === i ? 'false' : 'true');
+        $$('a', s).forEach(function (a) { if (k === i) a.removeAttribute('tabindex'); else a.setAttribute('tabindex', '-1'); });
+      });
+      dots.forEach(function (d, k) { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
+    }
+    function play() { clearInterval(timer); if (!still && !hold) timer = setInterval(function () { if (document.body.contains(box)) go(i + 1); else clearInterval(timer); }, 7000); }
+    $$('[data-promo-step]', box).forEach(function (b) { b.onclick = function () { go(i + Number(b.dataset.promoStep)); play(); }; });
+    dots.forEach(function (d) { d.onclick = function () { go(Number(d.dataset.promoGo)); play(); }; });
+    box.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { hold = true; clearInterval(timer); } });
+    box.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { hold = false; play(); } });
+    box.addEventListener('focusin', function () { hold = true; clearInterval(timer); });
+    box.addEventListener('focusout', function (e) { if (!box.contains(e.relatedTarget)) { hold = false; play(); } });
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { go(i - 1); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { go(i + 1); e.preventDefault(); }
+    });
+    var x0 = null;
+    box.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') x0 = e.clientX; });
+    box.addEventListener('pointerup', function (e) {
+      if (x0 === null) return;
+      var dx = e.clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) { go(i + (dx < 0 ? 1 : -1)); play(); }
+    });
+    go(0); play();
+  }
+
+  /* ---- Просмотр без сервера: примерные товары в каталоге ----
+   * Только если сервер каталога недоступен И сайт открыт не на боевом домене
+   * (githack, локальный файл, разработка). На carvic.ru выдуманных товаров не будет. */
+  function previewMode() {
+    return state.serverOk === false && !/(^|\.)carvic\.ru$/i.test(location.hostname);
+  }
+  function previewList() {
+    var seen = {}, names = {}, order = CATS.map(function (c) { return c.key; });
+    return filtered().filter(function (p) { return !p.fixture; }).filter(function (p) {
+      var n = seen[p.cat] || 0, key = p.cat + '|' + p.name;
+      if (n >= 2 || names[key]) return false; // два разных товара на категорию
+      seen[p.cat] = n + 1; names[key] = true;
+      return true;
+    }).sort(function (a, b) { return order.indexOf(a.cat) - order.indexOf(b.cat); });
+  }
+  function previewCatalog() {
+    var list = previewList();
+    return ensureData(list.map(function (p) { return p.sku; })).then(function () {
+      return '<div class="page" id="previewCatalog"><div class="crumbs"><a href="#/">Главная</a> / <span>Каталог</span></div><h1>Каталог <em>запчастей</em></h1>' +
+        promoHTML() +
+        '<div class="warn-box preview-note">Режим просмотра: сервер каталога недоступен, поэтому показаны примерные товары — по одному-два в каждой категории. На рабочем сайте здесь будут товары из 1С.</div>' +
+        '<nav class="feed-cats preview-cats" aria-label="Категории">' + CATS.map(function (c) {
+          return '<a class="feed-cat" href="#/catalog/' + c.key + '">' + esc(c.name) + '</a>';
+        }).join('') + '</nav>' +
+        '<div class="card">' + chipsHTML() + resultsBlock(list, 24, 'Товары', 'Для выбранного автомобиля в примерах ничего нет. Сбросьте фильтр или выберите другую марку.') + '</div></div>';
+    });
+  }
+
   pages.catalogCat = function (key) {
     if (state.cats.length !== 1 || state.cats[0] !== key) { state.cats = [key]; syncChecks(); }
-    var list = filtered();
+    var list = previewMode() ? previewList() : filtered();
     return ensureData(list.map(function (p) { return p.sku; })).then(function () {
       return '<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/catalog">Каталог</a> / <span>' + esc(catName(key)) + '</span></div>' +
-        '<h1>' + esc(catName(key)) + '</h1><div class="card">' + chipsHTML() + resultsBlock(list, 10, 'Товары') + '</div></div>';
+        '<h1>' + esc(catName(key)) + '</h1>' + promoHTML() +
+        (previewMode() ? '<div class="warn-box preview-note">Режим просмотра: примерные товары. На рабочем сайте здесь будут товары из 1С.</div>' : '') +
+        '<div class="card">' + chipsHTML() + resultsBlock(list, 10, 'Товары') + '</div></div>';
     });
   };
-  pages.catalogCat.after = function (root) { bindResults(root); bindChips(root); };
+  pages.catalogCat.after = function (root) { bindResults(root); bindChips(root); bindPromo(root); };
 
   /* --- VIN: иллюстративный каталог, не лицензированный декодер --- */
   function demoVinLinks(ids) {
@@ -1726,15 +1834,15 @@
     }
     var irk = C.stores.filter(function (o) { return o.city === 'Иркутск'; });
     return [
-      { id: 'irkutsk', name: 'Иркутск', status: 'open', label: 'Иркутск: ' + irk.length + ' магазина CARVIC',
-        popup: '<p class="geo__pop-title">Иркутск</p><p class="geo__pop-sub">' + irk.length + ' магазина CARVIC</p>' +
+      { id: 'irkutsk', name: 'Иркутск', status: 'open', label: 'Иркутск: ' + storesWord(irk.length) + ' CARVIC',
+        popup: '<p class="geo__pop-title">Иркутск</p><p class="geo__pop-sub">' + storesWord(irk.length) + ' CARVIC</p>' +
           irk.map(function (o) {
             return '<div class="geo__store"><div class="geo__store-head"><b>' + esc(o.title) + '</b>' + gisLink(o, 'gis-btn--sm') + '</div><span>' + esc(o.address) + '</span>' + (o.hours ? '<span class="muted">' + esc(o.hours) + '</span>' : '') + '</div>';
           }).join('') + '<p class="geo__pop-foot">' + phone + '</p>' },
       (function () {
         var ang = (C.extraStores || []).filter(function (o) { return o.city === 'Ангарск'; });
-        return { id: 'angarsk', name: 'Ангарск', status: 'open', label: 'Ангарск: магазин CARVIC',
-          popup: '<p class="geo__pop-title">Ангарск</p><p class="geo__pop-sub">Магазин CARVIC</p>' +
+        return { id: 'angarsk', name: 'Ангарск', status: 'open', label: 'Ангарск: ' + storesWord(ang.length || 1) + ' CARVIC',
+          popup: '<p class="geo__pop-title">Ангарск</p><p class="geo__pop-sub">' + storesWord(ang.length || 1) + ' CARVIC</p>' +
             (ang.length ? ang.map(function (o) {
               return '<div class="geo__store"><b>' + esc(o.title) + '</b><span>' + esc(o.address) + '</span><span class="muted">' + esc(o.hours) + '</span></div>';
             }).join('') + '<p class="geo__pop-foot">' + phone + '</p>' : '<p class="geo__pop-foot">Адрес и часы работы — по телефону ' + phone + '</p>') };
@@ -1744,7 +1852,7 @@
   }
   pages.stores = function () {
     var geo = window.CarvicGeo ? '<h2 class="geo__title">География</h2>' + window.CarvicGeo.html(geoCities()) : '';
-    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Четыре магазина CARVIC: три в Иркутске и один в Ангарске. Наличие товара по иркутским магазинам показывается в каталоге и корзине.</p>' + geo + '<h2 class="geo__title">Магазины</h2>' + storeCards(true) + '</div>');
+    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Пять магазинов CARVIC: три в Иркутске и два в Ангарске. Наличие товара по иркутским магазинам показывается в каталоге и корзине.</p>' + geo + '<h2 class="geo__title">Магазины</h2>' + storeCards(true) + '</div>');
   };
   pages.stores.after = function (root) { if (window.CarvicGeo) window.CarvicGeo.bind(root); };
   pages.wholesale = function () {
@@ -2799,6 +2907,7 @@
   initSidebar(); syncCarSelects(); initGlobal(); initProfile(); renderCartCount(); renderDrawer();
   state.cp = null;
   fetch('/api/rossko/status', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (st) {
+    state.serverOk = true;
     state.demoUi = Boolean(st && st.demoUi);
     state.demoAccounts = Boolean(st && st.demoAccounts);
     state.hideLocalDbNote = Boolean(st && st.hideLocalDbNote);
@@ -2868,7 +2977,11 @@
       if (state.pageDelivery) { link.hidden = false; link.textContent = 'Доставка и оплата'; }
       else { link.hidden = true; link.textContent = ''; }
     });
-  }).catch(function () { state.demoUi = false; }).then(function () {
+  }).catch(function () {
+    state.demoUi = false; state.serverOk = false;
+    // без сервера демо-фильтры (марка/модель, категории, бренды) показываем только в режиме просмотра
+    if (!previewMode()) ['#demoCar', '#demoBrands', '#demoCats'].forEach(function (s) { var el = $(s); if (el) el.hidden = true; });
+  }).then(function () {
     return refreshBuyerSession();
   }).then(function () { route(); });
 })();
