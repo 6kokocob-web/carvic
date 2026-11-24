@@ -1931,3 +1931,12 @@ a.soc--drom:hover { background: transparent; }
 .promo:has(.promo__slide--light[aria-hidden="false"]) .promo__nav { background: #fff; color: #111113; border-color: var(--c-border); }
 .promo:has(.promo__slide--light[aria-hidden="false"]) .promo__nav:hover { background: var(--c-signal); color: #fff; border-color: var(--c-signal); }
 @media (min-width: 721px) and (max-width: 1020px) { .promo--deals .promo__slide { padding-left: 76px; } }
+/* рука официанта остаётся целиком: растворяется только узкая полоса у левого края снимка */
+.deal-photo, .deal-hero__img {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12%), linear-gradient(to bottom, transparent 0, #000 14%);
+  mask-image: linear-gradient(to right, transparent 0, #000 12%), linear-gradient(to bottom, transparent 0, #000 14%); }
+@media (max-width: 720px) {
+  .deal-photo { -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent); mask-image: linear-gradient(to bottom, #000 65%, transparent); }
+  .deal-hero__img { -webkit-mask-image: none; mask-image: none; }
+}
+@media (min-width: 721px) and (max-width: 1020px) { .deal-steps { gap: 6px; } .deal-steps li { min-width: 52px; padding: 8px 6px; } .deal-steps b { font-size: 17px; } }
