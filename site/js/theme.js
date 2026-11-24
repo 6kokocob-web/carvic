@@ -26,7 +26,7 @@
   /* Заставка с логотипом: один раз за сеанс браузера, не при «уменьшить движение».
    * Класс ставится до отрисовки — у вернувшихся посетителей заставка не мелькает. */
   // Выключить: SPLASH_ENABLED = false (блок в index.html можно не трогать — заставка просто не покажется).
-  // Код: js/splash.js (прорисовка иконки вывески), css — блоки «ЗАСТАВКА ПРИ ПЕРВОМ ВХОДЕ» и «…люкс».
+  // Код: js/splash.js (логотип буква за буквой), css — блоки «ЗАСТАВКА ПРИ ПЕРВОМ ВХОДЕ» и «…люкс».
   var SPLASH_ENABLED = true;
   var SPLASH_KEY = 'carvic_splash_seen';
   var splash = false;
@@ -45,7 +45,7 @@
     setTimeout(function () { root.classList.remove('splash-reveal'); }, 2100);
   }
   if (splash) {
-    var MIN = 2750, MAX = 4200; // вся прорисовка + логотип; дольше 4,2 с не держим даже при медленной сети
+    var MIN = 3000, MAX = 4400; // вся прорисовка + логотип; дольше 4,4 с не держим даже при медленной сети
     var started = (window.performance && performance.now) ? performance.now() : 0;
     window.addEventListener('load', function () {
       var spent = (window.performance && performance.now) ? performance.now() - started : MIN;
