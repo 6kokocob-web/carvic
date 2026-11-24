@@ -1734,3 +1734,78 @@ figure { margin: 0; }
 @media (min-width: 1021px) { .about-team .team-photo img { object-position: 50% 62%; } }
 @media (max-width: 1020px) { .hero-strip h1.about-mission { max-width: none; } }
 @media (max-width: 720px) { .hero-strip h1.about-mission { font-size: 21px; } .about-team__lead { font-size: 17px; } }
+
+/* =====================================================================
+ * АКЦИИ СЕТИ: большой слайдер на главной (.promo--deals) и страницы #/promo
+ * ===================================================================== */
+.promo--deals { margin: 0 0 24px; }
+.promo--deals .promo__slide { min-height: 360px; padding: 48px 72px 56px; }
+.promo--deals .promo__body { max-width: 52%; }
+.promo--deals .promo__title { font-size: 44px; line-height: 1.08; }
+.promo--deals .promo__text { font-size: 19px; }
+.deal-slide__tag { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+.promo__slide--red .promo__cta { color: #B8231E; }
+.promo__slide--dark .promo__cta { background: var(--c-signal); color: #fff; }
+
+/* лестница скидки — столбики растут вправо */
+.deal-ladder { position: absolute; right: 64px; top: 44px; bottom: 52px; width: 40%; display: flex; align-items: flex-end; gap: 10px; }
+.deal-ladder__step { flex: 1; height: var(--h); display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+  padding: 12px 4px 10px; border-radius: 10px 10px 4px 4px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); }
+.deal-ladder__step:last-child { background: #fff; color: #B8231E; border-color: #fff; }
+.deal-ladder__step b { font: 800 26px/1 var(--font-brand); }
+.deal-ladder__step:last-child b { font-size: 34px; }
+.deal-ladder__step span { font-size: 13px; font-weight: 600; opacity: .9; white-space: nowrap; }
+
+/* «Честная цена» — крупная цифра */
+.deal-big { position: absolute; right: 9%; top: 50%; transform: translateY(-50%); text-align: center; color: #fff; }
+.deal-big b { display: block; font: 800 150px/1 var(--font-brand); letter-spacing: -0.04em; color: var(--c-signal); }
+.deal-big span { display: block; margin-top: 4px; font: 700 26px/1 var(--font-brand); letter-spacing: .02em; }
+
+@media (max-width: 1020px) {
+  .promo--deals .promo__slide { padding: 40px 48px 52px; }
+  .promo--deals .promo__title { font-size: 34px; }
+  .deal-ladder { right: 40px; width: 42%; }
+  .deal-big b { font-size: 110px; }
+}
+@media (max-width: 720px) {
+  .promo--deals .promo__slide { flex-direction: column; align-items: stretch; min-height: 0; padding: 26px 20px 46px; }
+  .promo--deals .promo__body { max-width: none; }
+  .promo--deals .promo__title { font-size: 27px; }
+  .promo--deals .promo__text { font-size: 16px; }
+  .promo--deals .promo__nav { display: none; }
+  .deal-ladder { position: static; width: auto; height: 140px; margin-top: 22px; gap: 6px; order: 2; }
+  .deal-ladder__step { padding: 8px 2px 6px; }
+  .deal-ladder__step b { font-size: 17px; } .deal-ladder__step:last-child b { font-size: 21px; }
+  .deal-ladder__step span { font-size: 11px; }
+  .deal-big { position: static; transform: none; margin-top: 18px; text-align: left; display: flex; align-items: baseline; gap: 12px; order: 2; }
+  .deal-big b { font-size: 76px; }
+  .deal-big span { font-size: 19px; }
+  .promo--deals .promo__cta { order: 3; }
+}
+
+/* страницы акций */
+.deal-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.deal-card { position: relative; display: flex; flex-direction: column; gap: 6px; min-height: 180px; padding: 22px; border-radius: 14px; text-decoration: none; color: #fff; overflow: hidden; }
+.deal-card--red { background: #D92D27; } .deal-card--dark { background: #0B0B0D; border-bottom: 5px solid var(--c-signal); }
+.deal-card__badge { font: 800 40px/1 var(--font-brand); margin-bottom: 8px; }
+.deal-card--dark .deal-card__badge { color: var(--c-signal); }
+.deal-card b { font: 700 20px/1.2 var(--font-brand); }
+.deal-card > span:not(.deal-card__badge) { opacity: .88; font-size: 15px; }
+.deal-card__more { margin-top: auto; padding-top: 10px; font-weight: 700; opacity: 1 !important; }
+.deal-card:hover { filter: brightness(1.06); }
+.deal-sec { margin: 28px 0 0; }
+.deal-sec h2 { margin: 0 0 14px; }
+.deal-table { max-width: 560px; border: 1px solid var(--c-border); border-radius: 12px; overflow: hidden; background: var(--c-card); }
+.deal-table__row { display: grid; grid-template-columns: 1fr 160px; padding: 12px 18px; border-top: 1px solid var(--c-border); }
+.deal-table__row:first-child { border-top: 0; }
+.deal-table__row--head { background: var(--c-surface); font-size: 13px; font-weight: 700; color: var(--c-muted); }
+.deal-table__row b { color: var(--c-red-text, var(--c-signal)); font-size: 18px; }
+.deal-table__row:last-child b { font-size: 22px; }
+.deal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.deal-grid h3 { margin-top: 0; }
+.deal-terms { margin: 22px 0 0; max-width: 820px; color: var(--c-muted); }
+.deal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+@media (max-width: 720px) { .deal-grid { grid-template-columns: minmax(0, 1fr); } .deal-table__row { grid-template-columns: 1fr 110px; } }
+.deal-grid .card h3 { margin: 0 0 10px; font: 700 20px/1.25 var(--font-brand); }
+.deal-grid .card p { margin: 0; }
+.deals-page .hero-strip { margin-bottom: 20px; }
