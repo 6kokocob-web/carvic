@@ -2043,9 +2043,7 @@
         return '<div class="about-perk">' + homeIcon(x[0], 30) + '<div><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>';
       }).join('') + '</div></section>' +
       '<section class="about-sec about-team"><div class="about-team__head"><h2 class="about-h2">Команда CARVIC</h2><a href="#/about/team">О команде →</a></div>' +
-        '<figure class="team-photo"><img src="img/team/team-counter.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Двое сотрудников CARVIC улыбаются за стойкой с подсвеченным логотипом"></figure>' +
-        '<p class="about-team__lead">Мы разбираемся в деталях вашего автомобиля, чтобы вам было проще заботиться о нём.</p>' +
-        '<p class="about-team__cap">Помогаем подобрать деталь, объясняем разницу между оригиналом и аналогом и проверяем совместимость до оплаты.</p></section>' +
+        '<figure class="team-photo"><img src="img/team/team-counter.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Двое сотрудников CARVIC улыбаются за стойкой с подсвеченным логотипом"></figure></section>' +
       '<section class="about-plans" aria-labelledby="plansTitle"><div class="about-plans__head"><p class="about-plans__year">2027</p><h2 id="plansTitle">Планы на 2027 год</h2></div>' +
         '<div class="about-plans__grid">' +
           '<div class="ab-plan"><div class="ab-plan__num"><b>+10</b><span>магазинов<br>по Сибири</span></div><div class="ab-pict" aria-hidden="true">' + pict('store', 10, 'ab-pict__i') + '</div></div>' +
