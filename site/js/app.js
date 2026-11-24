@@ -35,19 +35,18 @@
   }
   /* Мессенджеры и 2ГИС (ссылки — COMPANY.social в js/data.js) */
   var SOCIAL = [
-    ['telegram', 'Telegram', '#2AABEE', '<path d="M20.5 4.5 3.6 11c-.9.4-.9 1.4 0 1.7l4.3 1.4 1.6 5c.2.6.9.8 1.4.4l2.4-2 4.4 3.2c.6.4 1.4.1 1.5-.6L21.9 5.9c.2-1-.6-1.7-1.4-1.4z" fill="#fff"/><path d="m8 14 9-6.2-6.6 7.4" fill="none" stroke="#2AABEE" stroke-width="1.3" stroke-linejoin="round"/>'],
-    ['whatsapp', 'WhatsApp', '#25D366', '<path d="M12 3.5a8.4 8.4 0 0 0-7.2 12.8L3.7 20.4l4.2-1.1A8.4 8.4 0 1 0 12 3.5z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 8c-.3 0-.7.1-.9.5-.4.6-.6 1.5-.1 2.6.9 1.9 2.4 3.4 4.4 4.2 1 .4 1.8.2 2.3-.3.3-.3.4-.7.3-1l-1.5-.8c-.3-.1-.5 0-.7.2l-.5.6c-.9-.4-1.7-1.1-2.1-2l.5-.5c.2-.2.2-.5.1-.7L10.4 8.5c-.2-.4-.5-.5-1.2-.5z" fill="#fff"/>'],
-    ['max', 'MAX', '#6B3CF6', '<path d="M5.5 17.5V7.2c0-.6.8-.9 1.2-.4L12 12.6l5.3-5.8c.4-.5 1.2-.2 1.2.4v10.3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>'],
-    ['vk', 'ВКонтакте', '#0077FF', '<path d="M12.8 17.2c-5.4 0-8.5-3.7-8.6-9.9h2.7c.1 4.5 2.1 6.4 3.6 6.8V7.3H13v3.9c1.6-.2 3.2-2 3.8-3.9h2.6c-.4 2.4-2.2 4.2-3.5 4.9 1.3.6 3.3 2.1 4.1 5h-2.8c-.6-1.9-2.1-3.3-4.2-3.5v3.5h-.2z" fill="#fff"/>'],
-    ['gis', '2ГИС', '#19AA1E', '<path d="M12 20.5s-6.2-5.6-6.2-10.2a6.2 6.2 0 0 1 12.4 0c0 4.6-6.2 10.2-6.2 10.2z" fill="#fff"/><circle cx="12" cy="10.2" r="2.3" fill="#19AA1E"/>']
+    ['telegram', 'Telegram', '<path d="M21.2 4.6 3.1 11.5c-.7.3-.7 1.2 0 1.4l4.6 1.5 1.7 5.2c.2.5.8.7 1.2.3l2.6-2.3 4.6 3.4c.5.4 1.2.1 1.4-.5l3-14.7c.1-.8-.6-1.4-1.3-1.2z"/><path d="m7.7 14.4 9.6-6.6-6.3 7.4-.4 4"/>'],
+    ['vk', 'ВКонтакте', '<path d="M12.8 17.4c-5.6 0-8.8-3.9-8.9-10.3h2.8c.1 4.7 2.2 6.7 3.8 7.1V7.1h2.7v4c1.6-.2 3.3-2 3.9-4h2.6c-.4 2.5-2.3 4.3-3.6 5.1 1.3.6 3.4 2.2 4.2 5.2h-2.9c-.6-2-2.2-3.5-4.2-3.7v3.7z" fill="currentColor" stroke="none"/>'],
+    ['max', 'MAX', '<path d="M5 18V7c0-.7.9-1 1.3-.5L12 12.8l5.7-6.3c.4-.5 1.3-.2 1.3.5v11"/>'],
+    ['gis', '2ГИС', '<path d="M12 21s-6.5-5.8-6.5-10.6a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21z"/><circle cx="12" cy="10.3" r="2.4"/>']
   ];
   function socialLinks(cls) {
     var urls = C.social || {}, demo = !/(^|\.)carvic\.ru$/i.test(location.hostname);
     var html = SOCIAL.map(function (x) {
       var url = urls[x[0]] || '';
-      var ic = '<svg viewBox="0 0 24 24" aria-hidden="true">' + x[3] + '</svg>';
-      if (url) return '<a class="soc soc--' + x[0] + '" style="--soc:' + x[2] + '" href="' + esc(url) + '" target="_blank" rel="noopener" title="' + esc(x[1]) + '" aria-label="CARVIC в ' + esc(x[1]) + '">' + ic + '</a>';
-      return demo ? '<span class="soc soc--' + x[0] + ' soc--empty" style="--soc:' + x[2] + '" title="' + esc(x[1]) + ': ссылка не задана (js/data.js → social)">' + ic + '</span>' : '';
+      var ic = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + x[2] + '</svg>';
+      if (url) return '<a class="soc soc--' + x[0] + '" href="' + esc(url) + '" target="_blank" rel="noopener" title="' + esc(x[1]) + '" aria-label="CARVIC в ' + esc(x[1]) + '">' + ic + '</a>';
+      return demo ? '<span class="soc soc--' + x[0] + ' soc--empty" title="' + esc(x[1]) + ': ссылка не задана (js/data.js → social)">' + ic + '</span>' : '';
     }).join('');
     return html ? '<div class="socials' + (cls ? ' ' + cls : '') + '" aria-label="Мессенджеры и 2ГИС">' + html + '</div>' : '';
   }

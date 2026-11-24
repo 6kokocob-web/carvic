@@ -25,11 +25,10 @@ window.COMPANY = {
   },
   // Мессенджеры и 2ГИС: значки в подвале, на «Контактах» и под картой на главной.
   // Пустая строка — значок на carvic.ru не показывается (на тестовой ссылке виден серым, «ссылка не задана»).
-  //   telegram: 'https://t.me/имя_канала_или_бота'    whatsapp: 'https://wa.me/79XXXXXXXXX'
-  //   max: 'https://max.ru/…'                         vk: 'https://vk.com/имя_сообщества'
+  //   telegram: 'https://t.me/имя_канала_или_бота'    vk: 'https://vk.com/имя_сообщества'
+  //   max: 'https://max.ru/…'
   social: {
     telegram: '',
-    whatsapp: '',
     max: '',
     vk: '',
     gis: 'https://2gis.ru/irkutsk/search/CARVIC' // поиск по сети в 2ГИС: все павильоны сразу

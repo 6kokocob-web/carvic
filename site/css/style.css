@@ -1870,3 +1870,20 @@ a.soc:focus-visible { outline: 3px solid var(--soc); outline-offset: 2px; }
 .socials--sm .soc svg { width: 19px; height: 19px; }
 .socials--footer { margin-top: 14px; }
 .soc-title { margin: 18px 0 8px; font-weight: 700; }
+
+/* Значки соцсетей в фирменном стиле: монохром, при наведении — красная плашка */
+.soc { position: relative; width: 42px; height: 42px; border-radius: 10px; background: var(--c-card); border: 1px solid var(--c-border); color: var(--c-text); overflow: hidden;
+  transition: background .15s, color .15s, border-color .15s, transform .15s; filter: none; }
+.soc::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--c-signal); }
+.soc svg { width: 22px; height: 22px; }
+a.soc:hover { background: var(--c-signal); border-color: var(--c-signal); color: #fff; transform: translateY(-2px); filter: none; }
+a.soc:hover::after { background: #0B0B0D; }
+a.soc:focus-visible { outline: 3px solid var(--c-signal); outline-offset: 2px; }
+.soc--empty { opacity: .4; filter: none; }
+.socials--sm .soc { width: 34px; height: 34px; border-radius: 8px; }
+.socials--sm .soc svg { width: 18px; height: 18px; }
+.socials--sm .soc::after { height: 2px; }
+.geo-contacts .soc { background: var(--c-card); }
+.footer .soc { background: #17171A; border-color: #2A2A2F; color: #fff; }
+.footer a.soc:hover { background: var(--c-signal); border-color: var(--c-signal); }
+.geo-contacts a.soc:not(:hover) { color: var(--c-text); }
