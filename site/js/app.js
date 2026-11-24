@@ -595,7 +595,7 @@
       '<section class="home-sec" id="homeStores"><div class="home-sec__head"><h2>Магазины</h2><a href="#/stores">Все магазины →</a></div>' +
         '<div class="home-stores">' + stores + '</div></section>' +
       '<section class="home-ask" id="homeAsk">' +
-        '<div class="home-ask__text"><h2>Не нашли деталь?</h2><p>Оставьте телефон и напишите, что ищете. Перезвоним с ценой, наличием и сроком.</p></div>' +
+        '<div class="home-ask__text"><figure class="home-ask__img"><img src="img/team/team-pavel.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC Павел со стопками коробок свечей зажигания"></figure><h2>Не нашли деталь?</h2><p>Оставьте телефон и напишите, что ищете. Перезвоним с ценой, наличием и сроком.</p></div>' +
         '<form class="home-ask__form" id="homeInquiry">' +
           '<div class="field"><label for="homeName">Имя</label><input id="homeName" maxlength="80" required></div>' +
           '<div class="field"><label for="homePhone">Телефон</label><input id="homePhone" inputmode="tel" maxlength="18" placeholder="+7" required></div>' +
@@ -2014,9 +2014,9 @@
       '<div class="card feature"><i>1</i><div><b>Индивидуальный тип цены</b>Каждому контрагенту назначается свой тип цены и, при необходимости, скидки по группам товаров.</div></div>' +
       '<div class="card feature"><i>2</i><div><b>Личный вход</b>После входа в каталоге, корзине и заказе показываются ваши цены.</div></div>' +
       '<div class="card feature"><i>3</i><div><b>Широкий ассортимент</b>Запчасти на китайские, европейские, японские и корейские авто — в наличии и под заказ.</div></div></div>' +
-      '<h2>Как начать работу</h2><div class="card"><p>Свяжитесь с отделом оптовых продаж — условия сотрудничества обсуждаются индивидуально.</p><p><b>Отдел оптовых продаж</b><br><b>E-mail:</b> <a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><br><b>Телефон:</b> <a href="tel:' + C.phoneHref + '">' + C.phone + '</a></p>' +
+      '<h2>Как начать работу</h2><div class="card opt-start"><figure class="opt-start__img"><img src="img/team/team-at-work.jpg" width="1066" height="1600" loading="lazy" decoding="async" alt="Сотрудники CARVIC за стойкой разбирают запчасти для заказа"></figure><div class="opt-start__body"><p>Свяжитесь с отделом оптовых продаж — условия сотрудничества обсуждаются индивидуально.</p><p><b>Отдел оптовых продаж</b><br><b>E-mail:</b> <a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><br><b>Телефон:</b> <a href="tel:' + C.phoneHref + '">' + C.phone + '</a></p>' +
       '<p id="optDocs">' + (state.consentPreK3 ? '' : '<a href="#/legal/oferta-opt">Условия поставки для оптовых покупателей</a> · ') + '<a href="#/legal/terms">Пользовательское соглашение</a> · <a href="#/legal/privacy">Политика обработки персональных данных</a></p>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="#/login">Регистрация оптовика</a><a class="btn btn--ghost" href="mailto:' + C.email + '?subject=' + encodeURIComponent('Оптовое сотрудничество с CARVIC') + '">Написать менеджеру</a><a class="btn btn--ghost" href="#/requisites">Реквизиты</a></div></div></div>');
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="#/login">Регистрация оптовика</a><a class="btn btn--ghost" href="mailto:' + C.email + '?subject=' + encodeURIComponent('Оптовое сотрудничество с CARVIC') + '">Написать менеджеру</a><a class="btn btn--ghost" href="#/requisites">Реквизиты</a></div></div></div></div>');
   };
   /* «О компании»: миссия, все достоинства, инфографика планов на 2027 год */
   pages.about = function () {
@@ -2037,14 +2037,14 @@
     for (i = 0; i < soonN; i++) cells += '<span class="ab-cell ab-cell--soon" title="Скоро открытие"></span>';
     for (i = 0; i < 10; i++) cells += '<span class="ab-cell ab-cell--plan" title="План на 2027 год"></span>';
     return Promise.resolve('<div class="page about"><div class="crumbs"><a href="#/">Главная</a> / <span>О компании</span></div>' +
-      '<div class="hero-strip"><h1>CARVIC — <em>автозапчасти</em></h1>' +
-        '<p class="about-mission">Наша цель — знать о вашей машине больше, чтобы вам не приходилось ломать над ней голову.</p>' +
+      '<div class="hero-strip"><h1 class="about-mission">Наша цель — знать о вашей машине больше, чтобы вам не приходилось ломать над ней голову.</h1>' +
         '<p>ООО «Карвик» — автозапчасти оптом и в розницу в Иркутске и Ангарске.</p></div>' +
       '<section class="about-sec"><h2 class="about-h2">Почему CARVIC</h2><div class="about-perks">' + perks.map(function (x) {
         return '<div class="about-perk">' + homeIcon(x[0], 30) + '<div><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>';
       }).join('') + '</div></section>' +
       '<section class="about-sec about-team"><div class="about-team__head"><h2 class="about-h2">Команда CARVIC</h2><a href="#/about/team">О команде →</a></div>' +
-        '<figure class="team-photo"><img src="img/team/carvic-team.jpg" width="1536" height="1024" loading="lazy" decoding="async" alt="Команда CARVIC у стойки магазина с логотипом, за ними стеллажи с запчастями"></figure>' +
+        '<figure class="team-photo"><img src="img/team/team-counter.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Двое сотрудников CARVIC улыбаются за стойкой с подсвеченным логотипом"></figure>' +
+        '<p class="about-team__lead">Мы разбираемся в деталях вашего автомобиля, чтобы вам было проще заботиться о нём.</p>' +
         '<p class="about-team__cap">Помогаем подобрать деталь, объясняем разницу между оригиналом и аналогом и проверяем совместимость до оплаты.</p></section>' +
       '<section class="about-plans" aria-labelledby="plansTitle"><div class="about-plans__head"><p class="about-plans__year">2027</p><h2 id="plansTitle">Планы на 2027 год</h2></div>' +
         '<div class="about-plans__grid">' +
@@ -2056,12 +2056,19 @@
           '<div class="ab-legend"><span><i class="ab-cell ab-cell--open"></i>Открыты — ' + open + '</span>' + (soonN ? '<span><i class="ab-cell ab-cell--soon"></i>Скоро — ' + soonN + '</span>' : '') + '<span><i class="ab-cell ab-cell--plan"></i>2027 год — ещё 10</span>' +
           '<a href="#/stores">Карта присутствия →</a></div></div>' +
       '</section>' +
-      '<div class="card about-text"><p>Запчасти на китайские, европейские, японские и корейские автомобили. ' + (state.demoUi ? 'Подбор по VIN, по марке и модели, по артикулу и OEM-номеру.' : 'Подбор по артикулу и OEM-номеру. Если номера нет, оставьте заявку менеджеру.') + '</p>' +
-        '<p>' + storesWord(open) + ' в Иркутске и Ангарске. <a href="#/stores">Адреса и часы работы</a> · <a href="#/about/team">Команда Карвика</a></p></div>' +
+      '<div class="card about-text about-text--photo"><figure class="about-text__img"><img src="img/team/brand-jacket.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Логотип CARVIC на форменной куртке сотрудника"></figure><div><p>Запчасти на китайские, европейские, японские и корейские автомобили. ' + (state.demoUi ? 'Подбор по VIN, по марке и модели, по артикулу и OEM-номеру.' : 'Подбор по артикулу и OEM-номеру. Если номера нет, оставьте заявку менеджеру.') + '</p>' +
+        '<p>' + storesWord(open) + ' в Иркутске и Ангарске. <a href="#/stores">Адреса и часы работы</a> · <a href="#/about/team">Команда Карвика</a></p></div></div>' +
     '</div>');
   };
   pages.aboutTeam = function () {
-    return Promise.resolve('<div class="page" id="teamPage"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/about">О компании</a> / <span>Команда</span></div><h1>Команда Карвика</h1>' + '<figure class="team-photo"><img src="img/team/carvic-team.jpg" width="1536" height="1024" loading="lazy" decoding="async" alt="Команда CARVIC у стойки магазина с логотипом, за ними стеллажи с запчастями"></figure>' + '<div class="card"><p>В магазинах Карвика помогают с подбором детали и проверкой совместимости. Напишите или позвоните по общему номеру, если нужна консультация по заказу.</p><p><a class="btn btn--ghost" href="#/contacts">Контакты</a></p></div></div>');
+    return Promise.resolve('<div class="page" id="teamPage"><div class="crumbs"><a href="#/">Главная</a> / <a href="#/about">О компании</a> / <span>Команда</span></div><h1>Команда Карвика</h1><p class="about-team__lead">Мы разбираемся в деталях вашего автомобиля, чтобы вам было проще заботиться о нём.</p>' +
+      '<div class="team-gallery">' +
+        '<figure class="tg tg--wide"><img src="img/team/team-counter.jpg" width="1600" height="1066" decoding="async" alt="Двое сотрудников CARVIC улыбаются за стойкой с подсвеченным логотипом"></figure>' +
+        '<figure class="tg tg--tall"><img src="img/team/team-at-work.jpg" width="1066" height="1600" loading="lazy" decoding="async" alt="Сотрудники CARVIC за стойкой разбирают запчасти для заказа"></figure>' +
+        '<figure class="tg"><img src="img/team/team-pavel.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC Павел со стопками коробок свечей зажигания"><figcaption>Павел, продавец</figcaption></figure>' +
+        '<figure class="tg"><img src="img/team/team-handover.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC передаёт покупателю фирменный пакет с покупкой"></figure>' +
+        '<figure class="tg tg--wide2"><img src="img/team/brand-jacket.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Логотип CARVIC на форменной куртке сотрудника"></figure>' +
+      '</div>' + '<div class="card"><p>В магазинах Карвика помогают с подбором детали и проверкой совместимости. Напишите или позвоните по общему номеру, если нужна консультация по заказу.</p><p><a class="btn btn--ghost" href="#/contacts">Контакты</a></p></div></div>');
   };
   /* Блог: статьи — в js/blog.js (window.CARVIC_BLOG) */
   function blogList() { return window.CARVIC_BLOG || []; }
@@ -2095,7 +2102,7 @@
       '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p></div>' +
       '<div class="card"><h3 style="margin-top:0">Адреса</h3><p style="margin:0 0 6px"><span class="muted">Фактический:</span> ' + esc(C.actualAddress) + '</p><p style="margin:0"><span class="muted">Юридический:</span> ' + esc(C.legalAddress) + '</p></div></div>' +
       (state.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(state.privacyEmail) + '">' + esc(state.privacyEmail) + '</a></p>' : '') +
-      '<h2>Обратный звонок</h2><div class="card callback-cta"><p>Оставьте имя и телефон — менеджер перезвонит.</p><a class="btn" href="#/callback">Заказать звонок</a></div>' +
+      '<h2>Обратный звонок</h2><div class="card callback-cta callback-cta--photo"><figure class="callback-cta__img"><img src="img/team/team-handover.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC передаёт покупателю фирменный пакет с покупкой"></figure><p>Оставьте имя и телефон — менеджер перезвонит.</p><a class="btn" href="#/callback">Заказать звонок</a></div>' +
       '<h2>Торговые точки</h2>' + storeCards(true, { noHours: true }) + '</div>');
   };
   /* Заказать звонок — окно поверх страницы (см. MODAL_ROUTES) */

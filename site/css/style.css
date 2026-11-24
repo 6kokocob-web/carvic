@@ -1656,3 +1656,81 @@ html[data-theme="dark"] .about-plans { border: 1px solid var(--c-border); }
 .about-team__cap { margin: 12px 0 0; font-size: 15px; color: var(--c-muted); max-width: 760px; }
 #teamPage .team-photo { margin: 8px 0 16px; }
 @media (min-width: 1021px) { .about-team .team-photo { aspect-ratio: 16 / 8; } .about-team .team-photo img { object-position: 50% 38%; } }
+
+/* =====================================================================
+ * ЭСКИЗЫ НА ФОНЕ ПЛАШЕК: приглушены до ~8 % и растворяются к тексту
+ * (полностью прозрачны со стороны заголовка, без цветовых переливов)
+ * ===================================================================== */
+.hero-strip::before { width: 70%; opacity: .08;
+  -webkit-mask-image: linear-gradient(to left, #000 0, #000 30%, transparent 100%); mask-image: linear-gradient(to left, #000 0, #000 30%, transparent 100%); }
+html[data-theme="dark"] .hero-strip::before { opacity: .1; }
+.promo__slide--dark::before { width: 70%; opacity: .08;
+  -webkit-mask-image: linear-gradient(to left, #000 0, #000 30%, transparent 100%); mask-image: linear-gradient(to left, #000 0, #000 30%, transparent 100%); }
+.about-plans::before { opacity: .08; -webkit-mask-image: linear-gradient(to left, #000 0, transparent 85%); mask-image: linear-gradient(to left, #000 0, transparent 85%); }
+@media (max-width: 720px) {
+  .hero-strip::before, .promo__slide--dark::before { width: 100%; opacity: .06; -webkit-mask-image: linear-gradient(to left, #000, transparent); mask-image: linear-gradient(to left, #000, transparent); }
+}
+
+/* =====================================================================
+ * ФОТО МАГАЗИНОВ И КОМАНДЫ
+ * ===================================================================== */
+figure { margin: 0; }
+.team-photo img { object-position: 50% 45%; }
+@media (min-width: 1021px) { .about-team .team-photo { aspect-ratio: 16 / 7; } .about-team .team-photo img { object-position: 50% 40%; } }
+
+/* «О компании»: текст с фото логотипа на куртке */
+.about-text--photo { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 24px; align-items: center; padding: 0; overflow: hidden; }
+.about-text--photo > div { padding: 24px 24px 24px 0; }
+.about-text__img { height: 100%; min-height: 220px; }
+.about-text__img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; }
+
+/* «Команда»: галерея */
+.team-gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 220px; gap: 12px; margin: 8px 0 20px; }
+.tg { position: relative; overflow: hidden; border-radius: 14px; background: var(--c-surface); }
+.tg img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.tg--wide { grid-column: span 2; grid-row: span 2; }
+.tg--tall { grid-row: span 2; }
+.tg--tall img { object-position: 50% 35%; }
+.tg--wide2 { grid-column: span 1; }
+.tg figcaption { position: absolute; left: 10px; bottom: 10px; padding: 5px 10px; border-radius: 999px; background: rgba(11,11,13,.78); color: #fff; font-size: 13px; font-weight: 600; }
+
+/* главная, «Не нашли деталь?» */
+.home-ask__img { overflow: hidden; border-radius: 12px; aspect-ratio: 16 / 10; margin-bottom: 18px; background: var(--c-border); }
+.home-ask__img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 55% 35%; }
+
+/* «Контакты», обратный звонок */
+.callback-cta--photo { display: grid; grid-template-columns: 220px minmax(0, 1fr) auto; gap: 20px; align-items: center; }
+.callback-cta__img { overflow: hidden; border-radius: 10px; aspect-ratio: 3 / 2; }
+.callback-cta__img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 55% 40%; }
+
+/* «Оптовым покупателям», «Как начать работу» */
+.opt-start { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: stretch; }
+.opt-start__img { overflow: hidden; border-radius: 12px; min-height: 300px; }
+.opt-start__img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+.opt-start__body { align-self: center; }
+
+@media (max-width: 1020px) {
+  .team-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 180px; }
+  .tg--wide { grid-column: span 2; }
+}
+@media (max-width: 720px) {
+  .about-text--photo { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .about-text--photo > div { padding: 18px; }
+  .about-text__img { min-height: 0; aspect-ratio: 16 / 9; }
+  .team-gallery { grid-template-columns: minmax(0, 1fr); grid-auto-rows: 220px; }
+  .tg--wide, .tg--tall { grid-column: auto; grid-row: auto; }
+  .tg--tall { grid-row: span 2; }
+  .callback-cta--photo { grid-template-columns: minmax(0, 1fr); }
+  .callback-cta__img { aspect-ratio: 16 / 9; }
+  .opt-start { grid-template-columns: minmax(0, 1fr); }
+  .opt-start__img { min-height: 0; aspect-ratio: 4 / 3; }
+}
+
+/* «О компании»: миссия — главный заголовок; формулировка команды */
+.hero-strip h1.about-mission { font: 700 30px/1.25 var(--font-brand); max-width: 62%; margin: 0 0 10px; }
+.about-team__lead { margin: 14px 0 0; font: 700 20px/1.35 var(--font-brand); color: var(--c-text); max-width: 760px; }
+#teamPage .about-team__lead, .page > .about-team__lead { margin: -4px 0 16px; }
+.about-team .about-team__lead + .about-team__cap { margin-top: 6px; }
+@media (min-width: 1021px) { .about-team .team-photo img { object-position: 50% 62%; } }
+@media (max-width: 1020px) { .hero-strip h1.about-mission { max-width: none; } }
+@media (max-width: 720px) { .hero-strip h1.about-mission { font-size: 21px; } .about-team__lead { font-size: 17px; } }
