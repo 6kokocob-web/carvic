@@ -1157,7 +1157,9 @@
       '<div class="promo__track">' + list.map(function (d, i) {
         return '<div class="promo__slide promo__slide--' + esc(d.theme || 'red') + ' deal-slide' + (d.photo ? ' deal-slide--photo' : '') + '" role="group" aria-roledescription="слайд" aria-label="' + (i + 1) + ' из ' + list.length + '"' + (i ? ' aria-hidden="true"' : '') + '>' +
           '<div class="promo__body"><p class="deal-slide__tag">Акция · ' + esc(d.name) + '</p>' +
-          '<h2 class="promo__title">' + esc(d.title) + '</h2><p class="promo__text">' + esc(d.text) + '</p>' +
+          '<h2 class="promo__title">' + esc(d.headline || d.title) + '</h2>' +
+          (d.subtitle ? '<p class="deal-slide__sub">' + d.subtitle.split('|').map(esc).join('<br>') + '</p>' : '') +
+          '<p class="promo__text">' + esc(d.text) + '</p>' +
           (d.photo && d.ladder ? '<ol class="deal-steps" aria-label="Скидка по числу разных позиций в чеке">' + d.ladder.map(function (st) { return '<li><b>' + esc(st[1]) + '</b><span>' + esc(st[0]) + ' поз.</span></li>'; }).join('') + '</ol>' : '') +
           '<a class="promo__cta" href="#/promo/' + esc(d.id) + '"' + (i ? ' tabindex="-1"' : '') + '>Условия акции</a></div>' +
           dealArt(d) + '</div>';

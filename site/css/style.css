@@ -1898,3 +1898,9 @@ a.soc--has-color:hover::after { opacity: 0; }
 .socials--sm .soc--drom .soc__mono { width: 26px; height: 16px; }
 .footer .socials a.soc, .footer .socials span.soc { display: inline-grid; place-items: center; padding: 0; line-height: 0; font-size: 0; }
 .footer a.soc--has-color:hover { background: transparent; border-color: transparent; }
+.promo--deals .deal-slide--photo .promo__title { font-size: 56px; }
+.deal-slide__sub { margin: 10px 0 0; font: 700 26px/1.2 var(--font-brand); }
+.deal-slide__sub + .promo__text { font-size: 15px; opacity: .75; max-width: 440px; }
+@media (max-width: 1020px) { .promo--deals .deal-slide--photo .promo__title { font-size: 42px; } .deal-slide__sub { font-size: 22px; } }
+@media (max-width: 720px) { .promo--deals .deal-slide--photo .promo__title { font-size: 32px; } .deal-slide__sub { font-size: 19px; } .deal-slide__sub + .promo__text { font-size: 13px; } }
+@media (min-width: 721px) { .promo--deals .deal-slide--photo .promo__title { white-space: nowrap; } .deal-slide--photo .promo__body { max-width: 56%; } }
