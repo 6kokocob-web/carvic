@@ -1845,3 +1845,28 @@ figure { margin: 0; }
 .deal-photo, .deal-hero__img { right: 0; }
 .deal-hero--photo { padding-right: 40%; }
 @media (max-width: 720px) { .deal-hero--photo { padding-right: 24px; } }
+
+/* Мессенджеры и 2ГИС */
+.socials { display: flex; flex-wrap: wrap; gap: 8px; }
+.soc { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--soc); transition: transform .15s, filter .15s; }
+.soc svg { width: 24px; height: 24px; }
+a.soc:hover { transform: translateY(-2px); filter: brightness(1.08); }
+a.soc:focus-visible { outline: 3px solid var(--soc); outline-offset: 2px; }
+.soc--empty { opacity: .35; filter: grayscale(.4); cursor: help; }
+.socials--sm { margin-top: 10px; gap: 6px; }
+.socials--sm .soc { width: 32px; height: 32px; border-radius: 9px; }
+.socials--sm .soc svg { width: 19px; height: 19px; }
+.socials--footer { margin-top: 14px; }
+
+/* Мессенджеры и 2ГИС */
+.socials { display: flex; flex-wrap: wrap; gap: 8px; }
+.soc { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--soc); transition: transform .15s, filter .15s; }
+.soc svg { width: 24px; height: 24px; }
+a.soc:hover { transform: translateY(-2px); filter: brightness(1.08); }
+a.soc:focus-visible { outline: 3px solid var(--soc); outline-offset: 2px; }
+.soc--empty { opacity: .35; filter: grayscale(.4); cursor: help; }
+.socials--sm { margin-top: 10px; gap: 6px; }
+.socials--sm .soc { width: 32px; height: 32px; border-radius: 9px; }
+.socials--sm .soc svg { width: 19px; height: 19px; }
+.socials--footer { margin-top: 14px; }
+.soc-title { margin: 18px 0 8px; font-weight: 700; }

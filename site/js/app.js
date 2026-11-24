@@ -33,6 +33,24 @@
     var name = (o.title || '') + (o.address ? ', ' + o.address : '');
     return '<a class="gis-btn' + (cls ? ' ' + cls : '') + '" href="' + esc(mapUrl(o)) + '" target="_blank" rel="noopener" title="Открыть в 2ГИС" aria-label="Открыть в 2ГИС: ' + esc(name) + '">' + GIS_ICON + '</a>';
   }
+  /* Мессенджеры и 2ГИС (ссылки — COMPANY.social в js/data.js) */
+  var SOCIAL = [
+    ['telegram', 'Telegram', '#2AABEE', '<path d="M20.5 4.5 3.6 11c-.9.4-.9 1.4 0 1.7l4.3 1.4 1.6 5c.2.6.9.8 1.4.4l2.4-2 4.4 3.2c.6.4 1.4.1 1.5-.6L21.9 5.9c.2-1-.6-1.7-1.4-1.4z" fill="#fff"/><path d="m8 14 9-6.2-6.6 7.4" fill="none" stroke="#2AABEE" stroke-width="1.3" stroke-linejoin="round"/>'],
+    ['whatsapp', 'WhatsApp', '#25D366', '<path d="M12 3.5a8.4 8.4 0 0 0-7.2 12.8L3.7 20.4l4.2-1.1A8.4 8.4 0 1 0 12 3.5z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 8c-.3 0-.7.1-.9.5-.4.6-.6 1.5-.1 2.6.9 1.9 2.4 3.4 4.4 4.2 1 .4 1.8.2 2.3-.3.3-.3.4-.7.3-1l-1.5-.8c-.3-.1-.5 0-.7.2l-.5.6c-.9-.4-1.7-1.1-2.1-2l.5-.5c.2-.2.2-.5.1-.7L10.4 8.5c-.2-.4-.5-.5-1.2-.5z" fill="#fff"/>'],
+    ['max', 'MAX', '#6B3CF6', '<path d="M5.5 17.5V7.2c0-.6.8-.9 1.2-.4L12 12.6l5.3-5.8c.4-.5 1.2-.2 1.2.4v10.3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>'],
+    ['vk', 'ВКонтакте', '#0077FF', '<path d="M12.8 17.2c-5.4 0-8.5-3.7-8.6-9.9h2.7c.1 4.5 2.1 6.4 3.6 6.8V7.3H13v3.9c1.6-.2 3.2-2 3.8-3.9h2.6c-.4 2.4-2.2 4.2-3.5 4.9 1.3.6 3.3 2.1 4.1 5h-2.8c-.6-1.9-2.1-3.3-4.2-3.5v3.5h-.2z" fill="#fff"/>'],
+    ['gis', '2ГИС', '#19AA1E', '<path d="M12 20.5s-6.2-5.6-6.2-10.2a6.2 6.2 0 0 1 12.4 0c0 4.6-6.2 10.2-6.2 10.2z" fill="#fff"/><circle cx="12" cy="10.2" r="2.3" fill="#19AA1E"/>']
+  ];
+  function socialLinks(cls) {
+    var urls = C.social || {}, demo = !/(^|\.)carvic\.ru$/i.test(location.hostname);
+    var html = SOCIAL.map(function (x) {
+      var url = urls[x[0]] || '';
+      var ic = '<svg viewBox="0 0 24 24" aria-hidden="true">' + x[3] + '</svg>';
+      if (url) return '<a class="soc soc--' + x[0] + '" style="--soc:' + x[2] + '" href="' + esc(url) + '" target="_blank" rel="noopener" title="' + esc(x[1]) + '" aria-label="CARVIC в ' + esc(x[1]) + '">' + ic + '</a>';
+      return demo ? '<span class="soc soc--' + x[0] + ' soc--empty" style="--soc:' + x[2] + '" title="' + esc(x[1]) + ': ссылка не задана (js/data.js → social)">' + ic + '</span>' : '';
+    }).join('');
+    return html ? '<div class="socials' + (cls ? ' ' + cls : '') + '" aria-label="Мессенджеры и 2ГИС">' + html + '</div>' : '';
+  }
   /* Фото павильона: img/stores/<id>.jpg (или o.photo). Нет файла — аккуратная заглушка. */
   function storePhoto(o, cls) {
     var src = o.photo || ('img/stores/' + o.id + '.jpg');
@@ -2036,7 +2054,7 @@
       '<div class="geo-contacts__item">' + ic('<path d="M6 4h3l2 5-2 1a12 12 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2z"/>') +
         '<div><span class="geo-contacts__label">Телефон для всех магазинов</span><a class="geo-contacts__main" href="tel:' + C.phoneHref + '">' + C.phone + '</a><a href="#/callback">Заказать звонок</a></div></div>' +
       '<div class="geo-contacts__item">' + ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>') +
-        '<div><span class="geo-contacts__label">Почта</span><a class="geo-contacts__main" href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><a href="#/inquiry">Написать менеджеру</a></div></div>' +
+        '<div><span class="geo-contacts__label">Почта</span><a class="geo-contacts__main" href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><a href="#/inquiry">Написать менеджеру</a>' + socialLinks('socials--sm') + '</div></div>' +
       '<div class="geo-contacts__item">' + ic('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>') +
         '<div><span class="geo-contacts__label">Магазины</span><span class="geo-contacts__main">' + storesWord(irk + ang) + '</span><span class="muted">Иркутск — ' + irk + (ang ? ', Ангарск — ' + ang : '') + (soonN ? '; скоро ещё ' + soonN : '') + '</span><a href="#/stores">Адреса и часы работы</a></div></div>' +
       '<div class="geo-contacts__item">' + ic('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>') +
@@ -2166,7 +2184,7 @@
   pages.contacts = function () {
     return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Контакты</span></div><h1>Контакты</h1>' +
       '<div class="grid grid-3"><div class="card"><h3 style="margin-top:0">Основной телефон</h3><a class="price" style="text-align:left;display:block;text-decoration:none;font-size:22px" href="tel:' + C.phoneHref + '">' + C.phone + '</a><p class="muted" style="margin-bottom:0">Единый номер для всех магазинов.</p></div>' +
-      '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p></div>' +
+      '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p>' + (socialLinks() ? '<p class="soc-title">Мессенджеры и 2ГИС</p>' + socialLinks() : '') + '</div>' +
       '<div class="card"><h3 style="margin-top:0">Адреса</h3><p style="margin:0 0 6px"><span class="muted">Фактический:</span> ' + esc(C.actualAddress) + '</p><p style="margin:0"><span class="muted">Юридический:</span> ' + esc(C.legalAddress) + '</p></div></div>' +
       (state.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(state.privacyEmail) + '">' + esc(state.privacyEmail) + '</a></p>' : '') +
       '<h2>Обратный звонок</h2><div class="card callback-cta callback-cta--photo"><figure class="callback-cta__img"><img src="img/team/team-handover.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC передаёт покупателю фирменный пакет с покупкой"></figure><p>Оставьте имя и телефон — менеджер перезвонит.</p><a class="btn" href="#/callback">Заказать звонок</a></div>' +
@@ -3294,6 +3312,7 @@
     // синхронизация корзины между вкладками
     window.addEventListener('storage', function (e) { if (e.key === LS_CART) { cart = lsGet(LS_CART, []); renderCartCount(); renderDrawer(); } });
     $('#year').textContent = new Date().getFullYear();
+    var fs = $('#footerSocial'); if (fs) fs.outerHTML = socialLinks('socials--footer');
   }
 
   /* Экспорт для модуля админки */
