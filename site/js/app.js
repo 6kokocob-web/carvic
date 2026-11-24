@@ -510,12 +510,35 @@
 
   /* Блок бонусной программы на первом экране — только для гостей. Телефон → окно регистрации
    * с подставленным номером; после регистрации бонусная карта оформляется автоматически (сервер → 1С). */
+  /* ---- Госномер (РФ, легковой: А123ВС 38 / А123ВС 138) ----
+   * латиница на клавиатуре переводится в кириллицу (A→А, B→В, …); допустимы 12 букв, как на знаках */
+  var PLATE_LAT = { A: 'А', B: 'В', E: 'Е', K: 'К', M: 'М', H: 'Н', O: 'О', P: 'Р', C: 'С', T: 'Т', Y: 'У', X: 'Х' };
+  var PLATE_RE = /^[АВЕКМНОРСТУХ]\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}$/;
+  function plateNorm(s) {
+    return String(s || '').toUpperCase().replace(/[ABEKMHOPCTYX]/g, function (c) { return PLATE_LAT[c]; }).replace(/Ё/g, 'Е').replace(/[^АВЕКМНОРСТУХ0-9]/g, '');
+  }
+  function plateHuman(p) {
+    var m = /^([А-Я])(\d{3})([А-Я]{2})(\d{2,3})$/.exec(p || '');
+    return m ? m[1] + m[2] + m[3] + ' ' + m[4] : (p || '');
+  }
+  // основная часть знака по позициям: буква, 3 цифры, 2 буквы
+  function plateMainFilter(raw) {
+    var src = plateNorm(raw), out = '';
+    for (var i = 0; i < src.length && out.length < 6; i++) {
+      var ch = src[i], pos = out.length, digit = /\d/.test(ch);
+      if ((pos === 0 || pos >= 4) ? !digit : digit) out += ch;
+    }
+    return out;
+  }
   function bonusCard() {
     var B = C.bonus || {};
     return '<div class="home-bonus">' +
       '<div class="home-bonus__text"><h2>' + esc(B.title || 'Бонусы за покупки') + '</h2><p>' + esc(B.text || '') + '</p></div>' +
-      '<form class="home-bonus__form" id="bonusForm" novalidate><label class="sr" for="bonusPhone">Телефон</label>' +
-        '<input id="bonusPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="Телефон">' +
+      '<form class="home-bonus__form" id="bonusForm" novalidate>' +
+        '<div class="plate" role="group" aria-label="Госномер автомобиля">' +
+          '<input id="plateMain" class="plate__main" maxlength="9" placeholder="А123ВС" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Госномер: буква, три цифры, две буквы">' +
+          '<span class="plate__side"><input id="plateReg" class="plate__region" inputmode="numeric" maxlength="3" placeholder="38" autocomplete="off" aria-label="Код региона"><span class="plate__rus">RUS<i class="plate__flag" aria-hidden="true"></i></span></span>' +
+        '</div>' +
         '<button class="btn" type="submit">' + esc(B.cta || 'Получить бонусы') + '</button></form>' +
       '<p class="home-bonus__alt">Уже есть кабинет? <a href="#/signin">Войти</a></p>' +
       '<svg class="home-bonus__art" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="hbG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d4d4d8"/></linearGradient></defs><rect x="52" y="-6" width="18" height="132" rx="9" transform="rotate(35 61 60)" fill="url(#hbG)"/><circle cx="30" cy="30" r="17" fill="url(#hbG)"/><circle cx="92" cy="92" r="17" fill="url(#hbG)"/></svg>' +
@@ -631,16 +654,45 @@
       }
     };
     var bonus = $('#bonusForm', root);
-    if (bonus) bonus.onsubmit = function (e) {
-      e.preventDefault();
-      var input = $('#bonusPhone', root), digits = input.value.replace(/\D/g, '');
-      if (digits.length < 10 || digits.length > 11) {
-        input.focus(); input.classList.remove('is-bad'); void input.offsetWidth; input.classList.add('is-bad');
-        toast('Укажите телефон: 10 или 11 цифр');
-        return;
-      }
-      location.hash = '#/register?phone=' + encodeURIComponent(input.value.trim());
-    };
+    if (bonus) {
+      var pMain = $('#plateMain', root), pReg = $('#plateReg', root), plateBox = $('.plate', root), pBtn = $('button[type="submit"]', bonus);
+      pMain.addEventListener('input', function () {
+        var raw = plateNorm(pMain.value), main = plateMainFilter(raw);
+        // вставили номер целиком («А123ВС38») — регион уходит во второе поле
+        var rest = raw.length > 6 && PLATE_RE.test(raw) ? raw.slice(6) : '';
+        pMain.value = main;
+        if (rest) pReg.value = rest;
+        if (main.length === 6) pReg.focus();
+      });
+      pReg.addEventListener('input', function () { pReg.value = pReg.value.replace(/\D/g, '').slice(0, 3); });
+      pReg.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && !pReg.value) { e.preventDefault(); pMain.focus(); pMain.value = pMain.value.slice(0, -1); } });
+      bonus.onsubmit = function (e) {
+        e.preventDefault();
+        var plate = plateMainFilter(pMain.value) + pReg.value.replace(/\D/g, '');
+        if (!PLATE_RE.test(plate)) {
+          plateBox.classList.remove('is-bad'); void plateBox.offsetWidth; plateBox.classList.add('is-bad');
+          (plateMainFilter(pMain.value).length < 6 ? pMain : pReg).focus();
+          toast('Проверьте госномер: например, А123ВС 38');
+          return;
+        }
+        pBtn.disabled = true; var label = pBtn.textContent; pBtn.textContent = 'Ищем автомобиль…';
+        // поиск машины по номеру — на сервере (внешний сервис проверки авто). Сайт получает только
+        // данные автомобиля; связь «госномер → клиент 1С» сервер делает сам при регистрации.
+        var ctrl = window.AbortController ? new AbortController() : null;
+        var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 6000);
+        fetch('/api/vehicle/by-plate?plate=' + encodeURIComponent(plate), { headers: { Accept: 'application/json' }, signal: ctrl ? ctrl.signal : undefined })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; })
+          .then(function (data) {
+            clearTimeout(timer); pBtn.disabled = false; pBtn.textContent = label;
+            var v = data && data.vehicle, q = '#/register?plate=' + encodeURIComponent(plate);
+            if (v && (v.make || v.model)) {
+              q += '&car=' + encodeURIComponent([v.make, v.model, v.year].filter(Boolean).join(' ')) + (v.vin ? '&vin=' + encodeURIComponent(v.vin) : '') + '&found=1';
+            }
+            location.hash = q;
+          });
+      };
+    }
     var form = $('#homeInquiry', root);
     if (!form || !window.CarvicAccount) return;
     form.onsubmit = function (e) {
@@ -2380,6 +2432,7 @@
    * Пока сервер этот адрес не знает (404/405/501), данные уходят менеджеру
    * заявкой через /api/inquiries — чтобы регистрация не терялась. */
   pages.register = function () {
+    var rp = currentRoute.params || {};
     return Promise.resolve('<div id="registerPage"><h2 class="modal__title" id="modalTitle">Регистрация</h2>' +
       '<p class="modal__lead">Личный кабинет и бонусная карта — оформится автоматически. История заказов, гараж и блокнот.</p>' +
       '<form class="form inq-form" id="regForm" novalidate>' +
@@ -2388,8 +2441,10 @@
       '<div class="field"><label for="regPhone">Телефон</label><input id="regPhone" inputmode="tel" maxlength="18" autocomplete="tel" placeholder="+7" required value="' + esc((currentRoute.params || {}).phone || '') + '"></div>' +
       '<div class="field"><label for="regEmail">E-mail</label><input id="regEmail" type="email" maxlength="120" autocomplete="email"></div>' +
       '<p class="reg-sub">Автомобиль <span>— необязательно. Сохраним в «Гараж», чтобы подбирать детали под эту машину</span></p>' +
-      '<div class="field"><label for="regCar">Марка и модель</label><input id="regCar" maxlength="80" placeholder="Например, Toyota Corolla 2014"></div>' +
-      '<div class="field"><label for="regVin">VIN или номер кузова</label><input id="regVin" maxlength="20" autocomplete="off" spellcheck="false" placeholder="17 символов VIN"></div>' +
+      (rp.found ? '<p class="reg-found">' + homeIcon('check', 18) + '<span>Нашли по госномеру: <b>' + esc(rp.car || '') + '</b>. Это ваш автомобиль? Если нет — поправьте.</span></p>' : '') +
+      '<div class="field"><label for="regPlate">Госномер</label><input id="regPlate" maxlength="12" autocomplete="off" spellcheck="false" placeholder="А123ВС 38" value="' + esc(plateHuman(plateNorm(rp.plate || ''))) + '"></div>' +
+      '<div class="field"><label for="regCar">Марка и модель</label><input id="regCar" maxlength="80" placeholder="Например, Toyota Corolla 2014" value="' + esc(rp.car || '') + '"></div>' +
+      '<div class="field field--wide"><label for="regVin">VIN или номер кузова</label><input id="regVin" maxlength="20" autocomplete="off" spellcheck="false" placeholder="17 символов VIN" value="' + esc(rp.vin || '') + '"></div>' +
       '<label class="check" id="regGarageRow" hidden><input type="checkbox" id="regGarage"> Сохранить автомобиль в «Гараже». <a href="#/legal/consent-garage" target="_blank" rel="noopener">Согласие на обработку данных автомобиля</a></label>' +
       '<label class="check"><input type="checkbox" id="regTerms"> Принимаю <a href="#/legal/terms" target="_blank" rel="noopener">Пользовательское соглашение</a></label>' +
       '<label class="check"><input type="checkbox" id="regPd"> Ознакомлен с <a href="#/legal/privacy" target="_blank" rel="noopener">Политикой обработки персональных данных</a> и даю <a href="#/legal/consent-request" target="_blank" rel="noopener">согласие на их обработку</a></label>' +
@@ -2418,9 +2473,12 @@
       var btn = $('[data-modal-close]', $('#regResult', root));
       if (btn) btn.focus();
     }
-    var carBox = $('#regCar', root), vinBox = $('#regVin', root), garageRow = $('#regGarageRow', root);
-    function syncCar() { garageRow.hidden = !(carBox.value.trim() || vinBox.value.trim()); }
+    var carBox = $('#regCar', root), vinBox = $('#regVin', root), plateBox = $('#regPlate', root), garageRow = $('#regGarageRow', root);
+    function syncCar() { garageRow.hidden = !(carBox.value.trim() || vinBox.value.trim() || plateBox.value.trim()); }
     carBox.addEventListener('input', syncCar);
+    plateBox.addEventListener('input', syncCar);
+    plateBox.addEventListener('blur', function () { var n = plateNorm(plateBox.value); if (PLATE_RE.test(n)) plateBox.value = plateHuman(n); });
+    syncCar(); // машина могла прийти из блока бонусов на главной
     // исправляет поле — старое сообщение об ошибке убираем
     form.addEventListener('input', function () { $('#regErr', root).hidden = true; });
     form.addEventListener('change', function () { $('#regErr', root).hidden = true; });
@@ -2438,18 +2496,19 @@
       if (!first.value.trim()) return fail('Укажите имя.', first);
       if (digits.length < 10 || digits.length > 11) return fail('Укажите телефон: 10 или 11 цифр.', phone);
       if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) return fail('Проверьте e-mail.', email);
-      var carLabel = carBox.value.trim(), vin = vinBox.value.replace(/\s/g, '').toUpperCase();
+      var carLabel = carBox.value.trim(), vin = vinBox.value.replace(/\s/g, '').toUpperCase(), plate = plateNorm(plateBox.value);
+      if (plateBox.value.trim() && !PLATE_RE.test(plate)) return fail('Проверьте госномер: например, А123ВС 38.', plateBox);
       if (vin) {
         if (!/^[A-Z0-9-]{6,20}$/.test(vin)) return fail('VIN или номер кузова: только латинские буквы, цифры и дефис, от 6 до 20 символов.', vinBox);
         if (vin.length === 17 && vin.indexOf('-') < 0 && /[IOQ]/.test(vin)) return fail('В VIN не используются буквы I, O и Q — проверьте, может быть, это цифры 1 и 0.', vinBox);
       }
-      if ((carLabel || vin) && !$('#regGarage', root).checked) return fail('Чтобы сохранить автомобиль, отметьте согласие для «Гаража» — или очистите поля автомобиля.', $('#regGarage', root));
+      if ((carLabel || vin || plate) && !$('#regGarage', root).checked) return fail('Чтобы сохранить автомобиль, отметьте согласие для «Гаража» — или очистите поля автомобиля.', $('#regGarage', root));
       if (!$('#regTerms', root).checked) return fail('Нужно принять Пользовательское соглашение.', $('#regTerms', root));
       if (!$('#regPd', root).checked) return fail('Нужно согласие на обработку персональных данных.', $('#regPd', root));
       var body = {
         firstName: first.value.trim(), lastName: $('#regLast', root).value.trim(), phone: phone.value.trim(), email: email.value.trim(),
         acceptTerms: true, consentRequest: true, acceptAds: $('#regAds', root).checked, company: $('#regCompany', root).value,
-        car: (carLabel || vin) ? { label: carLabel, vin: vin, consentGarage: true } : null
+        car: (carLabel || vin || plate) ? { label: carLabel, vin: vin, plate: plate, consentGarage: true } : null
       };
       var submit = $('button[type="submit"]', form);
       submit.disabled = true;
@@ -2465,7 +2524,7 @@
         return window.CarvicAccount.sendInquiry({
           kind: 'contact', name: name, contact: body.phone + (body.email ? ', ' + body.email : ''),
           message: 'Заявка на регистрацию в личном кабинете. ' + (body.email ? 'E-mail: ' + body.email + '. ' : '') +
-            (body.car ? 'Автомобиль для «Гаража»: ' + (body.car.label || 'без названия') + (body.car.vin ? ', VIN/кузов ' + body.car.vin : '') + ' (согласие на «Гараж» дано). ' : '') +
+            (body.car ? 'Автомобиль для «Гаража»: ' + (body.car.label || 'без названия') + (body.car.plate ? ', госномер ' + plateHuman(body.car.plate) : '') + (body.car.vin ? ', VIN/кузов ' + body.car.vin : '') + ' (согласие на «Гараж» дано). ' : '') +
             'Оформить бонусную карту. Пользовательское соглашение: принято. Рассылки: ' + (body.acceptAds ? 'согласен' : 'нет') + '.',
           article: '', vin: body.car && body.car.vin.length === 17 ? body.car.vin : '', company: body.company, consentRequest: true
         }).then(function () {

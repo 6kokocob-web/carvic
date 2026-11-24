@@ -1491,3 +1491,24 @@ html[data-theme="dark"] .cab-badge--ok { color: #86EFAC; }
 .chip button:hover, .chip button:focus-visible { background: var(--c-border); color: var(--c-text); outline: none; }
 .chip--car { background: rgba(217,45,39,.1); border-color: rgba(217,45,39,.35); color: var(--c-red-text); }
 .chips { gap: 8px; margin-bottom: 14px; }
+
+/* =====================================================================
+ * ГОСНОМЕР в блоке бонусов: поле в виде российского номерного знака
+ * (белый в обеих темах, как настоящий; регион отдельно, с RUS и флагом)
+ * ===================================================================== */
+.plate { flex: 1 1 auto; min-width: 0; display: flex; align-items: stretch; height: 56px; border: 2.5px solid #111113; border-radius: 9px; background: #fff; color: #111113; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+.plate:focus-within { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+.plate.is-bad { border-color: var(--c-signal); animation: hb-shake .35s; }
+.plate input { border: 0; outline: 0; background: transparent; color: #111113; font: 700 24px/1 var(--font-mono); text-transform: uppercase; text-align: center; padding: 0; min-width: 0; }
+.plate input::placeholder { color: #B4B4BB; font-weight: 600; }
+.plate__main { flex: 1 1 auto; width: 100%; letter-spacing: .08em; }
+.plate__side { flex: none; width: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 2.5px solid #111113; }
+.plate__region { width: 100%; height: 30px; font-size: 20px !important; letter-spacing: .04em; }
+.plate__rus { display: inline-flex; align-items: center; gap: 3px; font: 700 9px/1 var(--font-body); letter-spacing: .06em; color: #111113; }
+.plate__flag { display: inline-block; width: 13px; height: 8px; border: 1px solid #c9c9cf; background: linear-gradient(#fff 0 33.3%, #1C57C9 33.3% 66.6%, #D52B1E 66.6%); }
+.home-bonus__form .btn { height: 56px; }
+.reg-found { grid-column: 1 / -1; display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 10px 12px; border-radius: 10px; background: rgba(34,165,90,.12); font-size: 14px; }
+.reg-found .hico { color: #22A55A; flex: none; margin-top: 1px; }
+@media (max-width: 1240px) and (min-width: 1021px) { .plate { flex: none; } }
+.plate input, .plate input:focus { outline: none !important; box-shadow: none !important; border: 0 !important; } /* одна рамка — у всей таблички */
+.plate input { font-family: var(--font-brand); font-weight: 800; } /* в моно «О» похожа на ноль */
