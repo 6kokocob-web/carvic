@@ -1160,8 +1160,8 @@
           '<div class="promo__body">' +
           '<h2 class="promo__title">' + esc(d.headline || d.title) + '</h2>' +
           (d.subtitle ? '<p class="deal-slide__sub">' + d.subtitle.split('|').map(esc).join('<br>') + '</p>' : '') +
-          '<p class="promo__text">' + esc(d.text) + '</p>' +
-          (d.photo && d.ladder ? '<ol class="deal-steps" aria-label="Скидка по числу разных позиций в чеке">' + d.ladder.map(function (st) { return '<li><b>' + esc(st[1]) + '</b><span>' + esc(st[0]) + ' поз.</span></li>'; }).join('') + '</ol>' : '') +
+          (('slideText' in d ? d.slideText : d.text) ? '<p class="promo__text">' + esc('slideText' in d ? d.slideText : d.text) + '</p>' : '') +
+          (d.photo && d.ladder && d.slideSteps !== false ? '<ol class="deal-steps" aria-label="Скидка по числу разных позиций в чеке">' + d.ladder.map(function (st) { return '<li><b>' + esc(st[1]) + '</b><span>' + esc(st[0]) + ' поз.</span></li>'; }).join('') + '</ol>' : '') +
           '<a class="promo__cta" href="#/promo/' + esc(d.id) + '"' + (i ? ' tabindex="-1"' : '') + '>Условия акции</a></div>' +
           dealArt(d) + '</div>';
       }).join('') + '</div>' +
@@ -1233,7 +1233,7 @@
     var track = $('.promo__track', box), slides = $$('.promo__slide', box), dots = $$('[data-promo-go]', box);
     if (slides.length < 2) {
       var v1 = $('.deal-video video', box);
-      if (v1 && window.matchMedia('(min-width: 1021px)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v1.preload = 'auto'; var p1 = v1.play(); if (p1 && p1.catch) p1.catch(function () {}); }
+      if (v1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v1.preload = 'auto'; var p1 = v1.play(); if (p1 && p1.catch) p1.catch(function () {}); }
       return;
     }
     var i = 0, timer = 0, hold = false;
@@ -1248,7 +1248,7 @@
       dots.forEach(function (d, k) { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
       startVideo();
     }
-    var wide = window.matchMedia('(min-width: 1021px)');
+    var wide = { matches: true }; // видео вертикальное — играет на любой ширине
     function vid(k) { var v = $('.deal-video video', slides[k]); return v && wide.matches ? v : null; }
     function startVideo() {
       slides.forEach(function (s, k) { var v = vid(k); if (v && k !== i) v.pause(); });
