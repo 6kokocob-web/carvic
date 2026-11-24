@@ -689,7 +689,7 @@ a.section-link, .section-link { color: var(--c-red-text); }
 .status-badge--wait { color: #713F12; background: #FEF3C7; }
 .chip-row a { color: var(--c-text); border-color: var(--c-border); }
 .suggest { background: #fff; color: var(--c-text); border-color: var(--c-border); box-shadow: 0 12px 32px rgba(17,17,19,.12); }
-.suggest button { color: var(--c-text); border-bottom-color: var(--c-border); }
+.suggest button { position: static; width: 100%; height: auto; border-radius: 0; color: var(--c-text); border-bottom-color: var(--c-border); }
 .suggest button.on, .suggest button:hover { background: var(--c-surface); }
 .suggest small { color: var(--c-muted); }
 
@@ -713,8 +713,9 @@ a.section-link, .section-link { color: var(--c-red-text); }
 .vin-search { flex: 1 1 auto; min-width: 0; display: flex; height: 48px; border: 2px solid var(--c-signal); border-radius: 10px; background: #fff; }
 .vin-search input { flex: 1 1 auto; min-width: 0; width: auto; height: 100%; border: 0; border-radius: 8px 0 0 8px; background: #fff; color: var(--c-text); padding: 0 16px; font-size: 15px; box-shadow: none; }
 .vin-search input::placeholder { color: #71717A; }
-.vin-search button { position: static; width: auto; height: 100%; padding: 0 22px; border-radius: 0 6px 6px 0; background: var(--c-signal); color: #fff; font-weight: 600; }
-.vin-search button:hover { background: var(--c-deep-red); }
+/* только кнопка «Найти»: подсказки .suggest тоже лежат внутри #vinForm */
+.vin-search > button { position: static; width: auto; height: 100%; padding: 0 22px; border-radius: 0 6px 6px 0; background: var(--c-signal); color: #fff; font-weight: 600; }
+.vin-search > button:hover { background: var(--c-deep-red); }
 .vin-hint { display: none; }
 .vin-hint.err { display: block; left: 16px; top: calc(100% + 6px); padding: 4px 8px; border-radius: 6px; background: #fff; border: 1px solid var(--c-border); color: var(--c-red-text); font-size: 12px; }
 .banner__right { margin-left: 0; gap: 16px; }
@@ -749,6 +750,9 @@ a.section-link, .section-link { color: var(--c-red-text); }
 /* ---- Подвал ---- */
 .footer { border-bottom: 0; padding: 40px max(24px, calc((100% - var(--wrap)) / 2 + 24px)) 20px; }
 .footer h4 { text-transform: none; letter-spacing: 0; font-size: 14px; }
+/* место под плашку cookie — внутри тёмного футера, а не белой полосой под ним */
+body.cookie-open { padding-bottom: 0; }
+body.cookie-open .footer { padding-bottom: 148px; }
 
 /* ---- Главная ---- */
 body.is-home #view { padding: 0; }
