@@ -570,7 +570,7 @@
         '<div class="home-posts">' + posts.map(function (p) {
           return '<a class="home-post" href="' + p[2] + '"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b></a>';
         }).join('') + '</div></section>' +
-      (window.CarvicGeo ? '<section class="home-sec" id="homeGeo"><div class="home-sec__head"><h2>География</h2><a href="#/stores">Все магазины →</a></div>' + window.CarvicGeo.html(geoCities()) + '</section>' : '');
+      (window.CarvicGeo ? '<section class="home-sec" id="homeGeo"><div class="home-sec__head"><h2>География</h2><a href="#/stores">Все магазины →</a></div>' + window.CarvicGeo.html(geoCities()) + geoContacts() + '</section>' : '');
   }
 
   pages.home = function () {
@@ -1824,6 +1824,21 @@
       return storeCard(o, C.stores.length + i + 1, 'Наличие по этому магазину на сайте пока не показывается — уточняйте по телефону.');
     }).join('') : '';
     return '<div class="grid grid-3 stores" id="storeCards">' + C.stores.map(function (o, i) { return storeCard(o, i + 1); }).join('') + extra + '</div>';
+  }
+  /* Контакты под картой на главной: только данные из COMPANY и списка магазинов */
+  function geoContacts() {
+    var irk = C.stores.length, ang = (C.extraStores || []).filter(function (o) { return o.city === 'Ангарск'; }).length;
+    function ic(path) { return '<span class="geo-contacts__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg></span>'; }
+    return '<div class="geo-contacts">' +
+      '<div class="geo-contacts__item">' + ic('<path d="M6 4h3l2 5-2 1a12 12 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2z"/>') +
+        '<div><span class="geo-contacts__label">Телефон для всех магазинов</span><a class="geo-contacts__main" href="tel:' + C.phoneHref + '">' + C.phone + '</a><a href="#/callback">Заказать звонок</a></div></div>' +
+      '<div class="geo-contacts__item">' + ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>') +
+        '<div><span class="geo-contacts__label">Почта</span><a class="geo-contacts__main" href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><a href="#/inquiry">Написать менеджеру</a></div></div>' +
+      '<div class="geo-contacts__item">' + ic('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>') +
+        '<div><span class="geo-contacts__label">Магазины</span><span class="geo-contacts__main">' + storesWord(irk + ang) + '</span><span class="muted">Иркутск — ' + irk + (ang ? ', Ангарск — ' + ang : '') + '</span><a href="#/stores">Адреса и часы работы</a></div></div>' +
+      '<div class="geo-contacts__item">' + ic('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>') +
+        '<div><span class="geo-contacts__label">Режим работы</span><span class="geo-contacts__main">Без выходных</span><span class="muted">Пн–Пт 09:00–19:00, в выходные часы у магазинов разные</span></div></div>' +
+    '</div>';
   }
   /* География присутствия: открытые города — красные точки, будущие — серые */
   function geoCities() {

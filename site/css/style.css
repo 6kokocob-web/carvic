@@ -1234,3 +1234,17 @@ html[data-theme="dark"] .promo:has(.promo__slide--light[aria-hidden="false"]) .p
 .preview-cats { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
 .preview-note { margin-bottom: 14px; }
 .price--ask { font-size: 15px; font-weight: 600; color: var(--c-muted); white-space: nowrap; }
+
+/* контакты под картой на главной */
+.geo-contacts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.geo-contacts__item { display: flex; gap: 12px; align-items: flex-start; padding: 18px; border-radius: 12px; background: var(--c-surface); }
+.geo-contacts__ic { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--c-card); color: var(--c-signal); }
+.geo-contacts__ic svg { width: 22px; height: 22px; }
+.geo-contacts__item > div { display: grid; gap: 3px; min-width: 0; font-size: 13px; }
+.geo-contacts__label { color: var(--c-muted); font-size: 12px; }
+.geo-contacts__main { font: 700 16px/1.3 var(--font-brand); color: var(--c-text); text-decoration: none; overflow-wrap: anywhere; }
+a.geo-contacts__main:hover { color: var(--c-signal); }
+.geo-contacts__item a:not(.geo-contacts__main) { color: var(--c-red-text); font-weight: 600; text-decoration: none; }
+.geo-contacts__item a:not(.geo-contacts__main):hover { text-decoration: underline; }
+@media (max-width: 1020px) { .geo-contacts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .geo-contacts { grid-template-columns: minmax(0, 1fr); } }
