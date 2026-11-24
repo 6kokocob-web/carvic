@@ -1017,3 +1017,57 @@ body.modal-open { overflow: hidden; }
 @media (min-width: 901px) and (prefers-reduced-motion: reduce) {
   .banner, body.has-filters .layout > .sidebar { transition: none; }
 }
+
+/* =====================================================================
+ * ШАПКА: ИКОНКИ «ВОЙТИ / ПРОФИЛЬ» И «КОРЗИНА» (иконка над подписью)
+ * ===================================================================== */
+.hdr-btn { position: relative; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: auto; min-width: 60px; height: 52px; flex: 0 0 auto; padding: 0 6px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--c-text); cursor: pointer; font: 500 12px/1 var(--font-body); }
+.hdr-btn svg { width: 24px; height: 24px; flex: none; }
+.hdr-btn:hover, .hdr-btn[aria-expanded="true"] { color: var(--c-signal); }
+.hdr-btn:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 2px; }
+.hdr-btn__label { white-space: nowrap; }
+.hdr-btn .cart-count { top: 0; right: calc(50% - 22px); }
+.banner__right { gap: 8px; }
+
+.profile { position: relative; flex: 0 0 auto; }
+.profile-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; min-width: 220px; padding: 8px;
+  background: var(--c-card); color: var(--c-text); border: 1px solid var(--c-border); border-radius: 12px; box-shadow: 0 12px 32px var(--c-shadow); }
+.profile-menu[hidden] { display: none; }
+.profile-menu__name { margin: 4px 12px 8px; font-size: 13px; color: var(--c-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile-menu a, .profile-menu button { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; border-radius: 8px;
+  background: none; color: var(--c-text); font: 500 14px/1.2 var(--font-body); text-decoration: none; cursor: pointer; }
+.profile-menu a:hover, .profile-menu button:hover, .profile-menu a:focus-visible, .profile-menu button:focus-visible { background: var(--c-surface); outline: none; }
+.profile-menu hr { border: 0; border-top: 1px solid var(--c-border); margin: 6px 4px; }
+.profile-menu .profile-menu__out { color: var(--c-red-text); }
+
+/* окно входа: форма кабинета без рамки карточки */
+.modal .card { background: none; border: 0; padding: 0; box-shadow: none; }
+.modal #accForm .btn--lg { height: 48px; }
+.signin-alt { margin: 22px 0 0; padding-top: 16px; border-top: 1px solid var(--c-border); font-size: 14px; color: var(--c-muted); }
+.signin-alt a { color: var(--c-red-text); font-weight: 600; }
+
+/* «Заявка принята» — зелёная галочка */
+.inq-done__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: #22A55A; color: #fff; }
+.inq-done__icon svg { width: 28px; height: 28px; }
+
+/* без подписей — плитки-иконки там, где места мало */
+@media (max-width: 900px) {
+  .hdr-btn { min-width: 0; width: 44px; height: 44px; padding: 0; gap: 0; background: var(--c-surface); }
+  .hdr-btn__label { display: none; }
+  .hdr-btn .cart-count { top: -4px; right: -6px; }
+}
+@media (max-width: 720px) {
+  .banner__right { gap: 6px; }
+  .hdr-btn, .banner__phone-icon, .catalog-btn { width: 42px; height: 42px; }
+  .catalog-btn { padding: 0; justify-content: center; }
+  .logo .logo__full { width: 100px; }
+  .profile-menu { position: fixed; top: calc(var(--banner-h) - 6px); left: 12px; right: 12px; min-width: 0; }
+}
+@media (max-width: 380px) {
+  .banner__row { column-gap: 6px; }
+  .banner__right { gap: 4px; }
+  .hdr-btn, .banner__phone-icon, .catalog-btn { width: 40px; height: 40px; }
+  .logo .logo__full { width: 88px; }
+}

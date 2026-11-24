@@ -244,7 +244,56 @@
       renderCartCount();
     });
   }
+  /* Иконка входа в шапке: гость — «Войти» (окно входа), после входа — «Профиль» с меню */
+  function loggedIn() { return !!(state.buyer || state.wholesale); }
+  function closeProfileMenu() {
+    var menu = $('#profileMenu'), btn = $('#profileBtn');
+    if (menu) menu.hidden = true;
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+  function renderProfile() {
+    var btn = $('#profileBtn'), label = $('#profileLabel'), menu = $('#profileMenu');
+    if (!btn) return;
+    var on = loggedIn();
+    label.textContent = on ? 'Профиль' : 'Войти';
+    btn.setAttribute('aria-label', on ? 'Профиль и личный кабинет' : 'Войти в личный кабинет');
+    btn.classList.toggle('is-in', on);
+    if (on) {
+      btn.setAttribute('aria-haspopup', 'menu');
+      var name = (state.wholesale && state.wholesale.name) || (state.buyer && state.buyer.name) || '';
+      menu.innerHTML = (name ? '<p class="profile-menu__name">' + esc(name) + '</p>' : '') +
+        [['#/account', 'Профиль'], ['#/account/orders', 'Мои заказы'], ['#/account/garage', 'Гараж'], ['#/account/balance', 'Баланс'], ['#/notebook', 'Блокнот'], ['#/account/settings', 'Настройки']]
+          .map(function (it) { return '<a role="menuitem" href="' + it[0] + '">' + it[1] + '</a>'; }).join('') +
+        '<hr><button type="button" role="menuitem" class="profile-menu__out" id="profileLogout">Выйти</button>';
+      $('#profileLogout').onclick = function () {
+        closeProfileMenu();
+        var done = state.act ? window.CarvicAccount.stopAct() : window.CarvicAccount.logout();
+        done.then(function () { state.buyer = null; state.wholesale = null; state.act = null; state.serverQty = null; renderBuyer(); renderCartCount(); route(); });
+      };
+    } else {
+      btn.removeAttribute('aria-haspopup');
+      closeProfileMenu();
+      menu.innerHTML = '';
+    }
+  }
+  function initProfile() {
+    var btn = $('#profileBtn'), menu = $('#profileMenu');
+    if (!btn) return;
+    btn.onclick = function (e) {
+      e.stopPropagation();
+      if (!loggedIn()) { location.hash = '#/signin'; return; }
+      var open = menu.hidden;
+      menu.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) { var first = $('a', menu); if (first) first.focus(); }
+    };
+    document.addEventListener('click', function (e) { if (!menu.hidden && !e.target.closest('#profileWrap')) closeProfileMenu(); });
+    menu.addEventListener('click', function (e) { if (e.target.closest('a')) closeProfileMenu(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { closeProfileMenu(); btn.focus(); } });
+    renderProfile();
+  }
   function renderBuyer() {
+    renderProfile();
     var b = $('#buyerBox');
     if (!b) return;
     if (state.buyer || state.wholesale) {
@@ -1710,7 +1759,7 @@
       }) }).then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); }).then(function (res) {
         if (!res.ok) { $('#callResult', root).innerHTML = '<p class="warn-box">' + esc(res.data.message || 'Не принято') + '</p>'; return; }
         form.hidden = true;
-        $('#callResult', root).innerHTML = '<div class="inq-done"><p class="inq-done__title">Заявка принята</p><div class="warn-box">Номер ' + esc(res.data.id) + '. ' + esc(res.data.note) + '</div><button class="btn" type="button" data-modal-close>Закрыть</button></div>';
+        $('#callResult', root).innerHTML = '<div class="inq-done"><span class="inq-done__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><p class="inq-done__title">Заявка принята</p><div class="warn-box">Номер ' + esc(res.data.id) + '. ' + esc(res.data.note) + '</div><button class="btn" type="button" data-modal-close>Закрыть</button></div>';
         var done = $('[data-modal-close]', $('#callResult', root));
         if (done) done.focus();
       }).catch(function () { toast('Нет связи с сервером. Попробуйте ещё раз.'); });
@@ -1767,7 +1816,7 @@
         consentRequest: $('#inqConsent', root).checked
       }).then(function (res) {
         form.hidden = true;
-        $('#inquiryResult', root).innerHTML = '<div class="inq-done"><p class="inq-done__title">Заявка принята</p><div class="warn-box">Номер ' + esc(res.id) + '. ' + esc(res.note) + '</div><button class="btn" type="button" data-modal-close>Закрыть</button></div>';
+        $('#inquiryResult', root).innerHTML = '<div class="inq-done"><span class="inq-done__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><p class="inq-done__title">Заявка принята</p><div class="warn-box">Номер ' + esc(res.id) + '. ' + esc(res.note) + '</div><button class="btn" type="button" data-modal-close>Закрыть</button></div>';
         var done = $('[data-modal-close]', $('#inquiryResult', root));
         if (done) done.focus();
       }).catch(function (err) { toast(err.message); });
@@ -1947,47 +1996,22 @@
       };
     });
   };
-  pages.account = function () {
-    var A = window.CarvicAccount;
-    return A.status().then(function (st) {
-      state.demoAccounts = Boolean(st.demoAccounts);
-      state.hideLocalDbNote = Boolean(st.hideLocalDbNote);
-      if (!st.available) {
-        return '<div class="page"><h1>Личный кабинет</h1><div class="card"><p>' + esc(st.note) + '</p><p class="muted">Карта, СБП, баланс и история покупок в этом режиме недоступны. Это не ошибка входа.</p></div></div>';
-      }
-      return A.me().then(function (me) {
-        state.buyer = me.account;
-        state.act = me.act && me.act.active ? me.act : null;
-        var wholesaleCabinet = me.staffCabinet && me.staffCabinet.segment === 'wholesale';
-        return '<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Кабинет</span></div><h1>Личный кабинет</h1>' + accountNav() +
-          demoBanner(esc(st.note)) +
-          '<div class="account-grid"><section class="card" id="staffProfile"><h2 class="card__title">Профиль</h2>' + (me.staffCabinet
-            ? '<p><b>' + esc(me.account.name) + '</b> · ' + esc(me.staffCabinet.segment === 'wholesale' ? 'опт' : 'розница') + '</p><p class="muted">' + esc(me.staffCabinet.note) + '</p><p>' + (me.staffCabinet.terms ? esc(limitPhrase(me.staffCabinet.terms.days, me.staffCabinet.terms.limitMinor)) : 'Отсрочка не задана') + '. Доступный кредит не вычислен. Долг из 1С не прочитан.</p><p><a href="#/account/orders">Заказы</a> · <a href="#/account/balance">Взаиморасчёты</a></p>' +
-              (wholesaleCabinet ? '<p id="cabinetDocs">' + (state.consentPreK3 ? '' : '<a href="#/legal/oferta-opt">Условия поставки для оптовых покупателей</a> · ') + '<a href="#/legal/terms">Пользовательское соглашение</a> · <a href="#/legal/privacy">Политика обработки персональных данных</a></p>' : '')
-            : (me.wholesale ? '<p id="wholesaleTerms"><b>' + esc(me.wholesale.name) + '</b> · ' + esc(me.wholesale.priceKindName) + '</p><p>' + esc(limitPhrase(me.wholesale.days, me.wholesale.limitMinor)) + '</p><p><a href="#/account/orders">Заказы</a> · <a href="#/account/wholesale-returns">Возвраты</a></p>' : '') + (me.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(me.privacyEmail) + '">' + esc(me.privacyEmail) + '</a></p>' : '') + '<form class="card form" id="deleteForm"><h2 class="card__title">Удалить кабинет</h2><p class="muted">Имя, телефон, почта и гараж обезличиваются. Заказы и журнал остаются. Код приходит только если SMS-транспорт подключён.</p><button class="btn btn--ghost" id="deleteAsk" type="button">Прислать код</button><div class="field"><label for="deleteCode">Код</label><input id="deleteCode" inputmode="numeric" autocomplete="one-time-code"></div><button class="btn" id="deleteConfirm" type="button">Удалить кабинет</button><p id="deleteNote"></p></form><form class="form" id="profileForm"><div class="field"><label for="pfName">Имя</label><input id="pfName" value="' + esc(me.account.name) + '" maxlength="80"' + (me.act && me.act.active ? ' disabled' : '') + '></div><div class="field"><label for="pfMail">E-mail</label><input id="pfMail" type="email" value="' + esc(me.account.email || '') + '" maxlength="120"' + (me.act && me.act.active ? ' disabled' : '') + '></div><p class="muted">Телефон входа: ' + esc(me.account.phone) + '. Его нельзя сменить с этой формы. Организация и филиал появятся только из 1С.</p><button class="btn" type="submit"' + (me.act && me.act.active ? ' disabled' : '') + '>Сохранить</button></form>' + (state.hideLocalDbNote ? '' : '<p class="muted">Записи этого кабинета лежат в локальной базе сервера. Это не боевая база и не 1С.</p>')) + '</section>' +
-          '<section class="card"><h2 class="card__title">Баланс</h2><p class="price" style="text-align:left;font-size:28px">' + (me.balance ? esc(A.rub(me.balance)) : 'нет данных') + '</p><p class="muted">' + (me.staffCabinet ? 'Источник взаиморасчётов недоступен.' : (state.demoAccounts ? 'Демо-баланс на сервере. Это не деньги на счёте и не взаиморасчёты из 1С.' : 'Взаиморасчёты из 1С не подключены.')) + '</p><a class="btn btn--ghost" href="#/account/balance">История операций</a></section></div>' +
-          '<p><button class="btn btn--ghost" id="accLogout" type="button">Выйти</button></p></div>';
-      }).catch(function () {
-        if (!st.demo && st.smsLogin) {
-          return '<div class="page"><h1>Вход в кабинет</h1>' +
-            '<form class="card form" id="accForm"><div class="field"><label for="accPhone">Телефон</label><input id="accPhone" inputmode="numeric" autocomplete="username" placeholder="+7 9XX XXX-XX-XX"></div>' +
-            '<button class="btn btn--ghost" id="accSend" type="button">Получить код</button>' +
-            '<div class="field"><label for="accCode">Код из SMS</label><input id="accCode" inputmode="numeric" autocomplete="one-time-code"></div>' +
-            '<button class="btn btn--lg">Войти</button><p class="muted">Если номер подходит, код отправлен. В ответе сайта кода нет.</p></form><p><a href="#/notebook">Блокнот</a></p></div>';
-        }
-        if (!st.demo) {
-          return '<div class="page"><h1>Вход в кабинет</h1><div class="card"><p>Боевой вход не подключён.</p><p><a href="#/notebook">Блокнот</a></p></div></div>';
-        }
-        return '<div class="page"><h1>Вход в кабинет</h1>' + demoBanner('Учебный вход только при включённом демо-режиме сервера. Это не боевой пароль и не SMS.') +
-          '<form class="card form" id="accForm"><div class="field"><label for="accPhone">Телефон</label><input id="accPhone" inputmode="numeric" autocomplete="username" placeholder="+7 9XX XXX-XX-XX"></div>' +
-          '<div class="field"><label for="accCode">Код демо-входа</label><input id="accCode" autocomplete="current-password" value="demo"></div>' +
-          '<button class="btn btn--lg">Войти</button><p class="muted">Без флага демо-кабинета этот код не принимается.</p></form><p><a href="#/notebook">Блокнот</a></p></div>';
-      });
-    }).catch(function () {
-      return '<div class="page"><h1>Личный кабинет</h1><div class="card">Сервер кабинета не ответил. Запустите <span class="mono">node server/index.js</span>.</div></div>';
-    });
-  };
-  pages.account.after = function (root) {
+  /* Форма входа покупателя: на странице кабинета и в окне «Войти» из шапки.
+   * null — вход не подключён на сервере. */
+  function loginBlock(st) {
+    if (!st.demo && st.smsLogin) {
+      return '<form class="card form" id="accForm"><div class="field"><label for="accPhone">Телефон</label><input id="accPhone" inputmode="numeric" autocomplete="username" placeholder="+7 9XX XXX-XX-XX"></div>' +
+        '<button class="btn btn--ghost" id="accSend" type="button">Получить код</button>' +
+        '<div class="field"><label for="accCode">Код из SMS</label><input id="accCode" inputmode="numeric" autocomplete="one-time-code"></div>' +
+        '<button class="btn btn--lg">Войти</button><p class="muted">Если номер подходит, код отправлен. В ответе сайта кода нет.</p></form>';
+    }
+    if (!st.demo) return null;
+    return demoBanner('Учебный вход только при включённом демо-режиме сервера. Это не боевой пароль и не SMS.') +
+      '<form class="card form" id="accForm"><div class="field"><label for="accPhone">Телефон</label><input id="accPhone" inputmode="numeric" autocomplete="username" placeholder="+7 9XX XXX-XX-XX"></div>' +
+      '<div class="field"><label for="accCode">Код демо-входа</label><input id="accCode" autocomplete="current-password" value="demo"></div>' +
+      '<button class="btn btn--lg">Войти</button><p class="muted">Без флага демо-кабинета этот код не принимается.</p></form>';
+  }
+  function bindLoginForm(root, onDone) {
     var sendCode = $('#accSend', root);
     if (sendCode) sendCode.onclick = function () {
       window.CarvicAccount.requestLoginCode($('#accPhone', root).value).then(function () {
@@ -2010,9 +2034,64 @@
         state.buyer = res.account || null;
         state.wholesale = res.wholesale || null;
         renderBuyer();
-        return mergeGuestIntoServerCart().then(function () { return mergeGuestNotebook(); }).then(function () { return refreshBuyerSession(); }).then(function () { route(); });
+        return mergeGuestIntoServerCart().then(function () { return mergeGuestNotebook(); }).then(function () { return refreshBuyerSession(); }).then(function () { (onDone || route)(); });
       }).catch(function (err) { toast(err.message); });
     };
+  }
+  pages.account = function () {
+    var A = window.CarvicAccount;
+    return A.status().then(function (st) {
+      state.demoAccounts = Boolean(st.demoAccounts);
+      state.hideLocalDbNote = Boolean(st.hideLocalDbNote);
+      if (!st.available) {
+        return '<div class="page"><h1>Личный кабинет</h1><div class="card"><p>' + esc(st.note) + '</p><p class="muted">Карта, СБП, баланс и история покупок в этом режиме недоступны. Это не ошибка входа.</p></div></div>';
+      }
+      return A.me().then(function (me) {
+        state.buyer = me.account;
+        state.act = me.act && me.act.active ? me.act : null;
+        var wholesaleCabinet = me.staffCabinet && me.staffCabinet.segment === 'wholesale';
+        return '<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Кабинет</span></div><h1>Личный кабинет</h1>' + accountNav() +
+          demoBanner(esc(st.note)) +
+          '<div class="account-grid"><section class="card" id="staffProfile"><h2 class="card__title">Профиль</h2>' + (me.staffCabinet
+            ? '<p><b>' + esc(me.account.name) + '</b> · ' + esc(me.staffCabinet.segment === 'wholesale' ? 'опт' : 'розница') + '</p><p class="muted">' + esc(me.staffCabinet.note) + '</p><p>' + (me.staffCabinet.terms ? esc(limitPhrase(me.staffCabinet.terms.days, me.staffCabinet.terms.limitMinor)) : 'Отсрочка не задана') + '. Доступный кредит не вычислен. Долг из 1С не прочитан.</p><p><a href="#/account/orders">Заказы</a> · <a href="#/account/balance">Взаиморасчёты</a></p>' +
+              (wholesaleCabinet ? '<p id="cabinetDocs">' + (state.consentPreK3 ? '' : '<a href="#/legal/oferta-opt">Условия поставки для оптовых покупателей</a> · ') + '<a href="#/legal/terms">Пользовательское соглашение</a> · <a href="#/legal/privacy">Политика обработки персональных данных</a></p>' : '')
+            : (me.wholesale ? '<p id="wholesaleTerms"><b>' + esc(me.wholesale.name) + '</b> · ' + esc(me.wholesale.priceKindName) + '</p><p>' + esc(limitPhrase(me.wholesale.days, me.wholesale.limitMinor)) + '</p><p><a href="#/account/orders">Заказы</a> · <a href="#/account/wholesale-returns">Возвраты</a></p>' : '') + (me.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(me.privacyEmail) + '">' + esc(me.privacyEmail) + '</a></p>' : '') + '<form class="card form" id="deleteForm"><h2 class="card__title">Удалить кабинет</h2><p class="muted">Имя, телефон, почта и гараж обезличиваются. Заказы и журнал остаются. Код приходит только если SMS-транспорт подключён.</p><button class="btn btn--ghost" id="deleteAsk" type="button">Прислать код</button><div class="field"><label for="deleteCode">Код</label><input id="deleteCode" inputmode="numeric" autocomplete="one-time-code"></div><button class="btn" id="deleteConfirm" type="button">Удалить кабинет</button><p id="deleteNote"></p></form><form class="form" id="profileForm"><div class="field"><label for="pfName">Имя</label><input id="pfName" value="' + esc(me.account.name) + '" maxlength="80"' + (me.act && me.act.active ? ' disabled' : '') + '></div><div class="field"><label for="pfMail">E-mail</label><input id="pfMail" type="email" value="' + esc(me.account.email || '') + '" maxlength="120"' + (me.act && me.act.active ? ' disabled' : '') + '></div><p class="muted">Телефон входа: ' + esc(me.account.phone) + '. Его нельзя сменить с этой формы. Организация и филиал появятся только из 1С.</p><button class="btn" type="submit"' + (me.act && me.act.active ? ' disabled' : '') + '>Сохранить</button></form>' + (state.hideLocalDbNote ? '' : '<p class="muted">Записи этого кабинета лежат в локальной базе сервера. Это не боевая база и не 1С.</p>')) + '</section>' +
+          '<section class="card"><h2 class="card__title">Баланс</h2><p class="price" style="text-align:left;font-size:28px">' + (me.balance ? esc(A.rub(me.balance)) : 'нет данных') + '</p><p class="muted">' + (me.staffCabinet ? 'Источник взаиморасчётов недоступен.' : (state.demoAccounts ? 'Демо-баланс на сервере. Это не деньги на счёте и не взаиморасчёты из 1С.' : 'Взаиморасчёты из 1С не подключены.')) + '</p><a class="btn btn--ghost" href="#/account/balance">История операций</a></section></div>' +
+          '<p><button class="btn btn--ghost" id="accLogout" type="button">Выйти</button></p></div>';
+      }).catch(function () {
+        var block = loginBlock(st);
+        if (!block) return '<div class="page"><h1>Вход в кабинет</h1><div class="card"><p>Боевой вход не подключён.</p><p><a href="#/notebook">Блокнот</a></p></div></div>';
+        return '<div class="page"><h1>Вход в кабинет</h1>' + block + '<p><a href="#/notebook">Блокнот</a></p></div>';
+      });
+    }).catch(function () {
+      return '<div class="page"><h1>Личный кабинет</h1><div class="card">Сервер кабинета не ответил. Запустите <span class="mono">node server/index.js</span>.</div></div>';
+    });
+  };
+  /* Вход в личный кабинет — окно из иконки в шапке. Один вход для покупателей,
+   * автосервисов и оптовиков; регистрация контрагента — отдельной ссылкой. */
+  pages.signin = function () {
+    var A = window.CarvicAccount;
+    var head = '<div id="signinPage"><h2 class="modal__title" id="modalTitle">Вход в личный кабинет</h2>' +
+      '<p class="modal__lead">Один вход для покупателей, автосервисов и оптовиков — по номеру телефона.</p>';
+    var foot = '<p class="signin-alt">Оптовик или автосервис без кабинета? <a href="#/login">Регистрация контрагента</a></p></div>';
+    return A.status().then(function (st) {
+      state.demoAccounts = Boolean(st.demoAccounts);
+      if (!st.available) return head + '<div class="warn-box">' + esc(st.note || 'Личный кабинет временно недоступен.') + '</div>' + foot;
+      return A.me().then(function () {
+        return head + '<p>Вы уже вошли.</p><a class="btn" href="#/account">Открыть кабинет</a></div>';
+      }).catch(function () {
+        var block = loginBlock(st);
+        return head + (block || '<div class="warn-box">Вход по SMS ещё не подключён. Позвоните нам: <a href="tel:' + C.phoneHref + '">' + C.phone + '</a></div>') + foot;
+      });
+    }).catch(function () {
+      return head + '<div class="warn-box">Сервер кабинета не ответил. Попробуйте позже.</div>' + foot;
+    });
+  };
+  pages.signin.after = function (root) {
+    bindLoginForm(root, function () { location.hash = '#/account'; });
+  };
+  pages.account.after = function (root) {
+    bindLoginForm(root);
     var out = $('#accLogout', root);
     if (out) out.onclick = function () { window.CarvicAccount.logout().then(function () { state.buyer = null; state.wholesale = null; state.serverQty = null; renderBuyer(); renderCartCount(); route(); }); };
     var askDelete = $('#deleteAsk', root);
@@ -2304,7 +2383,7 @@
   /* ---- Всплывающее окно для форм (#/inquiry) ----
    * Адреса #/inquiry?… и #/callback сохраняются: ссылки и «Назад» работают как раньше,
    * но форма открывается поверх текущей страницы, а не вместо неё. */
-  var MODAL_ROUTES = { inquiry: true, callback: true };
+  var MODAL_ROUTES = { inquiry: true, callback: true, signin: true };
   var shownHash = null;       // адрес страницы, которая сейчас под окном
   var modalFromApp = false;   // окно открыто переходом внутри сайта (можно вернуться «Назад»)
   var modalOpener = null;
@@ -2547,7 +2626,7 @@
   window.CarvicApp = { esc: esc, fmt: fmt, toast: toast, catName: catName, bySku: bySku, route: route, resetPrices: function () { resetPrices(); renderDrawer(); }, state: state, setCp: setCp };
 
   /* ------------------------- Старт ------------------------- */
-  initSidebar(); syncCarSelects(); initGlobal(); renderCartCount(); renderDrawer();
+  initSidebar(); syncCarSelects(); initGlobal(); initProfile(); renderCartCount(); renderDrawer();
   state.cp = null;
   fetch('/api/rossko/status', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (st) {
     state.demoUi = Boolean(st && st.demoUi);
