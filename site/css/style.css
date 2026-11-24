@@ -976,3 +976,44 @@ body.modal-open { overflow: hidden; }
   .inq-form { grid-template-columns: minmax(0, 1fr); }
   .inq-form .btn { width: 100%; justify-self: stretch; }
 }
+
+/* =====================================================================
+ * РАСКЛАДКА СТРАНИЦ (2026-11)
+ * .layout — контейнер по линии логотипа (--wrap). Слева панель каталога,
+ * но только на страницах подбора (body.has-filters: каталог, поиск, VIN).
+ * Подвал вынесен из <main> и идёт после контейнера во всю ширину.
+ * Верхняя строка шапки уезжает вверх при прокрутке (body.topbar-hidden).
+ * ===================================================================== */
+:root { --hdr: var(--banner-h); }
+.layout { padding-top: var(--banner-h); min-height: 100vh; display: flex; flex-direction: column; }
+.layout > .main { margin-left: 0; padding-top: 0; min-height: 0; flex: 1 0 auto; }
+.callback-cta { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.callback-cta p { margin: 0; }
+.modal__lead { margin: 0 0 18px; font-size: 14px; color: var(--c-muted); }
+
+@media (min-width: 901px) {
+  .banner { transition: transform .25s ease; }
+  body.topbar-hidden { --hdr: calc(var(--banner-h) - 40px); }
+  body.topbar-hidden .banner { transform: translateY(-40px); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 28px; align-items: start; align-content: start;
+    width: 100%; max-width: var(--wrap); margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+  .layout > .main { min-height: calc(100vh - var(--banner-h)); }
+  #view { padding: 20px 0 56px; }
+  body.is-home #view { padding: 0; }
+  .layout .brand-home { padding-left: 0; padding-right: 0; }
+
+  .layout > .sidebar { display: none; }
+  body.has-filters .layout { grid-template-columns: 240px minmax(0, 1fr); }
+  body.has-filters .layout > .sidebar {
+    display: block; position: sticky; top: calc(var(--hdr) + 20px); left: auto; bottom: auto; z-index: auto;
+    width: auto; transform: none; margin-top: 20px; max-height: calc(100vh - var(--hdr) - 40px);
+    border: 1px solid var(--c-border); border-radius: 12px; padding: 16px; transition: top .25s ease;
+  }
+  /* в колонке каталога — только фильтры и «Покупатель»: разделы есть в шапке и в кабинете */
+  body.has-filters .layout > .sidebar .sb-nav { display: none; }
+  body.has-filters .layout > .sidebar .sb-block:nth-last-child(2) { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+}
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .banner, body.has-filters .layout > .sidebar { transition: none; }
+}

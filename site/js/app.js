@@ -1684,16 +1684,22 @@
       '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p></div>' +
       '<div class="card"><h3 style="margin-top:0">Адреса</h3><p style="margin:0 0 6px"><span class="muted">Фактический:</span> ' + esc(C.actualAddress) + '</p><p style="margin:0"><span class="muted">Юридический:</span> ' + esc(C.legalAddress) + '</p></div></div>' +
       (state.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(state.privacyEmail) + '">' + esc(state.privacyEmail) + '</a></p>' : '') +
-      '<h2>Обратный звонок</h2><form class="card form" id="callForm"><p class="muted">Заявка записывается. Письмо вам не отправляется.</p>' +
-      '<div class="field"><label for="callName">Имя</label><input id="callName" maxlength="80"></div>' +
-      '<div class="field"><label for="callPhone">Телефон</label><input id="callPhone" inputmode="numeric" maxlength="18"></div>' +
-      '<div class="field"><label for="callMsg">Комментарий</label><textarea id="callMsg" maxlength="500" rows="3"></textarea></div>' +
-      '<label class="check"><input type="checkbox" id="callConsent"> Я даю <a href="#/legal/consent-request">согласие на обработку моих персональных данных</a> (имя, телефон, комментарий) для обратного звонка</label>' +
-      '<div class="field" style="position:absolute;left:-9999px" aria-hidden="true"><label>Компания<input id="callCompany" tabindex="-1" autocomplete="off"></label></div>' +
-      '<button class="btn" type="submit">Жду звонка</button><div id="callResult"></div></form>' +
+      '<h2>Обратный звонок</h2><div class="card callback-cta"><p>Оставьте имя и телефон — менеджер перезвонит.</p><a class="btn" href="#/callback">Заказать звонок</a></div>' +
       '<h2>Торговые точки</h2>' + storeCards() + '</div>');
   };
-  pages.contacts.after = function (root) {
+  /* Заказать звонок — окно поверх страницы (см. MODAL_ROUTES) */
+  pages.callback = function () {
+    return Promise.resolve('<div id="callbackPage"><h2 class="modal__title" id="modalTitle">Заказать звонок</h2>' +
+      '<p class="modal__lead">Оставьте имя и телефон — менеджер перезвонит.</p>' +
+      '<form class="form inq-form" id="callForm">' +
+      '<div class="field"><label for="callName">Имя</label><input id="callName" maxlength="80"></div>' +
+      '<div class="field"><label for="callPhone">Телефон</label><input id="callPhone" inputmode="tel" maxlength="18" placeholder="+7"></div>' +
+      '<div class="field field--wide"><label for="callMsg">Комментарий</label><textarea id="callMsg" maxlength="500" rows="3"></textarea></div>' +
+      '<label class="check"><input type="checkbox" id="callConsent"> Я даю <a href="#/legal/consent-request" target="_blank" rel="noopener">согласие на обработку моих персональных данных</a> (имя, телефон, комментарий) для обратного звонка</label>' +
+      '<div class="field" style="position:absolute;left:-9999px" aria-hidden="true"><label>Компания<input id="callCompany" tabindex="-1" autocomplete="off"></label></div>' +
+      '<button class="btn" type="submit">Жду звонка</button></form><div id="callResult"></div></div>');
+  };
+  pages.callback.after = function (root) {
     var form = $('#callForm', root);
     if (!form) return;
     form.onsubmit = function (e) {
@@ -1702,8 +1708,12 @@
         name: $('#callName', root).value, phone: $('#callPhone', root).value, message: $('#callMsg', root).value,
         company: $('#callCompany', root).value, consentRequest: $('#callConsent', root).checked
       }) }).then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); }).then(function (res) {
-        $('#callResult', root).innerHTML = res.ok ? '<p class="warn-box">Номер ' + esc(res.data.id) + '. ' + esc(res.data.note) + '</p>' : '<p class="warn-box">' + esc(res.data.message || 'Не принято') + '</p>';
-      });
+        if (!res.ok) { $('#callResult', root).innerHTML = '<p class="warn-box">' + esc(res.data.message || 'Не принято') + '</p>'; return; }
+        form.hidden = true;
+        $('#callResult', root).innerHTML = '<div class="inq-done"><p class="inq-done__title">Заявка принята</p><div class="warn-box">Номер ' + esc(res.data.id) + '. ' + esc(res.data.note) + '</div><button class="btn" type="button" data-modal-close>Закрыть</button></div>';
+        var done = $('[data-modal-close]', $('#callResult', root));
+        if (done) done.focus();
+      }).catch(function () { toast('Нет связи с сервером. Попробуйте ещё раз.'); });
     };
   };
   pages.requisites = function () {
@@ -1726,7 +1736,6 @@
     if (kind !== 'contact' && kind !== 'selection' && kind !== 'price' && kind !== 'analog') kind = 'contact';
     function optKind(value, label) { return '<option value="' + value + '"' + (kind === value ? ' selected' : '') + '>' + label + '</option>'; }
     return Promise.resolve('<div id="inquiryPage"><h2 class="modal__title" id="modalTitle">Обращение и подбор</h2>' +
-      '<p class="muted">Заявка сохраняется для менеджера и видна в админке. Письмо и SMS не отправляются.</p>' +
       '<form class="form inq-form" id="inquiryForm"><div class="field field--wide"><label for="inqKind">Тема</label><select id="inqKind">' + optKind('contact', 'Спросить менеджера') + optKind('price', 'Ошибка в цене или остатке') + optKind('analog', 'Подобрать аналог') + optKind('selection', 'Подбор') + '</select></div>' +
       '<div class="field"><label for="inqArticle">Артикул</label><input id="inqArticle" maxlength="80" value="' + esc(article) + '"></div>' +
       '<div class="field"><label for="inqBrand">Бренд</label><input id="inqBrand" maxlength="80" value="' + esc(brand) + '"></div>' +
@@ -2293,9 +2302,9 @@
     return { name: pages[n] ? n : 'notfound', arg: null };
   }
   /* ---- Всплывающее окно для форм (#/inquiry) ----
-   * Адрес #/inquiry?… сохраняется: ссылки и «Назад» работают как раньше,
+   * Адреса #/inquiry?… и #/callback сохраняются: ссылки и «Назад» работают как раньше,
    * но форма открывается поверх текущей страницы, а не вместо неё. */
-  var MODAL_ROUTES = { inquiry: true };
+  var MODAL_ROUTES = { inquiry: true, callback: true };
   var shownHash = null;       // адрес страницы, которая сейчас под окном
   var modalFromApp = false;   // окно открыто переходом внутри сайта (можно вернуться «Назад»)
   var modalOpener = null;
@@ -2360,6 +2369,8 @@
     });
   }
 
+  // страницы подбора запчастей: на них слева панель каталога (фильтры); на остальных её нет
+  var FILTER_ROUTES = { catalog: true, catalogCat: true, search: true, vin: true };
   var renderSeq = 0, lastRouteName = null;
   function route() {
     var r = currentRoute(), seq = ++renderSeq;
@@ -2388,6 +2399,7 @@
     }
     document.body.classList.toggle('is-home', r.name === 'home');
     document.body.classList.toggle('is-sheet', r.name === 'feedProduct' || r.name === 'part');
+    document.body.classList.toggle('has-filters', !!FILTER_ROUTES[r.name]);
     var fn = r.name === 'admin' ? window.CarvicAdmin.page : pages[r.name];
     $$('.sb-nav a').forEach(function (a) { var href = a.getAttribute('href').replace(/^#\/?/, '').split('/')[0] || 'home'; a.classList.toggle('on', href === (r.name === 'catalogCat' ? 'catalog' : r.name)); });
     $$('.qi').forEach(function (a) { a.classList.toggle('on', r.name === 'catalogCat' && a.getAttribute('href') === '#/catalog/' + r.arg); });
@@ -2477,6 +2489,16 @@
     });
   }
   function initGlobal() {
+    var ticking = false;
+    function onScroll() {
+      ticking = false;
+      if (document.body.classList.contains('modal-open')) return;
+      var y = window.scrollY || 0, hidden = document.body.classList.contains('topbar-hidden');
+      if (!hidden && y > 48) document.body.classList.toggle('topbar-hidden', true);
+      else if (hidden && y < 8) document.body.classList.toggle('topbar-hidden', false);
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+    onScroll();
     var note = $('#cookieNote');
     if (note && !localStorage.getItem('carvic_cookie_ok')) { note.hidden = false; document.body.classList.add('cookie-open'); }
     var okBtn = $('#cookieOk');

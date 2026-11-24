@@ -57,7 +57,7 @@
       <div class="banner__right">
         <div class="banner__contact">
           <a class="banner__phone" href="tel:+73952575757">+7 (3952) 57-57-57</a>
-          <a class="banner__call" href="#/inquiry">Заказать звонок</a>
+          <a class="banner__call" href="#/callback">Заказать звонок</a>
         </div>
         <a class="banner__phone-icon" href="tel:+73952575757" aria-label="Позвонить: +7 (3952) 57-57-57"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h3l2 5-2 1a12 12 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2z"/></svg></a>
         <button class="cart-btn" id="cartBtn" aria-label="Корзина">
@@ -68,7 +68,9 @@
     </div>
   </header>
 
-  <!-- ===== Левая тёмная панель ===== -->
+  <!-- ===== Контейнер страницы: панель каталога (только на страницах подбора) + рабочая область ===== -->
+  <div class="layout">
+  <!-- ===== Левая панель: фильтры каталога; на телефоне — меню под бургером ===== -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-block sb-theme">
       <h3 class="sb-title">Тема</h3>
@@ -141,38 +143,41 @@
       <button type="button" id="cookieOk">Понятно</button>
     </div>
 
-    <footer class="footer">
-      <div class="footer__cols">
-        <div>
-          <a href="#/" class="logo logo--sm" aria-label="CARVIC — на главную"><img src="img/brand/carvic-logo-on-dark.png" alt="CARVIC, автозапчасти" width="160" height="48"></a>
-          <p class="muted">Автозапчасти в Иркутске. В наличии и под заказ.</p>
-          <a href="tel:+73952575757" class="footer__phone">+7 (3952) 57-57-57</a>
-          <a href="mailto:Shaginyan@carvic.ru" id="publicMail">Shaginyan@carvic.ru</a>
-          <p id="privacyEmail" hidden></p>
-          <span class="muted">Иркутск, ул. Генерала Доватора, 39, пав. 91/а</span>
-        </div>
-        <div>
-          <h4>Покупателям</h4>
-          <a href="#/catalog">Каталог</a><a href="#/search">Подбор по VIN</a><a href="#/delivery" id="deliveryNav" hidden></a><a href="#/blog">Блог</a>
-        </div>
-        <div>
-          <h4>Бизнесу</h4>
-          <a href="#/wholesale">Оптовикам</a><a href="#/login">Кабинет контрагента</a><a href="#/requisites">Реквизиты</a>
-        </div>
-        <div>
-          <h4>Компания</h4>
-          <a href="#/about">О компании</a><a href="#/about/team">Команда</a><a href="#/stores">Торговые точки</a><a href="#/contacts">Контакты</a>
-        </div>
-      </div>
-      <div class="footer__bottom">
-        <nav class="footer__legal" aria-label="Документы">
-          <a href="#/legal/oferta">Оферта для розницы</a><a href="#/legal/oferta-opt">Условия для опта</a><a href="#/legal/privacy">Политика ПДн</a><a href="#/legal/consent-request">Согласие на обработку ПДн</a><a href="#/legal/terms">Пользовательское соглашение</a><a href="#/returns">Возврат</a><a href="#/returns">Как направить претензию</a><a href="sitemap.xml">Карта сайта</a>
-        </nav>
-        <span>© <span id="year"></span> ООО "Карвик", carvic.ru · ОГРН 1260300003677 · ИНН 0300040678</span>
-        <span class="muted">Документы — проект, на согласовании. <a href="#/legal/privacy">Политика ПДн</a>.</span>
-      </div>
-    </footer>
   </main>
+  </div>
+
+  <!-- ===== Подвал: после каталога и контента, во всю ширину ===== -->
+  <footer class="footer">
+    <div class="footer__cols">
+      <div>
+        <a href="#/" class="logo logo--sm" aria-label="CARVIC — на главную"><img src="img/brand/carvic-logo-on-dark.png" alt="CARVIC, автозапчасти" width="160" height="48"></a>
+        <p class="muted">Автозапчасти в Иркутске. В наличии и под заказ.</p>
+        <a href="tel:+73952575757" class="footer__phone">+7 (3952) 57-57-57</a>
+        <a href="mailto:Shaginyan@carvic.ru" id="publicMail">Shaginyan@carvic.ru</a>
+        <p id="privacyEmail" hidden></p>
+        <span class="muted">Иркутск, ул. Генерала Доватора, 39, пав. 91/а</span>
+      </div>
+      <div>
+        <h4>Покупателям</h4>
+        <a href="#/catalog">Каталог</a><a href="#/search">Подбор по VIN</a><a href="#/delivery" id="deliveryNav" hidden></a><a href="#/blog">Блог</a>
+      </div>
+      <div>
+        <h4>Бизнесу</h4>
+        <a href="#/wholesale">Оптовикам</a><a href="#/login">Кабинет контрагента</a><a href="#/requisites">Реквизиты</a>
+      </div>
+      <div>
+        <h4>Компания</h4>
+        <a href="#/about">О компании</a><a href="#/about/team">Команда</a><a href="#/stores">Торговые точки</a><a href="#/contacts">Контакты</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <nav class="footer__legal" aria-label="Документы">
+        <a href="#/legal/oferta">Оферта для розницы</a><a href="#/legal/oferta-opt">Условия для опта</a><a href="#/legal/privacy">Политика ПДн</a><a href="#/legal/consent-request">Согласие на обработку ПДн</a><a href="#/legal/terms">Пользовательское соглашение</a><a href="#/returns">Возврат</a><a href="#/returns">Как направить претензию</a><a href="sitemap.xml">Карта сайта</a>
+      </nav>
+      <span>© <span id="year"></span> ООО "Карвик", carvic.ru · ОГРН 1260300003677 · ИНН 0300040678</span>
+      <span class="muted">Документы — проект, на согласовании. <a href="#/legal/privacy">Политика ПДн</a>.</span>
+    </div>
+  </footer>
 
   <!-- ===== Корзина (выезжающая панель) ===== -->
   <div class="drawer-overlay" id="drawerOverlay"></div>
