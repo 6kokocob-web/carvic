@@ -1078,3 +1078,63 @@ body.modal-open { overflow: hidden; }
 .reg-err { grid-column: 1 / -1; margin: 0; padding: 10px 12px; border-radius: 8px; background: rgba(217,45,39,.08); color: var(--c-red-text); font-size: 14px; }
 .reg-err[hidden] { display: none; }
 .inq-form .check + .check { margin-top: -4px; }
+
+/* =====================================================================
+ * ГЕОГРАФИЯ ПРИСУТСТВИЯ (страница «Торговые точки»), js/russia-map.js
+ * ===================================================================== */
+.geo__title { font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; margin: 28px 0 14px; }
+.geo { background: var(--c-card); border: 1px solid var(--c-border); border-radius: 16px; padding: 16px 16px 8px; }
+.geo__bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.geo__legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--c-muted); }
+.geo__legend span { display: inline-flex; align-items: center; gap: 8px; }
+.geo__dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.geo__dot--open { background: var(--c-signal); box-shadow: 0 0 0 3px rgba(217,45,39,.2); }
+.geo__dot--soon { background: var(--c-card); border: 2px solid #9A9AA3; }
+.geo__zoom { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--c-surface); }
+.geo__zoom button { border: 0; background: none; color: var(--c-muted); font: 600 13px/1 var(--font-body); padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.geo__zoom button[aria-pressed="true"] { background: var(--c-card); color: var(--c-text); box-shadow: 0 1px 3px var(--c-shadow); }
+.geo__zoom button:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 1px; }
+
+.geo__map { position: relative; width: 100%; aspect-ratio: 1000 / 560; }
+.geo__svg, .geo__leaders { position: absolute; inset: 0; width: 100%; height: 100%; }
+.geo__land { fill: var(--c-surface); stroke: var(--c-field-border); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.geo__leaders { pointer-events: none; overflow: visible; }
+.geo__leaders line { stroke: var(--c-muted); stroke-width: 1; }
+.geo__leaders circle { fill: var(--c-muted); }
+
+.geo__pin { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; padding: 0; border: 0; background: none; cursor: pointer; z-index: 2; }
+.geo__pin[hidden] { display: none; }
+.geo__pin::before { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; transition: transform .15s; }
+.geo__pin--open { z-index: 3; }
+.geo__pin--open::before { background: var(--c-signal); box-shadow: 0 0 0 3px rgba(217,45,39,.22); }
+.geo__pin--open::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; border: 2px solid var(--c-signal); animation: geo-pulse 2.4s ease-out infinite; }
+.geo__pin--soon::before { background: var(--c-card); border: 2px solid #9A9AA3; box-sizing: border-box; }
+.geo__pin:hover::before, .geo__pin.is-active::before, .geo__pin:focus-visible::before { transform: scale(1.35); }
+.geo__pin:focus-visible { outline: 2px solid var(--c-signal); outline-offset: 0; border-radius: 50%; }
+.geo__name { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); white-space: nowrap; font: 600 12px/1 var(--font-body); color: var(--c-text);
+  text-shadow: 0 0 3px var(--c-card), 0 0 3px var(--c-card), 0 0 3px var(--c-card); pointer-events: none; display: none; }
+.geo__pin--soon .geo__name { color: var(--c-muted); font-weight: 500; }
+.geo__pin--labeled .geo__name { display: block; }
+@keyframes geo-pulse { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .geo__pin--open::after { animation: none; display: none; } }
+
+.geo__pop { position: absolute; z-index: 5; width: max-content; max-width: min(300px, calc(100% - 16px)); padding: 14px 16px; border-radius: 12px;
+  background: var(--c-card); color: var(--c-text); border: 1px solid var(--c-border); box-shadow: 0 12px 32px var(--c-shadow); font-size: 13px; line-height: 1.4; }
+.geo__pop[hidden] { display: none; }
+.geo__pop p { margin: 0; }
+.geo__pop-title { font: 800 16px/1.2 var(--font-brand); }
+.geo__pop-sub { color: var(--c-muted); margin-top: 2px !important; }
+.geo__pop-soon { display: inline-block; margin-top: 6px !important; padding: 3px 8px; border-radius: 999px; background: var(--c-surface); color: var(--c-muted); font-weight: 600; font-size: 12px; }
+.geo__store { display: grid; gap: 1px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--c-border); }
+.geo__store a, .geo__pop-foot a { color: var(--c-red-text); font-weight: 600; }
+.geo__pop-foot { margin-top: 10px !important; }
+
+@media (max-width: 720px) {
+  .geo { padding: 12px 10px 6px; border-radius: 12px; }
+  .geo__title { font-size: 20px; margin: 22px 0 10px; }
+  .geo__legend { gap: 12px; font-size: 12px; }
+}
+.geo__near { fill: var(--c-card); stroke: var(--c-field-border); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 4 3; opacity: 0; transition: opacity .3s; }
+.geo--zoomed .geo__near { opacity: 1; }
+.geo__pin--lbl-left .geo__name { left: auto; right: 20px; }
+.geo__pin--lbl-below .geo__name { left: 50%; top: 24px; transform: translateX(-50%); }

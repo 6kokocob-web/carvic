@@ -1695,9 +1695,31 @@
         '<div class="actions"><a class="btn btn--dark" target="_blank" rel="noopener" href="' + esc(mapUrl(o)) + '">Карточка 2ГИС</a><a class="btn btn--ghost" href="tel:' + C.phoneHref + '">Позвонить</a></div></article>';
     }).join('') + '</div>';
   }
+  /* География присутствия: открытые города — красные точки, будущие — серые */
+  function geoCities() {
+    var phone = '<a href="tel:' + C.phoneHref + '">' + C.phone + '</a>';
+    function soon(id, name) {
+      return { id: id, name: name, status: 'soon', label: name + ': скоро открытие',
+        popup: '<p class="geo__pop-title">' + esc(name) + '</p><p class="geo__pop-soon">Скоро открытие</p>' };
+    }
+    var irk = C.stores.filter(function (o) { return o.city === 'Иркутск'; });
+    return [
+      { id: 'irkutsk', name: 'Иркутск', status: 'open', label: 'Иркутск: ' + irk.length + ' магазина CARVIC',
+        popup: '<p class="geo__pop-title">Иркутск</p><p class="geo__pop-sub">' + irk.length + ' магазина CARVIC</p>' +
+          irk.map(function (o) {
+            return '<div class="geo__store"><b>' + esc(o.title) + '</b><span>' + esc(o.address) + '</span>' + (o.hours ? '<span class="muted">' + esc(o.hours) + '</span>' : '') +
+              (mapUrl(o) ? '<a href="' + esc(mapUrl(o)) + '" target="_blank" rel="noopener">Карточка 2ГИС</a>' : '') + '</div>';
+          }).join('') + '<p class="geo__pop-foot">' + phone + '</p>' },
+      { id: 'angarsk', name: 'Ангарск', status: 'open', label: 'Ангарск: магазин CARVIC',
+        popup: '<p class="geo__pop-title">Ангарск</p><p class="geo__pop-sub">Магазин CARVIC</p><p class="geo__pop-foot">Адрес и часы работы — по телефону ' + phone + '</p>' },
+      soon('ulanude', 'Улан-Удэ'), soon('chita', 'Чита'), soon('nizhneudinsk', 'Нижнеудинск'), soon('krasnoyarsk', 'Красноярск'), soon('bratsk', 'Братск')
+    ];
+  }
   pages.stores = function () {
-    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Три торговые точки CARVIC в Иркутске. Наличие товара по каждой точке показывается в каталоге и корзине.</p>' + storeCards() + '</div>');
+    var geo = window.CarvicGeo ? '<h2 class="geo__title">География</h2>' + window.CarvicGeo.html(geoCities()) : '';
+    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Три торговые точки CARVIC в Иркутске. Наличие товара по каждой точке показывается в каталоге и корзине.</p>' + geo + '<h2 class="geo__title">Магазины в Иркутске</h2>' + storeCards() + '</div>');
   };
+  pages.stores.after = function (root) { if (window.CarvicGeo) window.CarvicGeo.bind(root); };
   pages.wholesale = function () {
     return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Оптовикам</span></div>' +
       '<div class="hero-strip"><h1>Оптовым <em>покупателям</em></h1><p>Автосервисам, магазинам и корпоративным клиентам — работа по договору с организацией.</p></div>' +
