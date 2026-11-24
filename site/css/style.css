@@ -1904,3 +1904,7 @@ a.soc--has-color:hover::after { opacity: 0; }
 @media (max-width: 1020px) { .promo--deals .deal-slide--photo .promo__title { font-size: 42px; } .deal-slide__sub { font-size: 22px; } }
 @media (max-width: 720px) { .promo--deals .deal-slide--photo .promo__title { font-size: 32px; } .deal-slide__sub { font-size: 19px; } .deal-slide__sub + .promo__text { font-size: 13px; } }
 @media (min-width: 721px) { .promo--deals .deal-slide--photo .promo__title { white-space: nowrap; } .deal-slide--photo .promo__body { max-width: 56%; } }
+.soc--drom .soc__mono { width: 28px; height: 16px; }
+.socials--sm .soc--drom .soc__mono { width: 24px; height: 14px; }
+a.soc--drom:hover { background: transparent; }
+.soc--drom .soc__color { border-radius: 50%; }
