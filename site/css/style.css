@@ -1393,3 +1393,32 @@ html[data-theme="dark"] .home-bonus__art { opacity: .18; }
   .home-bonus__form { flex-direction: column; }
   .home-bonus__form .btn { width: 100%; }
 }
+
+/* =====================================================================
+ * ПОДВАЛ: ровная сетка — 4 равные колонки, верх на одной линии,
+ * документы — по той же сетке, внизу копирайт слева / примечание справа
+ * ===================================================================== */
+.footer { --fcol-gap: 32px; }
+.footer__cols { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 var(--fcol-gap); align-items: start; }
+.footer__cols > div { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+.footer__cols h4 { margin: 0 0 4px; height: 36px; display: flex; align-items: center; font-size: 15px; line-height: 1.2; }
+.footer__logo { display: flex; align-items: center; height: 36px; margin: 0 0 4px; padding: 0 !important; line-height: 0; }
+.footer__logo img { display: block; height: 36px; width: auto; }
+.footer__cols a, .footer__cols p, .footer__cols span { margin: 0; padding: 0; font-size: 14px; line-height: 1.4; }
+.footer__cols .muted { font-size: 13px; }
+.footer__phone { font-size: 20px !important; line-height: 1.2 !important; }
+.footer__bottom { display: grid; gap: 18px; margin-top: 28px; padding-top: 20px; }
+.footer__legal { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px var(--fcol-gap); flex: none; }
+.footer__legal a { display: block; font-size: 13px; line-height: 1.4; }
+.footer__copy { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 24px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid #23252b; font-size: 12px; }
+@media (max-width: 1020px) {
+  .footer__cols { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
+  .footer__legal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .footer { --fcol-gap: 16px; }
+  .footer__cols > div:first-child { grid-column: 1 / -1; }
+  .footer__copy { flex-direction: column; }
+}
+.footer__cols .footer__logo { margin-bottom: 4px; }      /* общее margin:0 ссылок обнуляло отступ под логотипом */
+.footer__bottom { justify-content: stretch; grid-template-columns: minmax(0, 1fr); } /* старое space-between сжимало сетку документов */

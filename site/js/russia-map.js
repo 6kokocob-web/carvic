@@ -80,8 +80,8 @@
         it.b.style.left = it.x.toFixed(1) + 'px';
         it.b.style.top = it.y.toFixed(1) + 'px';
         it.b.hidden = !visible;
-        // подписи: в крупном масштабе — у всех, в мелком — только у открытых
-        it.b.classList.toggle('geo__pin--labeled', k > 2.2 || it.b.classList.contains('geo__pin--open'));
+        // подписи: в крупном масштабе («Сибирь») — у всех городов, на всей России — только у открытых
+        it.b.classList.toggle('geo__pin--labeled', vb[2] < VIEWS.russia[2] * 0.6 || it.b.classList.contains('geo__pin--open'));
       });
       leaders.innerHTML = lines;
       // подпись не должна закрывать соседние точки: справа → слева → снизу
@@ -167,7 +167,7 @@
 
     if (window.ResizeObserver) new ResizeObserver(function () { place(); }).observe(map);
     else window.addEventListener('resize', place);
-    setView(narrow.matches ? 'siberia' : 'russia', true);
+    setView('siberia', true); // по умолчанию — приближено к региону, где магазины
   }
 
   root.CarvicGeo = { html: html, bind: bind };
