@@ -395,14 +395,19 @@
   function chipsHTML() {
     var ch = [];
     if (state.make) ch.push('<span class="chip chip--car">' + esc([state.make, state.model, state.year].filter(Boolean).join(' ')) + ' <button data-chip="car" aria-label="Сбросить">✕</button></span>');
-    state.cats.forEach(function (c) { ch.push('<span class="chip">' + esc(catName(c)) + ' <button data-chip="cat:' + c + '">✕</button></span>'); });
-    state.brands.forEach(function (b) { ch.push('<span class="chip">' + esc(b) + ' <button data-chip="brand:' + esc(b) + '">✕</button></span>'); });
+    state.cats.forEach(function (c) { ch.push('<span class="chip">' + esc(catName(c)) + ' <button data-chip="cat:' + c + '" aria-label="Убрать фильтр: ' + esc(catName(c)) + '">✕</button></span>'); });
+    state.brands.forEach(function (b) { ch.push('<span class="chip">' + esc(b) + ' <button data-chip="brand:' + esc(b) + '" aria-label="Убрать фильтр: ' + esc(b) + '">✕</button></span>'); });
     return ch.length ? '<div class="chips">' + ch.join('') + '</div>' : '';
   }
   function bindChips(root) {
     $$('[data-chip]', root).forEach(function (b) {
       b.onclick = function () {
         var v = b.dataset.chip;
+        var r = currentRoute();
+        // на странице категории её собственная категория задана адресом: «✕» ведёт во весь каталог
+        if (v.indexOf('cat:') === 0 && r.name === 'catalogCat' && v.slice(4) === r.arg) {
+          state.cats = []; syncChecks(); state.page = 1; location.hash = '#/catalog'; return;
+        }
         if (v === 'car') { state.make = state.model = state.year = ''; syncCarSelects(); }
         else if (v.indexOf('cat:') === 0) state.cats = state.cats.filter(function (c) { return c !== v.slice(4); });
         else state.brands = state.brands.filter(function (x) { return x !== v.slice(6); });

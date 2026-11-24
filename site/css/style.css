@@ -1484,3 +1484,10 @@ html[data-theme="dark"] .cab-badge--ok { color: #86EFAC; }
 .store--soon .num { background: var(--c-muted); }
 .geo__store-head .geo__pop-soon { margin: 0 !important; }
 @media (min-width: 1021px) { .home-stores { grid-template-columns: repeat(3, minmax(0, 1fr)); } } /* 6 магазинов — ровно 3 × 2 */
+
+/* плашки фильтров: цвета темы (раньше зашитый светлый фон без цвета текста — в тёмной теме текст пропадал) */
+.chip { gap: 4px; padding: 4px 4px 4px 12px; border-radius: 999px; background: var(--c-surface); border-color: var(--c-border); color: var(--c-text); font-size: 13px; font-weight: 600; }
+.chip button { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: var(--c-muted); font-size: 12px; line-height: 1; }
+.chip button:hover, .chip button:focus-visible { background: var(--c-border); color: var(--c-text); outline: none; }
+.chip--car { background: rgba(217,45,39,.1); border-color: rgba(217,45,39,.35); color: var(--c-red-text); }
+.chips { gap: 8px; margin-bottom: 14px; }
