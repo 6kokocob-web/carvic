@@ -1138,3 +1138,6 @@ body.modal-open { overflow: hidden; }
 .geo--zoomed .geo__near { opacity: 1; }
 .geo__pin--lbl-left .geo__name { left: auto; right: 20px; }
 .geo__pin--lbl-below .geo__name { left: 50%; top: 24px; transform: translateX(-50%); }
+.reg-sub { grid-column: 1 / -1; margin: 8px 0 -4px; padding-top: 14px; border-top: 1px solid var(--c-border); font: 700 15px/1.3 var(--font-brand); }
+.reg-sub span { font: 400 13px/1.4 var(--font-body); color: var(--c-muted); }
+#regGarageRow[hidden] { display: none; }

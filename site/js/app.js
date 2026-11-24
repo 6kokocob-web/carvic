@@ -543,7 +543,8 @@
       '<section class="home-sec"><div class="home-sec__head"><h2>Полезное</h2><a href="#/blog">Все статьи →</a></div>' +
         '<div class="home-posts">' + posts.map(function (p) {
           return '<a class="home-post" href="' + p[2] + '"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b></a>';
-        }).join('') + '</div></section>';
+        }).join('') + '</div></section>' +
+      (window.CarvicGeo ? '<section class="home-sec" id="homeGeo"><div class="home-sec__head"><h2>География</h2><a href="#/stores">Все магазины →</a></div>' + window.CarvicGeo.html(geoCities()) + '</section>' : '');
   }
 
   pages.home = function () {
@@ -566,6 +567,7 @@
   };
   pages.home.after = function (root) {
     bindScheme(root); bindResults(root); bindChips(root);
+    if (window.CarvicGeo && $('#homeGeo', root)) window.CarvicGeo.bind(root);
     var search = $('#homeSearch', root);
     if (search) search.onsubmit = function (e) {
       e.preventDefault();
@@ -2124,6 +2126,10 @@
       '<div class="field"><label for="regLast">Фамилия</label><input id="regLast" maxlength="60" autocomplete="family-name"></div>' +
       '<div class="field"><label for="regPhone">Телефон</label><input id="regPhone" inputmode="tel" maxlength="18" autocomplete="tel" placeholder="+7" required></div>' +
       '<div class="field"><label for="regEmail">E-mail</label><input id="regEmail" type="email" maxlength="120" autocomplete="email"></div>' +
+      '<p class="reg-sub">Автомобиль <span>— необязательно. Сохраним в «Гараж», чтобы подбирать детали под эту машину</span></p>' +
+      '<div class="field"><label for="regCar">Марка и модель</label><input id="regCar" maxlength="80" placeholder="Например, Toyota Corolla 2014"></div>' +
+      '<div class="field"><label for="regVin">VIN или номер кузова</label><input id="regVin" maxlength="20" autocomplete="off" spellcheck="false" placeholder="17 символов VIN"></div>' +
+      '<label class="check" id="regGarageRow" hidden><input type="checkbox" id="regGarage"> Сохранить автомобиль в «Гараже». <a href="#/legal/consent-garage" target="_blank" rel="noopener">Согласие на обработку данных автомобиля</a></label>' +
       '<label class="check"><input type="checkbox" id="regTerms"> Принимаю <a href="#/legal/terms" target="_blank" rel="noopener">Пользовательское соглашение</a></label>' +
       '<label class="check"><input type="checkbox" id="regPd"> Ознакомлен с <a href="#/legal/privacy" target="_blank" rel="noopener">Политикой обработки персональных данных</a> и даю <a href="#/legal/consent-request" target="_blank" rel="noopener">согласие на их обработку</a></label>' +
       '<label class="check"><input type="checkbox" id="regAds"> Согласен получать <a href="#/legal/consent-ads" target="_blank" rel="noopener">информационные и рекламные рассылки</a></label>' +
@@ -2151,6 +2157,18 @@
       var btn = $('[data-modal-close]', $('#regResult', root));
       if (btn) btn.focus();
     }
+    var carBox = $('#regCar', root), vinBox = $('#regVin', root), garageRow = $('#regGarageRow', root);
+    function syncCar() { garageRow.hidden = !(carBox.value.trim() || vinBox.value.trim()); }
+    carBox.addEventListener('input', syncCar);
+    // исправляет поле — старое сообщение об ошибке убираем
+    form.addEventListener('input', function () { $('#regErr', root).hidden = true; });
+    form.addEventListener('change', function () { $('#regErr', root).hidden = true; });
+    vinBox.addEventListener('input', function () {
+      var pos = vinBox.selectionStart;
+      vinBox.value = vinBox.value.toUpperCase();
+      try { vinBox.setSelectionRange(pos, pos); } catch (err) { /* тип поля без выделения */ }
+      syncCar();
+    });
     form.onsubmit = function (e) {
       e.preventDefault();
       $('#regErr', root).hidden = true;
@@ -2159,16 +2177,23 @@
       if (!first.value.trim()) return fail('Укажите имя.', first);
       if (digits.length < 10 || digits.length > 11) return fail('Укажите телефон: 10 или 11 цифр.', phone);
       if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) return fail('Проверьте e-mail.', email);
+      var carLabel = carBox.value.trim(), vin = vinBox.value.replace(/\s/g, '').toUpperCase();
+      if (vin) {
+        if (!/^[A-Z0-9-]{6,20}$/.test(vin)) return fail('VIN или номер кузова: только латинские буквы, цифры и дефис, от 6 до 20 символов.', vinBox);
+        if (vin.length === 17 && vin.indexOf('-') < 0 && /[IOQ]/.test(vin)) return fail('В VIN не используются буквы I, O и Q — проверьте, может быть, это цифры 1 и 0.', vinBox);
+      }
+      if ((carLabel || vin) && !$('#regGarage', root).checked) return fail('Чтобы сохранить автомобиль, отметьте согласие для «Гаража» — или очистите поля автомобиля.', $('#regGarage', root));
       if (!$('#regTerms', root).checked) return fail('Нужно принять Пользовательское соглашение.', $('#regTerms', root));
       if (!$('#regPd', root).checked) return fail('Нужно согласие на обработку персональных данных.', $('#regPd', root));
       var body = {
         firstName: first.value.trim(), lastName: $('#regLast', root).value.trim(), phone: phone.value.trim(), email: email.value.trim(),
-        acceptTerms: true, consentRequest: true, acceptAds: $('#regAds', root).checked, company: $('#regCompany', root).value
+        acceptTerms: true, consentRequest: true, acceptAds: $('#regAds', root).checked, company: $('#regCompany', root).value,
+        car: (carLabel || vin) ? { label: carLabel, vin: vin, consentGarage: true } : null
       };
       var submit = $('button[type="submit"]', form);
       submit.disabled = true;
       window.CarvicAccount.register(body).then(function (res) {
-        done('Готово', (res && res.note) || 'Кабинет создан. Войдите по номеру телефона — придёт код в SMS.');
+        done('Готово', (res && res.note) || ('Кабинет создан' + (body.car ? ', автомобиль сохранён в «Гараже»' : '') + '. Войдите по номеру телефона — придёт код в SMS.'));
       }).catch(function (err) {
         if (!(err && (err.status === 404 || err.status === 405 || err.status === 501 || (err.code === 'network' && !err.status)))) {
           submit.disabled = false;
@@ -2179,10 +2204,11 @@
         return window.CarvicAccount.sendInquiry({
           kind: 'contact', name: name, contact: body.phone + (body.email ? ', ' + body.email : ''),
           message: 'Заявка на регистрацию в личном кабинете. ' + (body.email ? 'E-mail: ' + body.email + '. ' : '') +
+            (body.car ? 'Автомобиль для «Гаража»: ' + (body.car.label || 'без названия') + (body.car.vin ? ', VIN/кузов ' + body.car.vin : '') + ' (согласие на «Гараж» дано). ' : '') +
             'Пользовательское соглашение: принято. Рассылки: ' + (body.acceptAds ? 'согласен' : 'нет') + '.',
-          article: '', vin: '', company: body.company, consentRequest: true
+          article: '', vin: body.car && body.car.vin.length === 17 ? body.car.vin : '', company: body.company, consentRequest: true
         }).then(function () {
-          done('Заявка принята', 'Менеджер создаст кабинет и сообщит вам. Потом вход — по номеру телефона и коду из SMS.');
+          done('Заявка принята', 'Менеджер создаст кабинет' + (body.car ? ', добавит автомобиль в «Гараж»' : '') + ' и сообщит вам. Потом вход — по номеру телефона и коду из SMS.');
         }).catch(function () {
           submit.disabled = false;
           fail('Не удалось отправить. Позвоните нам: ' + C.phone + '.');
