@@ -20,6 +20,21 @@
   function catName(k) { var c = CATS.filter(function (x) { return x.key === k; })[0]; return c ? c.name : k; }
   function outlet(id) { return C.stores.filter(function (o) { return o.id === id; })[0]; }
   function mapUrl(o) { return o.gisUrl || ''; }
+  /* Значок «открыть в 2ГИС»: нейтральная иконка «карта с меткой» (официальный логотип 2ГИС —
+   * по их брендбуку; если будет файл, заменить содержимое GIS_ICON). */
+  var GIS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2z"/><path d="M9 4.5v13M15 6.5v13" opacity=".45"/>' +
+    '<path d="M12 14.8s-3.2-2.9-3.2-5.3a3.2 3.2 0 0 1 6.4 0c0 2.4-3.2 5.3-3.2 5.3z" fill="currentColor" stroke="none"/><circle cx="12" cy="9.5" r="1.1" fill="var(--gis-dot, #fff)" stroke="none"/></svg>';
+  function gisLink(o, cls) {
+    if (!mapUrl(o)) return '';
+    var name = (o.title || '') + (o.address ? ', ' + o.address : '');
+    return '<a class="gis-btn' + (cls ? ' ' + cls : '') + '" href="' + esc(mapUrl(o)) + '" target="_blank" rel="noopener" title="Открыть в 2ГИС" aria-label="Открыть в 2ГИС: ' + esc(name) + '">' + GIS_ICON + '</a>';
+  }
+  /* Фото павильона: img/stores/<id>.jpg (или o.photo). Нет файла — аккуратная заглушка. */
+  function storePhoto(o, cls) {
+    var src = o.photo || ('img/stores/' + o.id + '.jpg');
+    return '<div class="store-photo' + (cls ? ' ' + cls : '') + '"><img src="' + esc(src) + '" alt="Павильон CARVIC: ' + esc((o.title || '') + ', ' + (o.city || '') + ', ' + (o.address || '')) + '" loading="lazy" decoding="async"></div>';
+  }
   function toast(msg) { var t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2600); }
 
   /* ------------------------- Состояние ------------------------- */
@@ -501,9 +516,9 @@
       var m = /,\s*пав\.\s*([^,]+)$/.exec(o.address || '');
       var title = (o.title || '') + (m ? ', пав. ' + m[1] : '');
       var addr = (o.city && o.city !== 'Иркутск' ? o.city + ', ' : '') + (m ? o.address.slice(0, m.index) : (o.address || ''));
-      return '<article class="store-card" data-store="' + esc(o.id) + '"><h3>' + esc(title) + '</h3><p class="muted">' + esc(addr) + '</p>' +
-        (o.hours ? '<p>' + esc(o.hours) + '</p>' : '') +
-        (o.gisUrl ? '<a class="store-card__map" href="' + esc(o.gisUrl) + '" target="_blank" rel="noopener">Показать на карте</a>' : '') + '</article>';
+      return '<article class="store-card" data-store="' + esc(o.id) + '">' + storePhoto(o, 'store-photo--sm') +
+        '<div class="store-card__body"><h3>' + esc(title) + '</h3><p class="muted">' + esc(addr) + '</p>' +
+        (o.hours ? '<p>' + esc(o.hours) + '</p>' : '') + '</div>' + gisLink(o, 'gis-btn--corner') + '</article>';
     }).join('');
     return '' +
       '<section class="home-hero">' +
@@ -1687,23 +1702,20 @@
   }
 
   /* --- Статические страницы --- */
+  function storeCard(o, n, note) {
+    return '<article class="card store" data-store="' + esc(o.id) + '">' + storePhoto(o) +
+      '<div class="store__head"><span class="num">' + n + '</span><h3>' + esc(o.title) + '</h3></div>' +
+      '<div class="row"><span>Адрес</span><span>' + esc(o.city) + ', ' + esc(o.address) + '</span></div>' +
+      '<div class="row"><span>Телефон</span><span><a href="tel:' + C.phoneHref + '">' + C.phone + '</a></span></div>' +
+      '<div class="row"><span>Часы</span><span>' + esc(o.hours) + '</span></div>' +
+      (note ? '<p class="muted">' + esc(note) + '</p>' : '') +
+      '<div class="actions"><a class="btn btn--ghost" href="tel:' + C.phoneHref + '">Позвонить</a>' + gisLink(o) + '</div></article>';
+  }
   function storeCards(withExtra) {
     var extra = withExtra ? (C.extraStores || []).map(function (o, i) {
-      return '<article class="card store" data-store="' + esc(o.id) + '"><div style="display:flex;gap:10px;align-items:center"><span class="num">' + (C.stores.length + i + 1) + '</span><h3>' + esc(o.title) + '</h3></div>' +
-        '<div class="row"><span>Адрес</span><span>' + esc(o.city) + ', ' + esc(o.address) + '</span></div>' +
-        '<div class="row"><span>Телефон</span><span><a href="tel:' + C.phoneHref + '">' + C.phone + '</a></span></div>' +
-        '<div class="row"><span>Часы</span><span>' + esc(o.hours) + ', ' + esc(o.timezone) + '</span></div>' +
-        '<p class="muted">Наличие по этому магазину на сайте пока не показывается — уточняйте по телефону.</p>' +
-        '<div class="actions">' + (mapUrl(o) ? '<a class="btn btn--dark" target="_blank" rel="noopener" href="' + esc(mapUrl(o)) + '">Карточка 2ГИС</a>' : '') + '<a class="btn btn--ghost" href="tel:' + C.phoneHref + '">Позвонить</a></div></article>';
+      return storeCard(o, C.stores.length + i + 1, 'Наличие по этому магазину на сайте пока не показывается — уточняйте по телефону.');
     }).join('') : '';
-    return '<div class="grid grid-3 stores" id="storeCards">' + C.stores.map(function (o, i) {
-      return '<article class="card store" data-store="' + esc(o.id) + '"><div style="display:flex;gap:10px;align-items:center"><span class="num">' + (i + 1) + '</span><h3>' + esc(o.title) + '</h3></div>' +
-        '<div class="row"><span>Адрес</span><span>' + esc(o.city) + ', ' + esc(o.address) + '</span></div>' +
-        '<div class="row"><span>Телефон</span><span><a href="tel:' + C.phoneHref + '">' + C.phone + '</a></span></div>' +
-        '<div class="row"><span>Часы</span><span>' + esc(o.hours) + ', ' + esc(o.timezone) + '</span></div>' +
-        '<p class="muted">Источник часов: отдельная карточка 2ГИС, проверено 8 ноября 2026. ' + esc(C.hoursNote) + '</p>' +
-        '<div class="actions"><a class="btn btn--dark" target="_blank" rel="noopener" href="' + esc(mapUrl(o)) + '">Карточка 2ГИС</a><a class="btn btn--ghost" href="tel:' + C.phoneHref + '">Позвонить</a></div></article>';
-    }).join('') + extra + '</div>';
+    return '<div class="grid grid-3 stores" id="storeCards">' + C.stores.map(function (o, i) { return storeCard(o, i + 1); }).join('') + extra + '</div>';
   }
   /* География присутствия: открытые города — красные точки, будущие — серые */
   function geoCities() {
@@ -1717,8 +1729,7 @@
       { id: 'irkutsk', name: 'Иркутск', status: 'open', label: 'Иркутск: ' + irk.length + ' магазина CARVIC',
         popup: '<p class="geo__pop-title">Иркутск</p><p class="geo__pop-sub">' + irk.length + ' магазина CARVIC</p>' +
           irk.map(function (o) {
-            return '<div class="geo__store"><b>' + esc(o.title) + '</b><span>' + esc(o.address) + '</span>' + (o.hours ? '<span class="muted">' + esc(o.hours) + '</span>' : '') +
-              (mapUrl(o) ? '<a href="' + esc(mapUrl(o)) + '" target="_blank" rel="noopener">Карточка 2ГИС</a>' : '') + '</div>';
+            return '<div class="geo__store"><div class="geo__store-head"><b>' + esc(o.title) + '</b>' + gisLink(o, 'gis-btn--sm') + '</div><span>' + esc(o.address) + '</span>' + (o.hours ? '<span class="muted">' + esc(o.hours) + '</span>' : '') + '</div>';
           }).join('') + '<p class="geo__pop-foot">' + phone + '</p>' },
       (function () {
         var ang = (C.extraStores || []).filter(function (o) { return o.city === 'Ангарск'; });
@@ -2719,6 +2730,14 @@
     });
   }
   function initGlobal() {
+    document.addEventListener('error', function (e) {
+      var img = e.target;
+      if (!img || img.tagName !== 'IMG' || !img.parentNode || !img.parentNode.classList || !img.parentNode.classList.contains('store-photo')) return;
+      img.parentNode.classList.add('is-empty');
+      img.parentNode.setAttribute('role', 'img');
+      img.parentNode.setAttribute('aria-label', 'Фото павильона скоро появится');
+      img.remove();
+    }, true);
     var ticking = false;
     function onScroll() {
       ticking = false;
