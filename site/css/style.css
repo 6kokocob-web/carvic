@@ -2164,3 +2164,33 @@ html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s 
     -webkit-mask-image: linear-gradient(to right, transparent 0, #000 42%); mask-image: linear-gradient(to right, transparent 0, #000 42%); }
   .promo.promo--deals .deal-slide--photo .promo__body { text-shadow: 0 1px 10px rgba(0,0,0,.85); }
 }
+
+/* СЛАЙДЕР АКЦИЙ — чуть выше (2026-11-25, 2): официант с подносом — главная фигура.
+ * Ролик крупнее слайда: сверху и снизу срезаны пустые поля (чёрный фон, дым), лицо и поднос целиком. */
+.promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { min-height: 380px; padding: 36px 56px 44px; }
+.promo.promo--deals .promo__title, .promo.promo--deals .deal-slide--photo .promo__title { font-size: 46px; }
+.promo.promo--deals .deal-slide__sub { font-size: 21px; max-width: 500px; }
+.promo.promo--deals .promo__cta { height: 46px; margin-top: 22px; }
+.promo.promo--deals .deal-video { top: -14%; bottom: auto; height: 128%; right: 2%; }
+.promo.promo--deals .deal-big b { font-size: 120px; }
+.promo.promo--deals .deal-big span { font-size: 24px; }
+.promo.promo--deals .deal-big__icons img { width: 44px; height: 44px; }
+@media (min-width: 721px) and (max-width: 1020px) {
+  .promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { min-height: 330px; padding: 30px 32px 40px; }
+  .promo.promo--deals .deal-slide--photo .promo__body { max-width: 52%; }
+  .promo.promo--deals .promo__title, .promo.promo--deals .deal-slide--photo .promo__title { font-size: 32px; }
+  .promo.promo--deals .deal-slide__sub { font-size: 18px; }
+  .promo.promo--deals .deal-video { right: 0; }
+  .promo.promo--deals .deal-big b { font-size: 84px; }
+}
+@media (max-width: 720px) {
+  .promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { min-height: 300px; padding: 22px 18px 34px; }
+  .promo.promo--deals .deal-slide--photo .promo__body { max-width: 56%; }
+  .promo.promo--deals .deal-video { top: -12%; height: 124%; transform: translateX(10%); }
+  .promo.promo--deals .promo__title, .promo.promo--deals .deal-slide--photo .promo__title { font-size: 24px; }
+  .promo.promo--deals .deal-slide__sub { font-size: 14px; }
+  .promo.promo--deals .promo__cta { height: 38px; margin-top: 14px; }
+  .promo.promo--deals .deal-big b { font-size: 56px; }
+}
+.promo.promo--deals .deal-video { right: 0; }
+@media (max-width: 380px) { .promo.promo--deals .deal-slide--photo .promo__title { font-size: 21px; } .promo.promo--deals .deal-slide--photo .promo__body { max-width: 58%; } }
