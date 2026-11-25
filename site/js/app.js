@@ -1268,7 +1268,7 @@
       if (!v) return;
       if (still) { if (v.dataset.end) v.poster = v.dataset.end; return; }
       if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
-      // ролик (5 с) замирает на последнем кадре; через минуту — снова, если слайд ещё на экране
+      // ролик (6,5 с) замирает на последнем кадре; через минуту — снова, если слайд ещё на экране
       if (!v._replayBound) {
         v._replayBound = true;
         v.addEventListener('ended', function () {
