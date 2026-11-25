@@ -1,0 +1,70 @@
+# CARVIC — настройки для хостинга Рег.ру (Apache). Лежит в корне сайта рядом с index.html.
+
+AddDefaultCharset UTF-8
+Options -Indexes
+DirectoryIndex index.html
+
+# ---- Типы файлов ----
+AddType image/webp .webp
+AddType video/mp4 .mp4
+AddType image/svg+xml .svg
+AddType text/markdown;charset=UTF-8 .md
+AddType application/manifest+json .webmanifest
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # http → https и без www. ВКЛЮЧИТЬ после того, как в панели Рег.ру выпущен SSL-сертификат
+  # (иначе сайт перестанет открываться): уберите «#» в начале пяти строк ниже.
+  # RewriteCond %{HTTPS} !=on
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+  # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  # RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+  # ---- Приём заявок (PHP в папке api/) ----
+  RewriteRule ^api/inquiries/?$ api/inquiries.php [L]
+  RewriteRule ^api/callback-request/?$ api/callback.php [L]
+  RewriteRule ^api/opt/register/?$ api/opt-register.php [L]
+  # служебные файлы обработчиков снаружи недоступны
+  RewriteRule ^api/(_lib|config|config\.sample)\.php$ - [F,L]
+  RewriteRule ^api/_store(/|$) - [F,L]
+  # все остальные /api/… — понятный JSON 404 (каталог, цены, кабинет пока без сервера)
+  RewriteCond %{REQUEST_URI} !^/api/(inquiries|callback|opt-register|notfound)\.php$
+  RewriteRule ^api(/.*)?$ api/notfound.php [L]
+</IfModule>
+
+# ---- Закрыть служебное ----
+<FilesMatch "^(\.|README\.md$|.*\.(sh|log|bak|sql)$)">
+  Require all denied
+</FilesMatch>
+
+# ---- Сжатие ----
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript text/javascript application/json image/svg+xml text/markdown application/xml text/xml
+</IfModule>
+
+# ---- Кэш: страница всегда свежая, стили/скрипты — час, картинки/видео — 30 дней ----
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 hour"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 hour"
+  ExpiresByType application/javascript "access plus 1 hour"
+  ExpiresByType text/javascript "access plus 1 hour"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/x-icon "access plus 30 days"
+  ExpiresByType video/mp4 "access plus 30 days"
+  ExpiresByType font/woff2 "access plus 30 days"
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>

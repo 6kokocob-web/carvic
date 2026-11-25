@@ -1295,6 +1295,10 @@
    * Только если сервер каталога недоступен И сайт открыт не на боевом домене
    * (githack, локальный файл, разработка). На carvic.ru выдуманных товаров не будет. */
   function previewMode() {
+    // на боевом сервере (в сборке для хостинга стоит <meta name="carvic-env" content="production">)
+    // демо-товары и демо-вход не включаются ни на каком домене
+    var env = document.querySelector('meta[name="carvic-env"]');
+    if (env && env.getAttribute('content') === 'production') return false;
     return state.serverOk === false && !/(^|\.)carvic\.ru$/i.test(location.hostname);
   }
   function previewList() {
