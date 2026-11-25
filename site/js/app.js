@@ -1140,16 +1140,14 @@
   function dealPhoto(d, cls, eager) {
     return '<img class="' + cls + '" src="' + esc(d.photo) + '" width="982" height="1133" alt="' + esc(d.photoAlt || '') + '"' + (eager ? '' : ' loading="lazy"') + ' decoding="async">';
   }
-  /* Оформление слайда с официантом: красное свечение, тонкие «трассы» и 2–3 летающие детали с вывески (js/deal-parts.js) */
+  /* Оформление слайда с официантом: красное свечение, тонкие красные «трассы» и 3 фотореалистичные детали
+   * с подноса (вырезаны из того же снимка: img/promos/parts/*.webp) — застыли в полёте, без анимации */
+  var DEAL_PARTS = [['caliper', 446, 244, 'Тормозной суппорт'], ['plugs', 396, 160, 'Свечи зажигания'], ['bearing', 170, 176, 'Подшипник']];
   function dealDeco(d) {
-    var parts = window.CARVIC_PARTS || [], pick = d.decoParts || ['тормозной диск', 'поршень', 'форсунка'];
-    var svg = pick.map(function (name, k) {
-      var ic = parts.filter(function (x) { return x.name === name; })[0];
-      if (!ic) return '';
-      return '<svg class="deal-part deal-part--' + (k + 1) + '" viewBox="' + ic.vb.join(' ') + '" aria-hidden="true">' +
-        ic.d.map(function (p) { return '<path d="' + p + '"/>'; }).join('') + '</svg>';
-    }).join('');
-    return '<div class="deal-deco" aria-hidden="true"><span class="deal-deco__glow"></span><span class="deal-deco__line deal-deco__line--1"></span><span class="deal-deco__line deal-deco__line--2"></span>' + svg + '</div>';
+    return '<div class="deal-deco" aria-hidden="true"><span class="deal-deco__glow"></span><span class="deal-deco__line deal-deco__line--1"></span><span class="deal-deco__line deal-deco__line--2"></span>' +
+      DEAL_PARTS.map(function (p) {
+        return '<img class="deal-fly deal-fly--' + p[0] + '" src="img/promos/parts/' + p[0] + '.webp" width="' + p[1] + '" height="' + p[2] + '" alt="" decoding="async">';
+      }).join('') + '</div>';
   }
   function dealArt(d) {
     if (d.photo) return (d.video ? dealDeco(d) : '') + (d.video ? '<div class="deal-video" aria-hidden="true"><video muted playsinline preload="none" poster="' + esc(d.videoPoster || '') + '" data-end="' + esc(d.videoEnd || '') + '"><source src="' + esc(d.video) + '" type="video/mp4"></video></div>' : '') +
