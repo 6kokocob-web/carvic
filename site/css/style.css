@@ -2194,3 +2194,42 @@ html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s 
 }
 .promo.promo--deals .deal-video { right: 0; }
 @media (max-width: 380px) { .promo.promo--deals .deal-slide--photo .promo__title { font-size: 21px; } .promo.promo--deals .deal-slide--photo .promo__body { max-width: 58%; } }
+
+/* =====================================================================
+ * Слайд «Ваш комплект, сэр!»: официант левее от края, под текстом — красные акценты и летающие детали
+ * ===================================================================== */
+.promo.promo--deals .deal-slide--photo { background: radial-gradient(60% 90% at 78% 55%, rgba(217,45,39,.28), transparent 70%), #000; }
+.promo.promo--deals .deal-slide--photo .promo__body { position: relative; z-index: 2; }
+.promo.promo--deals .deal-video { right: 7%;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16%, #000 90%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 8%);
+  mask-image: linear-gradient(to right, transparent 0, #000 16%, #000 90%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 8%);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
+.deal-deco { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.deal-deco__glow { position: absolute; left: -6%; bottom: -40%; width: 60%; height: 90%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(217,45,39,.42), rgba(217,45,39,.12) 55%, transparent); filter: blur(6px); }
+.deal-deco__line { position: absolute; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--c-signal) 40%, transparent);
+  transform: rotate(-14deg); opacity: .7; }
+.deal-deco__line--1 { left: 4%; bottom: 22%; width: 34%; animation: deal-line 5.5s ease-in-out infinite; }
+.deal-deco__line--2 { left: 18%; bottom: 13%; width: 26%; opacity: .45; animation: deal-line 7s ease-in-out -2s infinite; }
+@keyframes deal-line { 0%, 100% { transform: rotate(-14deg) translateX(0); } 50% { transform: rotate(-14deg) translateX(18px); } }
+.deal-part { position: absolute; fill: var(--c-signal); filter: drop-shadow(0 8px 18px rgba(217,45,39,.35)); }
+.deal-part--1 { left: 31%; bottom: 9%; width: 92px; height: 92px; animation: deal-float 7s ease-in-out infinite; }
+.deal-part--2 { left: 46%; bottom: 30%; width: 34px; height: 74px; --r: 18deg; animation: deal-float 8.5s ease-in-out -3s infinite; opacity: .9; }
+.deal-part--3 { left: 55%; bottom: 8%; width: 24px; height: 68px; --r: -24deg; animation: deal-float 6.5s ease-in-out -1.5s infinite; opacity: .75; }
+@keyframes deal-float {
+  0%, 100% { transform: translateY(0) rotate(var(--r, -10deg)); }
+  50% { transform: translateY(-12px) rotate(calc(var(--r, -10deg) + 10deg)); }
+}
+@media (min-width: 721px) and (max-width: 1020px) {
+  .promo.promo--deals .deal-video { right: 3%; }
+  .deal-part--1 { left: 30%; width: 70px; height: 70px; }
+  .deal-part--2 { left: 44%; } .deal-part--3 { display: none; }
+}
+@media (max-width: 720px) {
+  .promo.promo--deals .deal-video { right: 0; }
+  .deal-deco__glow { width: 90%; bottom: -55%; }
+  .deal-part--1 { left: auto; right: 58%; bottom: -14px; width: 64px; height: 64px; opacity: .55; }
+  .deal-part--2, .deal-part--3, .deal-deco__line--2 { display: none; }
+  .deal-deco__line--1 { bottom: 12%; width: 50%; }
+}
+@media (prefers-reduced-motion: reduce) { .deal-part, .deal-deco__line { animation: none; } }

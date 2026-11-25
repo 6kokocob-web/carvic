@@ -1140,8 +1140,19 @@
   function dealPhoto(d, cls, eager) {
     return '<img class="' + cls + '" src="' + esc(d.photo) + '" width="982" height="1133" alt="' + esc(d.photoAlt || '') + '"' + (eager ? '' : ' loading="lazy"') + ' decoding="async">';
   }
+  /* Оформление слайда с официантом: красное свечение, тонкие «трассы» и 2–3 летающие детали с вывески (js/deal-parts.js) */
+  function dealDeco(d) {
+    var parts = window.CARVIC_PARTS || [], pick = d.decoParts || ['тормозной диск', 'поршень', 'форсунка'];
+    var svg = pick.map(function (name, k) {
+      var ic = parts.filter(function (x) { return x.name === name; })[0];
+      if (!ic) return '';
+      return '<svg class="deal-part deal-part--' + (k + 1) + '" viewBox="' + ic.vb.join(' ') + '" aria-hidden="true">' +
+        ic.d.map(function (p) { return '<path d="' + p + '"/>'; }).join('') + '</svg>';
+    }).join('');
+    return '<div class="deal-deco" aria-hidden="true"><span class="deal-deco__glow"></span><span class="deal-deco__line deal-deco__line--1"></span><span class="deal-deco__line deal-deco__line--2"></span>' + svg + '</div>';
+  }
   function dealArt(d) {
-    if (d.photo) return (d.video ? '<div class="deal-video" aria-hidden="true"><video muted playsinline preload="none" poster="' + esc(d.videoPoster || '') + '" data-end="' + esc(d.videoEnd || '') + '"><source src="' + esc(d.video) + '" type="video/mp4"></video></div>' : '') +
+    if (d.photo) return (d.video ? dealDeco(d) : '') + (d.video ? '<div class="deal-video" aria-hidden="true"><video muted playsinline preload="none" poster="' + esc(d.videoPoster || '') + '" data-end="' + esc(d.videoEnd || '') + '"><source src="' + esc(d.video) + '" type="video/mp4"></video></div>' : '') +
       dealPhoto(d, 'deal-photo' + (d.video ? ' deal-photo--novideo' : ''), true);
     if (d.ladder) {
       var n = d.ladder.length;
