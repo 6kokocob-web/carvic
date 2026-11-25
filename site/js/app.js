@@ -3241,6 +3241,7 @@
       fn = function () { return Promise.resolve(previewCabinet(section)); };
       fn.after = bindPreviewCabinet;
     }
+    $$('.sb-mnav a').forEach(function (a) { var h = a.getAttribute('href'); a.classList.toggle('on', hash === h || (h === '#/catalog' && r.name === 'catalogCat')); });
     $$('.sb-nav a').forEach(function (a) { var href = a.getAttribute('href').replace(/^#\/?/, '').split('/')[0] || 'home'; a.classList.toggle('on', href === (r.name === 'catalogCat' ? 'catalog' : r.name)); });
     $$('.qi').forEach(function (a) { a.classList.toggle('on', r.name === 'catalogCat' && a.getAttribute('href') === '#/catalog/' + r.arg); });
     if (r.name === 'cart' || r.name === 'checkout' || r.name.indexOf('account') === 0) {
