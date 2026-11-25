@@ -2115,3 +2115,52 @@ html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s 
   .hdr-theme svg { width: 19px; height: 19px; }
 }
 @media (prefers-reduced-motion: reduce) { .hdr-theme svg { transition: none; } }
+
+/* =====================================================================
+ * СЛАЙДЕР АКЦИЙ — вдвое ниже (2026-11-25): ~270 px на компьютере, официант справа во всю высоту
+ * ===================================================================== */
+.promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { min-height: 270px; padding: 28px 72px 34px; }
+.promo.promo--deals .promo__title, .promo.promo--deals .deal-slide--photo .promo__title { font-size: 38px; line-height: 1.08; }
+.promo.promo--deals .deal-slide__sub { margin-top: 8px; font-size: 19px; max-width: 460px; }
+.promo.promo--deals .promo__text { margin-top: 8px; font-size: 15px; }
+.promo.promo--deals .promo__cta { height: 42px; margin-top: 16px; }
+.promo.promo--deals .deal-video { top: 0; bottom: 0; height: 100%; right: 0; }
+.promo.promo--deals .deal-big b { font-size: 92px; }
+.promo.promo--deals .deal-big span { font-size: 20px; }
+.promo.promo--deals .deal-big__icons { margin-top: 10px !important; }
+.promo.promo--deals .deal-big__icons img { width: 38px; height: 38px; }
+.promo.promo--deals .promo__dots { bottom: 10px; }
+@media (min-width: 721px) and (max-width: 1020px) {
+  .promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { min-height: 240px; padding: 24px 40px 30px 72px; }
+  .promo.promo--deals .promo__title, .promo.promo--deals .deal-slide--photo .promo__title { font-size: 30px; white-space: normal; }
+  .promo.promo--deals .deal-slide__sub { font-size: 17px; max-width: 340px; }
+  .promo.promo--deals .deal-big b { font-size: 72px; }
+}
+/* телефон: текст слева, официант справа — тоже вдвое ниже прежнего */
+@media (max-width: 720px) {
+  .promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { min-height: 220px; padding: 20px 18px 30px; justify-content: center; }
+  .promo.promo--deals .deal-slide--photo .promo__body { max-width: 62%; position: relative; z-index: 1; }
+  .promo.promo--deals .deal-video { position: absolute; order: 0; margin: 0; top: 0; bottom: 0; right: 0; height: 100%; width: auto;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30%); mask-image: linear-gradient(to right, transparent 0, #000 30%); }
+  .promo.promo--deals .promo__title, .promo.promo--deals .deal-slide--photo .promo__title { font-size: 22px; white-space: normal; }
+  .promo.promo--deals .deal-slide__sub { font-size: 14px; line-height: 1.3; }
+  .promo.promo--deals .promo__text { font-size: 13px; }
+  .promo.promo--deals .promo__cta { height: 36px; padding: 0 14px; font-size: 14px; margin-top: 12px; }
+  .promo.promo--deals .promo__slide:not(.deal-slide--photo) .promo__body { max-width: 64%; }
+  .promo.promo--deals .deal-big { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: block; margin: 0; text-align: center; }
+  .promo.promo--deals .deal-big b { font-size: 50px; }
+  .promo.promo--deals .deal-big span { font-size: 14px; }
+  .promo.promo--deals .deal-big__icons { justify-content: center; margin: 6px 0 0 !important; gap: 6px; }
+  .promo.promo--deals .deal-big__icons img { width: 26px; height: 26px; }
+}
+/* стрелки слайдера — внизу по краям точек, чтобы не закрывать официанта и цифры */
+.promo.promo--deals .promo__nav { top: auto; bottom: 4px; margin-top: 0; width: 30px; height: 30px; box-shadow: none; }
+.promo.promo--deals .promo__nav svg { width: 16px; height: 16px; }
+.promo.promo--deals .promo__nav--prev { left: calc(50% - 64px); }
+.promo.promo--deals .promo__nav--next { right: calc(50% - 64px); }
+@media (min-width: 721px) { .promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { padding-left: 56px; } }
+@media (max-width: 720px) {
+  .promo.promo--deals .deal-video { transform: translateX(14%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 42%); mask-image: linear-gradient(to right, transparent 0, #000 42%); }
+  .promo.promo--deals .deal-slide--photo .promo__body { text-shadow: 0 1px 10px rgba(0,0,0,.85); }
+}
