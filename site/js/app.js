@@ -1268,6 +1268,27 @@
       if (!v) return;
       if (still) { if (v.dataset.end) v.poster = v.dataset.end; return; }
       if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
+      // ролик (5 с) замирает на последнем кадре; через минуту — снова, если слайд ещё на экране
+      if (!v._replayBound) {
+        v._replayBound = true;
+        v.addEventListener('ended', function () {
+          clearTimeout(v._replay);
+          v._replay = setTimeout(function () {
+            var sl = v.closest('.promo__slide');
+            if (!document.body.contains(v) || !sl || sl.getAttribute('aria-hidden') === 'true' || document.hidden) return;
+            v._lastStart = Date.now();
+            try { v.currentTime = 0; } catch (e) {}
+            var p2 = v.play(); if (p2 && p2.catch) p2.catch(function () {});
+          }, 60000);
+        });
+      }
+      // вернулись на слайд раньше, чем через минуту после прошлого показа — стоп-кадр, без повтора
+      if (v._lastStart && Date.now() - v._lastStart < 60000) {
+        if (!v.ended && v.duration) { v.pause(); try { v.currentTime = Math.max(0, v.duration - 0.05); } catch (e) {} }
+        return;
+      }
+      clearTimeout(v._replay);
+      v._lastStart = Date.now();
       try { v.currentTime = 0; } catch (e) {}
       var pr = v.play(); if (pr && pr.catch) pr.catch(function () {});
     }
