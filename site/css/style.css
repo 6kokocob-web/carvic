@@ -2250,3 +2250,24 @@ html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s 
   .deal-fly--caliper, .deal-fly--bearing { display: none; }
   .deal-fly--plugs { left: auto; right: 54%; bottom: 4%; width: 96px; opacity: .9; }
 }
+
+/* Слайд «Ваш комплект, сэр!» (2026-11-25, 3): без летающих деталей; больше воздуха в тексте */
+.deal-fly { display: none !important; }
+.promo.promo--deals .promo__body { max-width: 520px; }
+.promo.promo--deals .promo__title, .promo.promo--deals .deal-slide--photo .promo__title { line-height: 1.1; }
+.promo.promo--deals .deal-slide__sub { margin-top: 18px; line-height: 1.4; max-width: 440px; }
+.promo.promo--deals .promo__text { margin-top: 16px; line-height: 1.5; }
+.promo.promo--deals .promo__cta { margin-top: 32px; }
+@media (min-width: 721px) {
+  .promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { padding-left: 72px; }
+}
+@media (min-width: 721px) and (max-width: 1020px) {
+  .promo.promo--deals .promo__slide, .promo.promo--deals .deal-slide--photo { padding-left: 48px; }
+  .promo.promo--deals .deal-slide__sub { margin-top: 14px; max-width: 320px; }
+  .promo.promo--deals .promo__cta { margin-top: 24px; }
+}
+@media (max-width: 720px) {
+  .promo.promo--deals .deal-slide__sub { margin-top: 10px; }
+  .promo.promo--deals .promo__text { margin-top: 10px; }
+  .promo.promo--deals .promo__cta { margin-top: 18px; }
+}
