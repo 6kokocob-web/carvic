@@ -6,6 +6,7 @@
 (function () {
   'use strict';
 
+  var SHOWCASE = window.CARVIC_SHOWCASE === true;
   var C = window.COMPANY, PARTS = window.PARTS, CATS = window.CATEGORIES, API = window.OneC;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -57,7 +58,7 @@
   }
   /* Фото павильона: img/stores/<id>.jpg (или o.photo). Нет файла — аккуратная заглушка. */
   function storePhoto(o, cls) {
-    if (o.photo === false) return '<div class="store-photo is-empty' + (cls ? ' ' + cls : '') + '" role="img" aria-label="Фото павильона скоро появится"></div>';
+    if (o.photo === false) return '<div class="store-photo' + (cls ? ' ' + cls : '') + '"><img src="img/stores/store-coming-soon.png" width="1672" height="941" alt="Фото магазина скоро появится — CARVIC" loading="lazy" decoding="async" style="object-position:center"></div>';
     var src = o.photo || ('img/stores/' + o.id + '.jpg');
     return '<div class="store-photo' + (cls ? ' ' + cls : '') + '"><img src="' + esc(src) + '" alt="Павильон CARVIC: ' + esc((o.title || '') + ', ' + (o.city || '') + ', ' + (o.address || '')) + '" loading="lazy" decoding="async"></div>';
   }
@@ -573,7 +574,7 @@
   }
   function brandLanding() {
     var perks = [
-      ['store', storesWord(C.stores.length + openExtra().length), 'Иркутск и Ангарск'],
+      ['store', 'Сеть магазинов', 'Иркутск и Ангарск'],
       ['check', 'Проверка до оплаты', 'Сверяем по VIN и артикулу'],
       ['swap', 'Оригиналы и аналоги', 'Объясним разницу в цене'],
       ['wrench', 'Для СТО', 'Закупка списком, свои условия']
@@ -599,37 +600,25 @@
         (o.hours ? '<p>' + esc(o.hours) + '</p>' : '') + '</div>' + gisLink(o, 'gis-btn--corner') + '</article>';
     }).join('');
     return '' + dealsSlider() +
-      '<section class="home-hero' + (loggedIn() ? ' home-hero--wide' : '') + '">' +
+      '<section class="home-hero' + (SHOWCASE || loggedIn() ? ' home-hero--wide' : '') + '">' +
         '<div class="home-hero__main">' +
           '<h1>Всё подходит</h1>' +
           '<p class="brand-lead">Подберём деталь по VIN и проверим совместимость до оплаты. Подскажем, что стоит заменить вместе с ней.</p>' +
-          '<form class="home-search" id="homeSearch"><label for="homeQuery" class="sr">VIN или номер кузова</label><input id="homeQuery" type="text" placeholder="VIN или номер кузова" maxlength="40" spellcheck="false"><button class="btn btn--dark" type="submit">Подобрать по VIN</button></form>' +
-          '<p class="home-hero__note">Ищете по артикулу — введите его в строку поиска вверху. Нет VIN под рукой? Позвоните: <a href="tel:+73952575757">+7 (3952) 57-57-57</a></p>' +
+          '<p><a class="btn btn--dark" href="#/inquiry">Связаться для подбора</a></p>' +
+          '<p class="home-hero__note">Позвоните: <a href="tel:+73952575757">+7 (3952) 57-57-57</a> — уточним цену, наличие и срок.</p>' +
         '</div>' +
-        (loggedIn() ? '' : bonusCard()) +
+        (SHOWCASE || loggedIn() ? '' : bonusCard()) +
       '</section>' +
       '<section class="home-perks" aria-label="Почему Карвик">' + perks.map(function (row) {
         return '<div class="home-perk">' + homeIcon(row[0], 24) + '<div><b>' + esc(row[1]) + '</b><span>' + esc(row[2]) + '</span></div></div>';
       }).join('') + '</section>' +
-      '<section class="home-sec"><div class="home-sec__head"><h2>Каталог</h2><a href="#/catalog">Весь каталог →</a></div>' +
+      '<section class="home-sec"><div class="home-sec__head"><h2>Что подбираем</h2><a href="#/inquiry">Спросить менеджера</a></div>' +
         '<div class="home-tiles">' + tiles.map(function (t) {
-          return '<a class="home-tile" href="#/catalog/' + t[0] + '">' + homeIcon(t[1], 44) + '<span>' + esc(t[2]) + '</span></a>';
+          return '<a class="home-tile" href="#/inquiry">' + homeIcon(t[1], 44) + '<span>' + esc(t[2]) + '</span></a>';
         }).join('') + '</div></section>' +
       '<section class="home-sec" id="homeStores"><div class="home-sec__head"><h2>Магазины</h2><a href="#/stores">Все магазины →</a></div>' +
         '<div class="home-stores">' + stores + '</div></section>' +
-      '<section class="home-ask" id="homeAsk">' +
-        '<div class="home-ask__text"><figure class="home-ask__img"><img src="img/team/team-pavel.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC Павел со стопками коробок свечей зажигания"></figure><h2>Не нашли деталь?</h2><p>Оставьте телефон и напишите, что ищете. Перезвоним с ценой, наличием и сроком.</p></div>' +
-        '<form class="home-ask__form" id="homeInquiry">' +
-          '<div class="field"><label for="homeName">Имя</label><input id="homeName" maxlength="80" required></div>' +
-          '<div class="field"><label for="homePhone">Телефон</label><input id="homePhone" inputmode="tel" maxlength="18" placeholder="+7" required></div>' +
-          '<div class="field field--wide"><label for="homePart">Какая деталь нужна</label><input id="homePart" maxlength="2000" placeholder="Например: передние колодки, Toyota Corolla 2014" required></div>' +
-          '<div class="field"><label for="homeCode">VIN или артикул</label><input id="homeCode" maxlength="120" spellcheck="false"></div>' +
-          '<input id="homeCar" type="hidden" value="">' +
-          '<div class="field" style="position:absolute;left:-9999px" aria-hidden="true"><label>Компания<input id="homeCompany" tabindex="-1" autocomplete="off"></label></div>' +
-          '<div class="home-ask__foot"><label class="check"><input type="checkbox" id="homeConsent"> Согласен на <a href="#/legal/consent-request">обработку персональных данных</a></label>' +
-          '<button class="btn" type="submit">Узнать цену</button></div>' +
-        '</form><div id="homeInquiryResult"></div>' +
-      '</section>' +
+      '<section class="home-ask" id="homeAsk"><div class="home-ask__text"><h2>Нужна деталь?</h2><p>Уточним цену и наличие, подберём оригинал или аналог.</p></div><div class="home-ask__form"><p><a class="btn" href="tel:+73952575757">Позвонить</a></p><p><a href="mailto:info@carvic.ru">info@carvic.ru</a></p></div></section>' +
       '<section class="home-sec"><div class="home-sec__head"><h2>Полезное</h2><a href="#/blog">Все статьи →</a></div>' +
         '<div class="home-posts">' + posts.map(function (p) {
           return '<a class="home-post" href="' + p[2] + '"><small>' + esc(p[0]) + '</small><b>' + esc(p[1]) + '</b></a>';
@@ -1150,6 +1139,7 @@
       }).join('') + '</div>';
   }
   function dealArt(d) {
+    if (SHOWCASE && d.photo) return dealPhoto(d, 'deal-photo', true);
     if (d.photo) return (d.video ? dealDeco(d) : '') + (d.video ? '<div class="deal-video" aria-hidden="true"><video muted playsinline preload="none" poster="' + esc(d.videoPoster || '') + '" data-end="' + esc(d.videoEnd || '') + '"><source src="' + esc(d.video) + '" type="video/mp4"></video></div>' : '') +
       dealPhoto(d, 'deal-photo' + (d.video ? ' deal-photo--novideo' : ''), true);
     if (d.ladder) {
@@ -1248,8 +1238,20 @@
       if (v1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v1.preload = 'auto'; var p1 = v1.play(); if (p1 && p1.catch) p1.catch(function () {}); }
       return;
     }
-    var i = 0, timer = 0, hold = false;
+    var i = 0, timer = 0, videoTimer = 0, hold = false;
     var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!still) {
+      track.style.transitionDuration = '320ms';
+      track.style.transitionTimingFunction = 'cubic-bezier(.2,.7,.3,1)';
+      track.style.willChange = 'transform';
+    }
+    function finishVideoSwitch() {
+      clearTimeout(videoTimer);
+      if (document.body.contains(box)) startVideo();
+    }
+    track.addEventListener('transitionend', function (e) {
+      if (e.target === track && e.propertyName === 'transform') finishVideoSwitch();
+    });
     function go(n) {
       i = (n + slides.length) % slides.length;
       track.style.transform = 'translateX(' + (-100 * i) + '%)';
@@ -1258,7 +1260,9 @@
         $$('a', s).forEach(function (a) { if (k === i) a.removeAttribute('tabindex'); else a.setAttribute('tabindex', '-1'); });
       });
       dots.forEach(function (d, k) { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
-      startVideo();
+      // Let the slide paint and move before video pause/seek/play work.
+      clearTimeout(videoTimer);
+      videoTimer = setTimeout(finishVideoSwitch, still ? 0 : 380);
     }
     var wide = { matches: true }; // видео вертикальное — играет на любой ширине
     function vid(k) { var v = $('.deal-video video', slides[k]); return v && wide.matches ? v : null; }
@@ -1656,7 +1660,7 @@
             '<p class="pp-buy__phone">Или позвоните: <a href="tel:' + C.phoneHref + '">' + C.phone + '</a></p>' +
           '</div>' +
           '<ul class="pp-perks">' +
-            '<li>' + homeIcon('store', 20) + '<span>Самовывоз из ' + storesWord(all.length).replace('магазина', 'магазинов').replace(/^(\d+) магазин$/, '$1 магазина') + ' — ' + esc(cities.join(' и ')) + '. <a href="#/stores">Адреса</a></span></li>' +
+            '<li>' + homeIcon('store', 20) + '<span>Самовывоз из магазинов сети — ' + esc(cities.join(' и ')) + '. <a href="#/stores">Адреса</a></span></li>' +
             '<li>' + homeIcon('check', 20) + '<span>Проверим совместимость по VIN до оплаты</span></li>' +
           '</ul>' +
         '</div>' +
@@ -2120,11 +2124,11 @@
     function ic(path) { return '<span class="geo-contacts__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg></span>'; }
     return '<div class="geo-contacts">' +
       '<div class="geo-contacts__item">' + ic('<path d="M6 4h3l2 5-2 1a12 12 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 6a2 2 0 0 1 2-2z"/>') +
-        '<div><span class="geo-contacts__label">Телефон для всех магазинов</span><a class="geo-contacts__main" href="tel:' + C.phoneHref + '">' + C.phone + '</a><a href="#/callback">Заказать звонок</a></div></div>' +
+        '<div><span class="geo-contacts__label">Телефон для всех магазинов</span><a class="geo-contacts__main" href="tel:' + C.phoneHref + '">' + C.phone + '</a><a href="tel:+73952575757">Позвонить</a></div></div>' +
       '<div class="geo-contacts__item">' + ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>') +
         '<div><span class="geo-contacts__label">Почта</span><a class="geo-contacts__main" href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><a href="#/inquiry">Написать менеджеру</a>' + socialLinks('socials--sm') + '</div></div>' +
       '<div class="geo-contacts__item">' + ic('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>') +
-        '<div><span class="geo-contacts__label">Магазины</span><span class="geo-contacts__main">' + storesWord(irk + ang) + '</span><span class="muted">Иркутск — ' + irk + (ang ? ', Ангарск — ' + ang : '') + (soonN ? '; скоро ещё ' + soonN : '') + '</span><a href="#/stores">Адреса и часы работы</a></div></div>' +
+        '<div><span class="geo-contacts__label">Магазины</span><span class="geo-contacts__main">Сеть магазинов</span><span class="muted">Иркутск' + (ang ? ' и Ангарск' : '') + (soonN ? '; скоро — новые магазины' : '') + '</span><a href="#/stores">Адреса и часы работы</a></div></div>' +
       '<div class="geo-contacts__item">' + ic('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>') +
         '<div><span class="geo-contacts__label">Режим работы</span><span class="geo-contacts__main">Без выходных</span><span class="muted">Пн–Пт 09:00–19:00, в выходные часы у магазинов разные</span></div></div>' +
     '</div>';
@@ -2154,12 +2158,12 @@
               return '<div class="geo__store"><b>' + esc(o.title) + '</b><span>' + esc(o.address) + '</span><span class="muted">' + esc(o.hours) + '</span></div>';
             }).join('') + '<p class="geo__pop-foot">' + phone + '</p>' : '<p class="geo__pop-foot">Адрес и часы работы — по телефону ' + phone + '</p>') };
       })(),
-      soon('ulanude', 'Улан-Удэ'), soon('chita', 'Чита'), soon('nizhneudinsk', 'Нижнеудинск'), soon('krasnoyarsk', 'Красноярск'), soon('bratsk', 'Братск')
+      soon('ulanude', 'Улан-Удэ'), soon('chita', 'Чита'), soon('novosibirsk', 'Новосибирск'), soon('krasnoyarsk', 'Красноярск'), soon('bratsk', 'Братск')
     ];
   }
   pages.stores = function () {
     var geo = window.CarvicGeo ? '<h2 class="geo__title">География</h2>' + window.CarvicGeo.html(geoCities()) : '';
-    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Пять магазинов CARVIC: три в Иркутске и два в Ангарске. Скоро откроется ещё один — в ТЦ «Автоград» в Иркутске. Наличие товара по иркутским магазинам показывается в каталоге и корзине.</p>' + geo + '<h2 class="geo__title">Магазины</h2>' + storeCards(true) + '</div>');
+    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Торговые точки</span></div><h1>Торговые <em>точки</em></h1><p>Сеть магазинов CARVIC в Иркутске и Ангарске. Скоро откроется ещё один — в ТЦ «Автоград» в Иркутске. Наличие и цену уточняйте у менеджера по телефону или почте.</p>' + geo + '<h2 class="geo__title">Магазины</h2>' + storeCards(true) + '</div>');
   };
   pages.stores.after = function (root) { if (window.CarvicGeo) window.CarvicGeo.bind(root); };
   pages.wholesale = function () {
@@ -2167,24 +2171,25 @@
       '<div class="hero-strip"><h1>Оптовым <em>покупателям</em></h1><p>Автосервисам, магазинам и корпоративным клиентам — работа по договору с организацией.</p></div>' +
       '<div class="grid grid-3" style="margin-top:14px">' +
       '<div class="card feature"><i>1</i><div><b>Индивидуальный тип цены</b>Каждому контрагенту назначается свой тип цены и, при необходимости, скидки по группам товаров.</div></div>' +
-      '<div class="card feature"><i>2</i><div><b>Личный вход</b>После входа в каталоге, корзине и заказе показываются ваши цены.</div></div>' +
+      (SHOWCASE ? '<div class="card feature"><i>2</i><div><b>Персональный менеджер</b>Подбор, счета и поставки — через закреплённого менеджера.</div></div>'
+        : '<div class="card feature"><i>2</i><div><b>Личный вход</b>После входа в каталоге, корзине и заказе показываются ваши цены.</div></div>') +
       '<div class="card feature"><i>3</i><div><b>Широкий ассортимент</b>Запчасти на китайские, европейские, японские и корейские авто — в наличии и под заказ.</div></div></div>' +
       '<h2>Как начать работу</h2><div class="card opt-start"><figure class="opt-start__img"><img src="img/team/team-at-work.jpg" width="1066" height="1600" loading="lazy" decoding="async" alt="Сотрудники CARVIC за стойкой разбирают запчасти для заказа"></figure><div class="opt-start__body"><p>Свяжитесь с отделом оптовых продаж — условия сотрудничества обсуждаются индивидуально.</p><p><b>Отдел оптовых продаж</b><br><b>E-mail:</b> <a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><br><b>Телефон:</b> <a href="tel:' + C.phoneHref + '">' + C.phone + '</a></p>' +
-      '<p id="optDocs">' + (state.consentPreK3 ? '' : '<a href="#/legal/oferta-opt">Условия поставки для оптовых покупателей</a> · ') + '<a href="#/legal/terms">Пользовательское соглашение</a> · <a href="#/legal/privacy">Политика обработки персональных данных</a></p>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="#/login">Регистрация оптовика</a><a class="btn btn--ghost" href="mailto:' + C.email + '?subject=' + encodeURIComponent('Оптовое сотрудничество с CARVIC') + '">Написать менеджеру</a><a class="btn btn--ghost" href="#/requisites">Реквизиты</a></div></div></div></div>');
+      (SHOWCASE ? '' : '<p id="optDocs">' + (state.consentPreK3 ? '' : '<a href="#/legal/oferta-opt">Условия поставки для оптовых покупателей</a> · ') + '<a href="#/legal/terms">Пользовательское соглашение</a> · <a href="#/legal/privacy">Политика обработки персональных данных</a></p>') +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' + (SHOWCASE ? '<a class="btn" href="tel:' + C.phoneHref + '">Позвонить</a>' : '<a class="btn" href="#/login">Регистрация оптовика</a>') + '<a class="btn btn--ghost" href="mailto:' + C.email + '?subject=' + encodeURIComponent('Оптовое сотрудничество с CARVIC') + '">Написать менеджеру</a><a class="btn btn--ghost" href="#/requisites">Реквизиты</a></div></div></div></div>');
   };
   /* «О компании»: миссия, все достоинства, инфографика планов на 2027 год */
   pages.about = function () {
     var open = C.stores.length + openExtra().length, soonN = soonStores().length;
     var perks = [
-      ['store', storesWord(open), 'В Иркутске и Ангарске, все без выходных'],
+      ['store', 'Сеть магазинов', 'В Иркутске и Ангарске, все без выходных'],
       ['engine', 'Широкий ассортимент', 'Китайские, европейские, японские и корейские автомобили'],
       ['brakes', 'Качественные запчасти', 'Проверенные бренды — оригиналы и аналоги'],
       ['swap', 'Честные цены', 'Объясним, чем аналог отличается от оригинала и почему дешевле'],
       ['check', 'Подбор по VIN', 'Проверим совместимость до оплаты'],
-      ['box', 'В наличии и под заказ', 'Наличие по каждому магазину видно на сайте'],
+      ['box', 'В наличии и под заказ', 'Наличие и срок поставки уточнит менеджер'],
       ['wrench', 'Для СТО и оптовиков', 'Закупка списком, свои условия и цены'],
-      ['gift', 'Бонусная карта', 'Оформляется автоматически при регистрации']
+      ['gift', 'Помощь с подбором', 'Проверим совместимость до оплаты']
     ];
     function pict(icon, n, cls) { var h = ''; for (var i = 0; i < n; i++) h += '<span class="' + cls + '">' + homeIcon(icon, 22) + '</span>'; return h; }
     var cells = '';
@@ -2205,12 +2210,12 @@
           '<div class="ab-plan"><div class="ab-plan__num ab-plan__num--icon">' + homeIcon('factory', 56) + '<span>Запуск собственного<br>производства</span></div></div>' +
           '<div class="ab-plan"><div class="ab-plan__num"><b>20</b><span>многопрофильных сервисов<br>техобслуживания</span></div><div class="ab-pict ab-pict--20" aria-hidden="true">' + pict('service', 20, 'ab-pict__i') + '</div></div>' +
         '</div>' +
-        '<div class="ab-growth"><p class="ab-growth__title">Сеть магазинов</p><div class="ab-cells" role="img" aria-label="Сейчас ' + open + ' магазинов' + (soonN ? ', скоро ещё ' + soonN : '') + ', до конца 2027 года ещё 10">' + cells + '</div>' +
+        '<div class="ab-growth"><p class="ab-growth__title">Сеть магазинов</p><div class="ab-cells" role="img" aria-label="Сеть магазинов CARVIC: открытые, скоро открытие и ещё 10 до конца 2027 года">' + cells + '</div>' +
           '<div class="ab-legend"><span><i class="ab-cell ab-cell--open"></i>Открыты — ' + open + '</span>' + (soonN ? '<span><i class="ab-cell ab-cell--soon"></i>Скоро — ' + soonN + '</span>' : '') + '<span><i class="ab-cell ab-cell--plan"></i>До конца 2027 года — ещё 10</span>' +
           '<a href="#/stores">Карта присутствия →</a></div></div>' +
       '</section>' +
-      '<div class="card about-text about-text--photo"><figure class="about-text__img"><img src="img/team/brand-jacket.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Логотип CARVIC на форменной куртке сотрудника"></figure><div><p>Запчасти на китайские, европейские, японские и корейские автомобили. ' + (state.demoUi ? 'Подбор по VIN, по марке и модели, по артикулу и OEM-номеру.' : 'Подбор по артикулу и OEM-номеру. Если номера нет, оставьте заявку менеджеру.') + '</p>' +
-        '<p>' + storesWord(open) + ' в Иркутске и Ангарске. <a href="#/stores">Адреса и часы работы</a> · <a href="#/about/team">Команда Карвика</a></p></div></div>' +
+      '<div class="card about-text about-text--photo"><figure class="about-text__img"><img src="img/team/brand-jacket.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Логотип CARVIC на форменной куртке сотрудника"></figure><div><p>Запчасти на китайские, европейские, японские и корейские автомобили. ' + (state.demoUi ? 'Подбор по VIN, по марке и модели, по артикулу и OEM-номеру.' : 'Подбор по артикулу и OEM-номеру. Если номера нет, позвоните менеджеру.') + '</p>' +
+        '<p>Сеть магазинов в Иркутске и Ангарске. <a href="#/stores">Адреса и часы работы</a> · <a href="#/about/team">Команда Карвика</a></p></div></div>' +
     '</div>');
   };
   pages.aboutTeam = function () {
@@ -2255,13 +2260,13 @@
       '<div class="card"><h3 style="margin-top:0">E-mail</h3><a href="mailto:' + C.email + '">' + C.email + '</a><p class="muted">Сайт: ' + C.domain + '</p>' + (socialLinks() ? '<p class="soc-title">Мессенджеры, 2ГИС и Дром</p>' + socialLinks() : '') + '</div>' +
       '<div class="card"><h3 style="margin-top:0">Адреса</h3><p style="margin:0 0 6px"><span class="muted">Фактический:</span> ' + esc(C.actualAddress) + '</p><p style="margin:0"><span class="muted">Юридический:</span> ' + esc(C.legalAddress) + '</p></div></div>' +
       (state.privacyEmail ? '<p id="privacyContact">Запросы по персональным данным: <a href="mailto:' + esc(state.privacyEmail) + '">' + esc(state.privacyEmail) + '</a></p>' : '') +
-      '<h2>Обратный звонок</h2><div class="card callback-cta callback-cta--photo"><figure class="callback-cta__img"><img src="img/team/team-handover.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC передаёт покупателю фирменный пакет с покупкой"></figure><p>Оставьте имя и телефон — менеджер перезвонит.</p><a class="btn" href="#/callback">Заказать звонок</a></div>' +
+      '<h2>Связаться с менеджером</h2><div class="card callback-cta callback-cta--photo"><figure class="callback-cta__img"><img src="img/team/team-handover.jpg" width="1600" height="1066" loading="lazy" decoding="async" alt="Продавец CARVIC передаёт покупателю фирменный пакет с покупкой"></figure><p>Позвоните или напишите на info@carvic.ru — поможем с подбором.</p><a class="btn" href="tel:+73952575757">Позвонить</a></div>' +
       '<h2>Торговые точки</h2>' + storeCards(true, { noHours: true }) + '</div>');
   };
   /* Заказать звонок — окно поверх страницы (см. MODAL_ROUTES) */
   pages.callback = function () {
     return Promise.resolve('<div id="callbackPage"><h2 class="modal__title" id="modalTitle">Заказать звонок</h2>' +
-      '<p class="modal__lead">Оставьте имя и телефон — менеджер перезвонит.</p>' +
+      '<p class="modal__lead">Позвоните или напишите на info@carvic.ru — поможем с подбором.</p>' +
       '<form class="form inq-form" id="callForm">' +
       '<div class="field"><label for="callName">Имя</label><input id="callName" maxlength="80"></div>' +
       '<div class="field"><label for="callPhone">Телефон</label><input id="callPhone" inputmode="tel" maxlength="18" placeholder="+7"></div>' +
@@ -2290,7 +2295,6 @@
   pages.requisites = function () {
     return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / <span>Реквизиты</span></div><h1>Реквизиты</h1><div class="card" style="padding:0;overflow:hidden"><table class="req">' +
       C.requisites.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + ' <button class="copy" data-copy="' + esc(r[1]) + '" title="Копировать">⧉</button></td></tr>'; }).join('') + '</table></div>' +
-      '<p class="warn-box" id="kppNote">КПП в исходном документе указан как 30001001 — 8 цифр. Значение не исправлялось и не дополнялось. needsConfirmation.</p>' +
       '<div style="margin-top:12px"><button class="btn btn--ghost" id="copyAll">Скопировать все реквизиты</button></div></div>');
   };
   pages.requisites.after = function (root) {
@@ -2488,7 +2492,7 @@
   pages.returns = function () {
     if (state.pageReturns) return publishedPage('/api/pages/returns', 'returnsPage');
     return Promise.resolve('<div class="page" id="returnsPage"><h1>Возврат</h1><div class="warn-box">проект, на согласовании</div>' +
-      '<div class="card"><p>Заявка в кабинете не единственный способ. Товар можно вернуть в любом из трёх магазинов CARVIC.</p>' + storeCards() +
+      '<div class="card"><p>Заявка в кабинете не единственный способ. Товар можно вернуть в любом магазине сети CARVIC.</p>' + storeCards() +
       '<p>По покупкам в магазине — на любой из трёх точек CARVIC.</p>' + (state.consentPreK3 ? '' : '<p><a href="#/legal/oferta">Розничная оферта</a> · <a href="#/legal/oferta-opt">Условия для опта</a></p>') + '</div></div>');
   };
   pages.delivery = function () {
@@ -3048,6 +3052,10 @@
     };
   };
 
+  pages.showcaseContact = function () {
+    return Promise.resolve('<div class="page"><div class="crumbs"><a href="#/">Главная</a> / Подбор детали</div><h1>Подберём нужную деталь</h1><div class="card"><p>Позвоните или напишите нам: сообщите VIN, артикул или название детали. Менеджер уточнит совместимость, цену, наличие и срок поставки.</p><p><a class="btn" href="tel:+73952575757">Позвонить: +7 (3952) 57-57-57</a></p><p><a class="btn btn--ghost" href="mailto:info@carvic.ru">Написать на info@carvic.ru</a></p><p><a href="#/stores">Адреса и время работы магазинов</a></p></div></div>');
+  };
+
   /* ------------------------- Роутер ------------------------- */
   function currentRoute() {
     var h = location.hash.replace(/^#\/?/, ''), q = '';
@@ -3055,6 +3063,7 @@
     var parts = h.split('/').filter(Boolean);
     var params = {}; q.split('&').forEach(function (kv) { if (!kv) return; var p = kv.split('='); params[decodeURIComponent(p[0])] = decodeURIComponent((p[1] || '').replace(/\+/g, ' ')); });
     var n = parts[0] || 'home';
+    if (SHOWCASE && !/^(home|stores|about|contacts|requisites|promo|blog|wholesale)$/.test(n)) return { name: 'showcaseContact', arg: null };
     currentRoute.params = params;
     if (n === 'catalog' && parts[1]) return { name: 'catalogCat', arg: parts[1] };
     if (n === 'vin') return { name: 'vin', arg: parts.slice(1).join('/') };
@@ -3438,6 +3447,13 @@
   /* ------------------------- Старт ------------------------- */
   initSidebar(); syncCarSelects(); initGlobal(); initProfile(); renderCartCount(); renderDrawer();
   state.cp = null;
+  if (SHOWCASE) {
+    state.demoUi = false;
+    state.serverOk = false;
+    ['#demoCar', '#demoBrands', '#demoCats'].forEach(function (selector) { var el = $(selector); if (el) el.hidden = true; });
+    route();
+    return;
+  }
   fetch('/api/rossko/status', { headers: { Accept: 'application/json' } }).then(function (r) { return r.json(); }).then(function (st) {
     state.serverOk = true;
     state.demoUi = Boolean(st && st.demoUi);

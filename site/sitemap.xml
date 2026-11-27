@@ -1,13 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://carvic.ru/#/</loc></url>
-  <url><loc>https://carvic.ru/#/catalog</loc></url>
-  <url><loc>https://carvic.ru/#/search</loc></url>
-  <url><loc>https://carvic.ru/#/wholesale</loc></url>
-  <url><loc>https://carvic.ru/#/stores</loc></url>
-  <url><loc>https://carvic.ru/#/blog</loc></url>
-  <url><loc>https://carvic.ru/#/about</loc></url>
-  <url><loc>https://carvic.ru/#/about/team</loc></url>
-  <url><loc>https://carvic.ru/#/contacts</loc></url>
-  <url><loc>https://carvic.ru/#/requisites</loc></url>
-</urlset>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://carvic.ru/</loc></url></urlset>

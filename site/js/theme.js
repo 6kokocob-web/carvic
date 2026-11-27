@@ -27,7 +27,7 @@
    * Класс ставится до отрисовки — у вернувшихся посетителей заставка не мелькает. */
   // Выключить: SPLASH_ENABLED = false (блок в index.html можно не трогать — заставка просто не покажется).
   // Код: js/splash.js (логотип буква за буквой), css — блоки «ЗАСТАВКА ПРИ ПЕРВОМ ВХОДЕ» и «…люкс».
-  var SPLASH_ENABLED = true;
+  var SPLASH_ENABLED = false;
   var SPLASH_KEY = 'carvic_splash_seen';
   var splash = false;
   if (SPLASH_ENABLED) { try { splash = !sessionStorage.getItem(SPLASH_KEY); } catch (e) { splash = false; } }

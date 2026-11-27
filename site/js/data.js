@@ -71,7 +71,7 @@ window.COMPANY = {
   extraStores: [
     { id: 'ang-avtomir-20', photo: false /* фото павильона ещё нет — img/stores/ang-avtomir-20.jpg, затем убрать photo:false */, title: 'Автомир', city: 'Ангарск', address: 'ул. Чайковского, 1а, пав. 20', gisUrl: '', hours: 'Пн–Пт 09:00–19:00, Сб 10:00–18:00, Вс 10:00–17:00', timezone: 'Asia/Irkutsk', hoursSource: 'owner' },
     { id: 'ang-avtomir-32', photo: false /* фото павильона ещё нет — img/stores/ang-avtomir-32.jpg, затем убрать photo:false */, title: 'Автомир', city: 'Ангарск', address: 'ул. Чайковского, 1а, пав. 32', gisUrl: '', hours: 'Пн–Пт 09:00–19:00, Сб 10:00–18:00, Вс 10:00–17:00', timezone: 'Asia/Irkutsk', hoursSource: 'owner' },
-    { id: 'irk-avtograd-12', photo: false /* фото павильона ещё нет — img/stores/irk-avtograd-12.jpg, затем убрать photo:false */, title: 'ТЦ «Автоград»', city: 'Иркутск', address: 'ул. Франк-Каменецкого, 2, пав. 12', gisUrl: '', hours: 'Пн–Вс 10:00–18:00', timezone: 'Asia/Irkutsk', hoursSource: 'owner', soon: true }
+    { id: 'irk-avtograd-12', photo: false /* фото павильона ещё нет — img/stores/irk-avtograd-12.jpg, затем убрать photo:false */, title: 'ТЦ «Автоград»', city: 'Иркутск', address: 'ул. Франк-Каменецкого, 2', gisUrl: '', hours: 'Пн–Вс 10:00–18:00', timezone: 'Asia/Irkutsk', hoursSource: 'owner', soon: true }
   ],
   hours: 'Пн–Сб 09:00–19:00; вс пав. 45 10:00–18:00, остальные точки 09:00–19:00, местное время Иркутска (Asia/Irkutsk)',
   hoursSource: '2gis',

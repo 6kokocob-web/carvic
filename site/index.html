@@ -2,10 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <meta name="carvic-env" content="production">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CARVIC — автозапчасти в Иркутске | ООО "Карвик"</title>
   <meta name="description" content="CARVIC — автозапчасти оптом и в розницу. Поиск по артикулу. Иркутск, тел. +7 (3952) 57-57-57.">
-  <meta name="robots" content="noindex, nofollow">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://carvic.ru/">
   <!-- фавикон: буква «C» из логотипа на тёмном квадрате -->
   <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="img/brand/icons/favicon-32.png" type="image/png" sizes="32x32">
@@ -14,10 +16,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@700;800&family=Onest:wght@400;500&display=swap">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/theme.js"></script><!-- тема до отрисовки, без вспышки -->
+  <link rel="stylesheet" href="css/style.css?v=showcase-20261126">
+  <script src="js/theme.js?v=responsive-20261127"></script><!-- тема до отрисовки, без вспышки -->
 </head>
-<body>
+<body class="showcase">
   <!-- ===== Заставка при первом входе (раз за сеанс). Выключить: SPLASH_ENABLED = false в js/theme.js ===== -->
   <div class="splash" id="splash" aria-hidden="true"><div class="splash__stage"></div></div>
   <script src="js/splash.js"></script>
@@ -52,7 +54,7 @@
 
       <a class="catalog-btn" href="#/catalog">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-        <span>Каталог</span>
+        <span>Подбор детали</span>
       </a>
 
       <form class="vin-search" id="vinForm" autocomplete="off" role="search">
@@ -64,7 +66,7 @@
       <div class="banner__right">
         <div class="banner__contact">
           <a class="banner__phone" href="tel:+73952575757">+7 (3952) 57-57-57</a>
-          <a class="banner__call" href="#/callback">Заказать звонок</a>
+          <a class="banner__call" href="tel:+73952575757">Позвонить</a>
         </div>
         <!-- переключатель темы для телефона: виден в шапке всегда (на компьютере — в верхней строке) -->
         <button type="button" class="hdr-theme" data-theme-toggle role="switch" aria-checked="false" aria-label="Тёмная тема">
@@ -95,7 +97,7 @@
     <!-- меню телефона (под бургером): только эти разделы; фильтры каталога и прочие блоки на телефоне скрыты -->
     <nav class="sb-mnav" aria-label="Меню">
       <h3>Покупателям</h3>
-      <a href="#/catalog">Каталог</a><a href="#/inquiry">Подбор по VIN</a><a href="#/promo">Акции</a><a href="#/blog">Блог</a>
+      <a href="#/inquiry">Подбор детали</a><a href="#/inquiry">Подбор по VIN</a><a href="#/promo">Акции</a><a href="#/blog">Блог</a>
       <h3>Компания</h3>
       <a href="#/about">О компании</a><a href="#/about/team">Команда</a><a href="#/stores">Торговые точки</a><a href="#/contacts">Контакты</a>
     </nav>
@@ -139,7 +141,7 @@
       <h3 class="sb-title">Разделы</h3>
       <a href="#/inquiry">Запросить подбор</a>
       <a href="#/">Подбор запчастей</a>
-      <a href="#/catalog">Каталог</a>
+      <a href="#/inquiry">Подбор детали</a>
       <a href="#/search">Поиск по артикулу/OEM</a>
       <a href="#/stores">Торговые точки</a>
       <a href="#/wholesale">Оптовикам</a>
@@ -151,14 +153,14 @@
       <a href="#/contacts">Контакты</a>
       <a href="#/inquiry">Обращение и подбор</a>
       <a href="#/requisites">Реквизиты</a>
-      <a href="#/login">Вход для контрагентов</a>
-      <a href="#/account">Личный кабинет</a>
-      <a href="#/account/garage">Гараж</a>
-      <a href="#/account/orders">Заказы</a>
-      <a href="#/account/balance">Взаиморасчёты</a>
-      <a href="#/price">Прайс</a>
-      <a href="#/account/settings">Настройки</a>
-      <a href="#/admin">Админка</a>
+      
+      
+      
+      
+      
+      
+      
+      
     </nav>
   </aside>
   <div class="sb-overlay" id="sbOverlay"></div>
@@ -167,7 +169,7 @@
   <main class="main" id="main" tabindex="-1">
     <div id="view"></div>
     <div class="cookie-note" id="cookieNote" hidden>
-      <p>Мы используем только технические cookie, необходимые для работы сайта: вход, корзина, защита форм. Подробнее — в <a href="#/legal/privacy">Политике обработки персональных данных</a>.</p>
+      <p>Мы используем только технические cookie, необходимые для работы сайта: сохранение выбранной темы оформления.</p>
       <button type="button" id="cookieOk">Понятно</button>
     </div>
 
@@ -188,11 +190,11 @@
       </div>
       <div>
         <h4>Покупателям</h4>
-        <a href="#/catalog">Каталог</a><a href="#/search">Подбор по VIN</a><a href="#/delivery" id="deliveryNav" hidden></a><a href="#/promo">Акции</a><a href="#/blog">Блог</a>
+        <a href="#/inquiry">Подбор детали</a><a href="#/inquiry">Подбор по VIN</a><a href="#/delivery" id="deliveryNav" hidden></a><a href="#/promo">Акции</a><a href="#/blog">Блог</a>
       </div>
       <div>
         <h4>Бизнесу</h4>
-        <a href="#/wholesale">Оптовикам</a><a href="#/login">Кабинет контрагента</a><a href="#/requisites">Реквизиты</a>
+        <a href="#/wholesale">Оптовикам</a><a href="#/requisites">Реквизиты</a>
       </div>
       <div>
         <h4>Компания</h4>
@@ -200,12 +202,10 @@
       </div>
     </div>
     <div class="footer__bottom">
-      <nav class="footer__legal" aria-label="Документы">
-        <a href="#/legal/oferta">Оферта для розницы</a><a href="#/legal/oferta-opt">Условия для опта</a><a href="#/legal/privacy">Политика ПДн</a><a href="#/legal/consent-request">Согласие на обработку ПДн</a><a href="#/legal/terms">Пользовательское соглашение</a><a href="#/returns">Возврат</a><a href="#/returns">Как направить претензию</a><a href="sitemap.xml">Карта сайта</a>
-      </nav>
+      <nav class="footer__legal" aria-label="Информация"><a href="#/contacts">Контакты</a><a href="#/requisites">Реквизиты</a><a href="sitemap.xml">Карта сайта</a></nav>
       <div class="footer__copy">
         <span>© <span id="year"></span> ООО "Карвик", carvic.ru · ОГРН 1260300003677 · ИНН 0300040678</span>
-        <span class="muted">Документы — проект, на согласовании. <a href="#/legal/privacy">Политика ПДн</a>.</span>
+        <span class="muted">Подбор и покупка — через менеджера и в магазинах CARVIC.</span>
       </div>
     </div>
   </footer>
@@ -231,12 +231,13 @@
   <script src="js/demo-catalog.js"></script>
   <script src="js/api/partner.js"></script><!-- предложения под заказ, только через свой сервер -->
   <script src="js/api/account.js"></script>
-  <script src="js/admin.js"></script><!-- демо-админка -->
+  
   <script src="js/blog.js"></script><!-- статьи блога -->
   <script src="js/deal-parts.js"></script><!-- детали с вывески для оформления слайда -->
   <script src="js/deals.js"></script><!-- акции сети: слайдер на главной и страницы /promo -->
   <script src="js/promos.js"></script><!-- промобаннеры каталога: правьте этот файл -->
   <script src="js/russia-map.js"></script><!-- карта присутствия (контур РФ + точки) -->
-  <script src="js/app.js"></script>
+  <script>window.CARVIC_SHOWCASE = true;</script>
+  <script src="js/app.js?v=20261127-review"></script>
 </body>
 </html>

@@ -2271,3 +2271,11 @@ html.splash-reveal .banner, html.splash-reveal .sidebar { animation: sp-fade 1s 
   .promo.promo--deals .promo__text { margin-top: 10px; }
   .promo.promo--deals .promo__cta { margin-top: 18px; }
 }
+
+/* Public information release: only available visitor actions. */
+.showcase #vinForm, .showcase #profileWrap, .showcase #cartBtn,
+.showcase #cartDrawer, .showcase #drawerOverlay,
+.showcase .sb-nav a[href^="#/account"], .showcase .sb-nav a[href="#/admin"] { display:none !important; }
+.showcase .banner__row { justify-content:flex-start; }
+.showcase .banner__right { margin-left:auto; }
+.showcase .home-hero__main { max-width:none; }

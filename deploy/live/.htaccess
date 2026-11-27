@@ -1,0 +1,22 @@
+AddDefaultCharset UTF-8
+Options -Indexes
+DirectoryIndex index.html
+AddType image/webp .webp
+AddType video/mp4 .mp4
+AddType image/svg+xml .svg
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/api/notfound\.php$
+RewriteRule ^api(/.*)?$ api/notfound.php [L]
+</IfModule>
+<FilesMatch "^(\.|.*\.(log|bak|sql)$)">
+Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set X-Frame-Options "SAMEORIGIN"
+<FilesMatch "\.(html|js|css)$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
+</IfModule>
